@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+
+# Node
+node_modules/
+.angular/
+
+# Angular build
+dist/
+
+# Java
+target/
+*.log
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# uploads
+uploads/
