@@ -1,0 +1,20 @@
+package com.portfolio.portfolio_backend.infrastructure.web.dto;
+//RequestDTO = Entrée API
+import jakarta.validation.constraints.NotBlank;
+
+public class ProjectRequestDTO {
+
+    @NotBlank
+    private String title;
+
+    private String description;
+    private String githubUrl;
+    private String liveUrl;
+
+    public ProjectRequestDTO() {}
+
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public String getGithubUrl() { return githubUrl; }
+    public String getLiveUrl() { return liveUrl; }
+}
