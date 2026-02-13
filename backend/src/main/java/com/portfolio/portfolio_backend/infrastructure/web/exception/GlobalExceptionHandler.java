@@ -1,6 +1,9 @@
 package com.portfolio.portfolio_backend.infrastructure.web.exception;
 
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
+
+import io.swagger.v3.oas.annotations.Hidden;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -24,13 +28,13 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleGeneric(Exception ex) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleIllegalArgument(IllegalArgumentException ex) {
 
         return new ApiError(
-                "Internal server error",
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now()
         );
     }
@@ -53,10 +57,10 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult()
-        .getFieldErrors()
-        .forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
+                .getFieldErrors()
+                .forEach(error ->
+                        errors.put(error.getField(), error.getDefaultMessage())
+                );
 
         return new ApiError(
                 "Validation failed",
@@ -65,5 +69,16 @@ public class GlobalExceptionHandler {
                 errors
         );
     }
+    /* 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleGeneric(Exception ex) {
 
+        return new ApiError(
+                "Internal server error",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                LocalDateTime.now()
+        );
+    }
+    */
 }

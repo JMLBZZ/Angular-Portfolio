@@ -21,6 +21,23 @@ public class ProjectService {
         return repository.save(project);
     }
 
+    public Project update(UUID id, Project updatedProject) {
+
+        Project existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        Project project = new Project(
+                existing.getId(),
+                updatedProject.getTitle(),
+                updatedProject.getDescription(),
+                updatedProject.getGithubUrl(),
+                updatedProject.getLiveUrl(),
+                existing.getCreatedAt()
+        );
+
+        return repository.save(project);
+    }
+
     public List<Project> getAll() {
         return repository.findAll();
     }

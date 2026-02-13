@@ -10,6 +10,8 @@ public class ApiError {
     private LocalDateTime timestamp;
     private Map<String, String> errors;
 
+    public ApiError() {}
+
     public ApiError(String message, int status, LocalDateTime timestamp) {
         this.message = message;
         this.status = status;
