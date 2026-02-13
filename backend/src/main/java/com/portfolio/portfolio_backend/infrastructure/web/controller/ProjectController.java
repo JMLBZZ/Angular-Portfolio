@@ -1,6 +1,7 @@
 package com.portfolio.portfolio_backend.infrastructure.web.controller;
 
 import com.portfolio.portfolio_backend.application.service.ProjectService;
+import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectRequestDTO;
 import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectResponseDTO;
@@ -52,7 +53,7 @@ public class ProjectController {
     ) {
 
         Project project = service.getById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         return toResponse(project);
     }
