@@ -4,9 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 
 public class ProjectRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "Le titre est obligatoire")
     private String title;
-
+    @NotBlank(message = "La description est obligatoire")
     private String description;
     private String githubUrl;
     private String liveUrl;

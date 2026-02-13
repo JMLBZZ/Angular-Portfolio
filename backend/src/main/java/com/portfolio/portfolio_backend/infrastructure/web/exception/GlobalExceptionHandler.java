@@ -4,8 +4,11 @@ import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundExceptio
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -41,6 +44,26 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now()
         );
-}
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleValidation(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult()
+        .getFieldErrors()
+        .forEach(error ->
+            errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return new ApiError(
+                "Validation failed",
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                errors
+        );
+    }
 
 }
