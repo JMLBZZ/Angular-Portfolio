@@ -5,14 +5,21 @@ import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundExceptio
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectRequestDTO;
 import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectResponseDTO;
+import com.portfolio.portfolio_backend.infrastructure.web.response.ApiResponse;
+import com.portfolio.portfolio_backend.infrastructure.web.response.PageMetadata;
+
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import jakarta.validation.Valid;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -31,20 +38,58 @@ public class ProjectController {
         }
 
         @Operation(summary = "Récupérer tous les projets")
-        @ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
+        /*
+         * @GetMapping
+         * public Page<ProjectResponseDTO> getAll(
+         * 
+         * @RequestParam(required = false) String search,
+         * 
+         * @RequestParam(required = false) Boolean hasGithub,
+         * 
+         * @RequestParam(required = false) Boolean hasLive,
+         * 
+         * @RequestParam(required = false) LocalDate afterDate,
+         * 
+         * @PageableDefault(page = 0, size = 10, sort = "createdAt", direction =
+         * Sort.Direction.DESC) Pageable pageable) {
+         * 
+         * return service.getAll(
+         * search,
+         * hasGithub,
+         * hasLive,
+         * afterDate,
+         * pageable).map(this::toResponse);
+         * }
+         */
         @GetMapping
-        public List<ProjectResponseDTO> getAll() {
+        public ApiResponse<List<ProjectResponseDTO>> getAll(
+                        @RequestParam(required = false) String search,
+                        @RequestParam(required = false) Boolean hasGithub,
+                        @RequestParam(required = false) Boolean hasLive,
+                        @RequestParam(required = false) LocalDate afterDate,
+                        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-                return service.getAll()
-                                .stream()
-                                .map(this::toResponse)
-                                .toList();
+                Page<ProjectResponseDTO> pageResult = service
+                                .getAll(search, hasGithub, hasLive, afterDate, pageable)
+                                .map(this::toResponse);
+
+                PageMetadata meta = new PageMetadata(
+                                pageResult.getNumber(),
+                                pageResult.getSize(),
+                                pageResult.getTotalElements(),
+                                pageResult.getTotalPages());
+
+                return new ApiResponse<>(
+                                true,
+                                pageResult.getContent(),
+                                meta);
         }
 
         @Operation(summary = "Récupérer un projet par ID")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Projet trouvé"),
-                        @ApiResponse(responseCode = "404", description = "Projet non trouvé")
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet trouvé"),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
         })
         @GetMapping("/{id}")
         public ProjectResponseDTO getById(
@@ -58,8 +103,8 @@ public class ProjectController {
 
         @Operation(summary = "Créer un nouveau projet")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Projet créé"),
-                        @ApiResponse(responseCode = "400", description = "Données invalides")
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet créé"),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Données invalides")
         })
         @PostMapping
         public ProjectResponseDTO create(
@@ -78,8 +123,8 @@ public class ProjectController {
 
         @Operation(summary = "Supprimer un projet")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Projet supprimé"),
-                        @ApiResponse(responseCode = "404", description = "Projet non trouvé")
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet supprimé"),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
         })
         @DeleteMapping("/{id}")
         public void delete(
@@ -89,8 +134,8 @@ public class ProjectController {
 
         @Operation(summary = "Modifier un projet par ID")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Projet modifié"),
-                        @ApiResponse(responseCode = "404", description = "Projet non trouvé")
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet modifié"),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
         })
         @PutMapping("/{id}")
         public ProjectResponseDTO update(

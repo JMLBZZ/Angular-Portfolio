@@ -2,8 +2,12 @@ package com.portfolio.portfolio_backend.application.service;
 
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.domain.port.out.ProjectRepositoryPort;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,10 +41,31 @@ public class ProjectService {
 
         return repository.save(project);
     }
+/* 
+    public Page<Project> getAll(String search, Pageable pageable) {
 
-    public List<Project> getAll() {
-        return repository.findAll();
+        if (search != null && !search.isBlank()) {
+            return repository.search(search, pageable);
+        }
+
+        return repository.findAll(pageable);
     }
+*/
+public Page<Project> getAll(
+        String search,
+        Boolean hasGithub,
+        Boolean hasLive,
+        LocalDate afterDate,
+        Pageable pageable) {
+
+    return repository.searchWithFilters(
+            search,
+            hasGithub,
+            hasLive,
+            afterDate,
+            pageable
+    );
+}
 
     public Optional<Project> getById(UUID id) {
         return repository.findById(id);
