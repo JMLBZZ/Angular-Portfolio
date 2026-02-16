@@ -5,7 +5,7 @@ import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundExceptio
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectRequestDTO;
 import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectResponseDTO;
-import com.portfolio.portfolio_backend.infrastructure.web.response.ApiResponse;
+import com.portfolio.portfolio_backend.infrastructure.web.response.ApiResult;
 import com.portfolio.portfolio_backend.infrastructure.web.response.PageMetadata;
 
 
@@ -39,31 +39,8 @@ public class ProjectController {
 
         @Operation(summary = "Récupérer tous les projets")
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
-        /*
-         * @GetMapping
-         * public Page<ProjectResponseDTO> getAll(
-         * 
-         * @RequestParam(required = false) String search,
-         * 
-         * @RequestParam(required = false) Boolean hasGithub,
-         * 
-         * @RequestParam(required = false) Boolean hasLive,
-         * 
-         * @RequestParam(required = false) LocalDate afterDate,
-         * 
-         * @PageableDefault(page = 0, size = 10, sort = "createdAt", direction =
-         * Sort.Direction.DESC) Pageable pageable) {
-         * 
-         * return service.getAll(
-         * search,
-         * hasGithub,
-         * hasLive,
-         * afterDate,
-         * pageable).map(this::toResponse);
-         * }
-         */
         @GetMapping
-        public ApiResponse<List<ProjectResponseDTO>> getAll(
+        public ApiResult<List<ProjectResponseDTO>> getAll(
                         @RequestParam(required = false) String search,
                         @RequestParam(required = false) Boolean hasGithub,
                         @RequestParam(required = false) Boolean hasLive,
@@ -80,7 +57,7 @@ public class ProjectController {
                                 pageResult.getTotalElements(),
                                 pageResult.getTotalPages());
 
-                return new ApiResponse<>(
+                return new ApiResult<>(
                                 true,
                                 pageResult.getContent(),
                                 meta);

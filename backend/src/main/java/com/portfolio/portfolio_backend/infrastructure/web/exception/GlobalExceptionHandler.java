@@ -1,84 +1,52 @@
 package com.portfolio.portfolio_backend.infrastructure.web.exception;
 
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
+import com.portfolio.portfolio_backend.infrastructure.web.response.ApiError;
+import com.portfolio.portfolio_backend.infrastructure.web.response.ApiResult;
 
-import io.swagger.v3.oas.annotations.Hidden;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@Hidden
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Gestion des ressources non trouvées (404)
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleNotFound(ResourceNotFoundException ex) {
+    public ApiResult<?> handleNotFound(ResourceNotFoundException ex) {
 
-        return new ApiError(
-                ex.getMessage(),
-                HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+        return new ApiResult<>(
+                new ApiError(ex.getMessage(), "NOT_FOUND")
         );
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleIllegalArgument(IllegalArgumentException ex) {
-
-        return new ApiError(
-                ex.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now()
-        );
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleBadRequest(MethodArgumentTypeMismatchException ex) {
-
-        return new ApiError(
-                "Invalid ID format",
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now()
-        );
-    }
-
+    /**
+     * Gestion des erreurs de validation (400)
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleValidation(MethodArgumentNotValidException ex) {
+    public ApiResult<?> handleValidationErrors(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult()
-                .getFieldErrors()
-                .forEach(error ->
-                        errors.put(error.getField(), error.getDefaultMessage())
-                );
+          .getFieldErrors()
+          .forEach(error ->
+                  errors.put(error.getField(), error.getDefaultMessage())
+          );
 
-        return new ApiError(
-                "Validation failed",
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                errors
+        return new ApiResult<>(
+                new ApiError(
+                        "Validation failed",
+                        "VALIDATION_ERROR",
+                        errors
+                )
         );
     }
-    /* 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleGeneric(Exception ex) {
-
-        return new ApiError(
-                "Internal server error",
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now()
-        );
-    }
-    */
 }
