@@ -1,4 +1,4 @@
-package com.portfolio.portfolio_backend.infrastructure.web.dto;
+package com.portfolio.portfolio_backend.web.dto;
 //RequestDTO = Entrée API
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

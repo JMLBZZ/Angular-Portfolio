@@ -1,4 +1,4 @@
-package com.portfolio.portfolio_backend.infrastructure.web.response;
+package com.portfolio.portfolio_backend.web.response;
 
 public class ApiResult<T> {
 

@@ -1,8 +1,8 @@
-package com.portfolio.portfolio_backend.infrastructure.web.exception;
+package com.portfolio.portfolio_backend.web.exception;
 
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
-import com.portfolio.portfolio_backend.infrastructure.web.response.ApiError;
-import com.portfolio.portfolio_backend.infrastructure.web.response.ApiResult;
+import com.portfolio.portfolio_backend.web.response.ApiError;
+import com.portfolio.portfolio_backend.web.response.ApiResult;
 
 import java.util.HashMap;
 import java.util.Map;

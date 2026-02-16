@@ -1,4 +1,4 @@
-package com.portfolio.portfolio_backend.infrastructure.web.exception;
+package com.portfolio.portfolio_backend.web.exception;
 
 import java.time.LocalDateTime;
 import java.util.Map;

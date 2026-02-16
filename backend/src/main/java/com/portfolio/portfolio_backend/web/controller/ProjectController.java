@@ -1,13 +1,12 @@
-package com.portfolio.portfolio_backend.infrastructure.web.controller;
+package com.portfolio.portfolio_backend.web.controller;
 
 import com.portfolio.portfolio_backend.application.service.ProjectService;
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
 import com.portfolio.portfolio_backend.domain.model.Project;
-import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectRequestDTO;
-import com.portfolio.portfolio_backend.infrastructure.web.dto.ProjectResponseDTO;
-import com.portfolio.portfolio_backend.infrastructure.web.response.ApiResult;
-import com.portfolio.portfolio_backend.infrastructure.web.response.PageMetadata;
-
+import com.portfolio.portfolio_backend.web.dto.ProjectRequestDTO;
+import com.portfolio.portfolio_backend.web.dto.ProjectResponseDTO;
+import com.portfolio.portfolio_backend.web.response.ApiResult;
+import com.portfolio.portfolio_backend.web.response.PageMetadata;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

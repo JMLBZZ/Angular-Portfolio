@@ -1,0 +1,41 @@
+package com.portfolio.portfolio_backend.web.controller;
+
+import com.portfolio.portfolio_backend.application.service.UserService;
+import com.portfolio.portfolio_backend.infrastructure.persistence.entity.UserEntity;
+import com.portfolio.portfolio_backend.web.dto.LoginRequest;
+import com.portfolio.portfolio_backend.web.dto.RegisterRequest;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private final UserService userService;
+
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+
+        UserEntity user = userService.register(
+                request.getEmail(),
+                request.getPassword());
+
+        return ResponseEntity.ok(user.getEmail());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        userService.login(
+                request.getEmail(),
+                request.getPassword());
+
+        return ResponseEntity.ok("Login successful - Authentification autorisée");
+    }
+
+}

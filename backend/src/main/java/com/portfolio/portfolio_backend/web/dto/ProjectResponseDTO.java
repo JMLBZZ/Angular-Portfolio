@@ -1,4 +1,4 @@
-package com.portfolio.portfolio_backend.infrastructure.web.dto;
+package com.portfolio.portfolio_backend.web.dto;
 //ResponseDTO = Sortie API
 import java.time.LocalDate;
 import java.util.UUID;
