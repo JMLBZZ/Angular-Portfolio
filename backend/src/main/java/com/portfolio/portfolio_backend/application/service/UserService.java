@@ -4,9 +4,11 @@ import com.portfolio.portfolio_backend.domain.model.Role;
 import com.portfolio.portfolio_backend.infrastructure.persistence.entity.UserEntity;
 import com.portfolio.portfolio_backend.infrastructure.persistence.repository.UserRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
 
@@ -17,19 +19,24 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     public UserEntity register(String email, String password) {
 
+        if (userRepository.existsByEmail(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already used - Email déjà utilisé");
+        }
+
         String encodedPassword = passwordEncoder.encode(password);
 
         UserEntity user = new UserEntity(
                 email,
                 encodedPassword,
-                Set.of(Role.ROLE_USER));
+                Set.of(Role.ROLE_USER)
+            );
 
         return userRepository.save(user);
     }

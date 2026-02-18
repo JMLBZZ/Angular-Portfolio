@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -36,6 +37,8 @@ public class ProjectController {
                 this.service = service;
         }
 
+        //USER ou ADMIN (GET projects)
+        @PreAuthorize("hasAnyRole('USER','ADMIN')")
         @Operation(summary = "Récupérer tous les projets")
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
         @GetMapping
@@ -62,6 +65,8 @@ public class ProjectController {
                                 meta);
         }
 
+        //USER ou ADMIN (GET projects/{id})
+        @PreAuthorize("hasAnyRole('USER','ADMIN')")
         @Operation(summary = "Récupérer un projet par ID")
         @ApiResponses({
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet trouvé"),
@@ -77,6 +82,8 @@ public class ProjectController {
                 return toResponse(project);
         }
 
+        //ADMIN (POST projects)
+        @PreAuthorize("hasRole('ADMIN')")
         @Operation(summary = "Créer un nouveau projet")
         @ApiResponses({
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet créé"),
@@ -97,6 +104,8 @@ public class ProjectController {
                 return toResponse(service.create(project));
         }
 
+        //ADMIN (DELETE projects/{id})
+        @PreAuthorize("hasRole('ADMIN')")
         @Operation(summary = "Supprimer un projet")
         @ApiResponses({
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet supprimé"),
@@ -108,6 +117,8 @@ public class ProjectController {
                 service.delete(id);
         }
 
+        //ADMIN (PUT projects/{id})
+        @PreAuthorize("hasRole('ADMIN')")
         @Operation(summary = "Modifier un projet par ID")
         @ApiResponses({
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet modifié"),
