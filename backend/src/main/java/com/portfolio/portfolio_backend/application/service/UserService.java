@@ -1,5 +1,6 @@
 package com.portfolio.portfolio_backend.application.service;
 
+import com.portfolio.portfolio_backend.domain.exception.EmailAlreadyUsedException;
 import com.portfolio.portfolio_backend.domain.model.Role;
 import com.portfolio.portfolio_backend.infrastructure.persistence.entity.UserEntity;
 import com.portfolio.portfolio_backend.infrastructure.persistence.repository.UserRepository;
@@ -25,9 +26,13 @@ public class UserService {
     }
 
     public UserEntity register(String email, String password) {
-
+/* 
         if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already used - Email déjà utilisé");
+        }
+*/
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyUsedException("Email already used - Email déjà utilisé");
         }
 
         String encodedPassword = passwordEncoder.encode(password);
