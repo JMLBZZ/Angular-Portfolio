@@ -22,6 +22,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springdoc.core.annotations.ParameterObject;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +49,9 @@ public class ProjectController {
                         @RequestParam(required = false) Boolean hasGithub,
                         @RequestParam(required = false) Boolean hasLive,
                         @RequestParam(required = false) LocalDate afterDate,
-                        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                        @ParameterObject
+                        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+                        ) {
 
                 Page<ProjectResponseDTO> pageResult = service
                                 .getAll(search, hasGithub, hasLive, afterDate, pageable)

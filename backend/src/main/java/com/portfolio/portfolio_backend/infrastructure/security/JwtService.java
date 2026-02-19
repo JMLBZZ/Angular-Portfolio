@@ -13,18 +13,35 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET = "my-super-secret-key-my-super-secret-key"; // >= 32 caractères (HS256)
-    private static final long EXPIRATION = 1000L * 60 * 60; // expire au bout d'1h
+    private final JwtProperties props;
+
+    public JwtService(JwtProperties props) {
+        this.props = props;
+    }
 
     private SecretKey getSignKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        String secret = props.secret();
+
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException(
+                    "security.jwt.secret doit être défini et faire au moins 32 caractères"
+            );
+        }
+
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String email) {
+        long expirationMs = props.expirationMs();
+
+        if (expirationMs <= 0) {
+            throw new IllegalStateException("security.jwt.expiration-ms doit être > 0");
+        }
+
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
