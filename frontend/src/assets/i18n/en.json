@@ -1,0 +1,11 @@
+{
+  "header": {
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "theme": {
+    "auto": "Auto",
+    "toggle": "Theme"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "header": {
+    "projects": "Projets",
+    "about": "À propos",
+    "contact": "Contact"
+  },
+  "theme": {
+    "auto": "Auto",
+    "toggle": "Thème"
+  }
+}

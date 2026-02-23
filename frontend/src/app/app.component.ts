@@ -1,13 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { UpperCasePipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { ThemeService } from './core/theme/theme.service';
+import { LanguageService } from './core/i18n/language.service';
+import { HeaderComponent } from './layout/header/header.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TranslateModule, UpperCasePipe, HeaderComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
-  title = 'frontend';
+export class AppComponent implements OnInit {
+  title = 'Portfolio JMLBZZ';
+
+  constructor(public theme: ThemeService, public lang: LanguageService) {}
+
+  ngOnInit(): void {
+    this.theme.apply();
+  }
 }
