@@ -4,8 +4,29 @@
     "about": "About",
     "contact": "Contact"
   },
+  
   "theme": {
     "auto": "Auto",
     "toggle": "Theme"
+  },
+
+  "hero": {
+    "available": "Open to opportunities",
+    "titleLine1": "Full-Stack",
+    "titleLine2": "Developer",
+    "subtitle": "I build modern interfaces and secure APIs. I focus on clean, performant and maintainable projects.",
+    "ctaProjects": "View projects",
+    "ctaContact": "Contact me",
+    "ctaCv": "Download CV",
+    "cardTitle": "Full-Stack Portfolio",
+    "cardSubtitle": "Angular • Spring Boot • PostgreSQL",
+    "cardBadge": "Clean Architecture",
+    "kpi1Label": "Projects",
+    "kpi1Value": "10+",
+    "kpi2Label": "Experience",
+    "kpi2Value": "5 yrs",
+    "kpi3Label": "Focus",
+    "kpi3Value": "Quality",
+    "scrollHint": "Explore"
   }
 }

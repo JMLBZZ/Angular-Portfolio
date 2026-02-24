@@ -6,11 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from './core/theme/theme.service';
 import { LanguageService } from './core/i18n/language.service';
 import { HeaderComponent } from './layout/header/header.component';
+import { HeroComponent } from './sections/hero/hero.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, TranslateModule, UpperCasePipe, HeaderComponent],
+  imports: [RouterOutlet, TranslateModule, UpperCasePipe, HeaderComponent, HeroComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })

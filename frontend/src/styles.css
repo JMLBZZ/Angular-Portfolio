@@ -4,4 +4,32 @@
 
 html {
     scroll-behavior: smooth;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+:root {
+    --background: 255 252 247;
+    --foreground: 15 23 42;
+    --card: 255 255 255;
+    --muted: 245 241 233;
+
+    --border: 226 232 240;
+
+    --primary: 197 165 103;/* gold */
+    --primary-foreground: 17 24 39;/* gold_sand*/
+
+    /* radius */
+    --radius: 16px;
+}
+
+.dark {
+    --background: 10 10 10;
+    --foreground: 226 232 240;
+    --card: 16 16 16;
+    --muted: 24 24 24;
+
+    --border: 51 65 85;
+
+    --primary: 197 165 103;
+    --primary-foreground: 17 24 39;
 }
