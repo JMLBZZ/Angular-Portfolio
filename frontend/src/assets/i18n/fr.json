@@ -28,6 +28,21 @@
     "kpi3Label": "Focus",
     "kpi3Value": "Qualité",
     "scrollHint": "Découvrir"
+  },
+
+  "projects": {
+    "title": "Mes Projets",
+    "subtitle": "Découvrez mes réalisations récentes.",
+    "empty": "Aucun projet dans cette catégorie.",
+    "filters": {
+      "all": "Tous",
+      "front": "Front-End",
+      "back": "Back-End",
+      "fullstack": "Full-Stack",
+      "uiux": "UI/UX",
+      "pao": "PAO",
+      "other": "Autres"
+    }
   }
 
 }
