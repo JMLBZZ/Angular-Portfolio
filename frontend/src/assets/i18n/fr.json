@@ -42,6 +42,18 @@
       "uiux": "UI/UX",
       "pao": "PAO",
       "other": "Autres"
+    },
+    "featured": "Favori",
+    "stack": "Stack technique",
+    "role": "Rôle",
+    "problem": "Problème",
+    "solution": "Solution",
+    "view": "Voir",
+    "code": "Code",
+    "card": {
+      "detail": "Détails",
+      "view": "Voir",
+      "code": "Code"
     }
   }
 

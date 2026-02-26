@@ -8,6 +8,8 @@ import { LanguageService } from './core/i18n/language.service';
 import { HeaderComponent } from './layout/header/header.component';
 import { HeroComponent } from './sections/hero/hero.component';
 import { ProjectsSectionComponent } from './sections/projects/projects-section.component';
+import { Project } from './sections/projects/projects.data';
+import { ProjectDetailModalComponent } from './sections/projects/project-detail-modal/project-detail-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +20,8 @@ import { ProjectsSectionComponent } from './sections/projects/projects-section.c
     UpperCasePipe, 
     HeaderComponent, 
     HeroComponent, 
-    ProjectsSectionComponent
+    ProjectsSectionComponent,
+    ProjectDetailModalComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
@@ -30,5 +33,18 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.theme.apply();
+  }
+
+  selectedProject: Project | null = null;
+  isProjectModalOpen = false;
+
+  openProject(project: Project) {
+    this.selectedProject = project;
+    this.isProjectModalOpen = true;
+  }
+
+  closeProjectModal() {
+    this.isProjectModalOpen = false;
+    setTimeout(() => this.selectedProject = null, 200);
   }
 }

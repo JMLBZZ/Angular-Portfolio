@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { PROJECTS, Project, ProjectCategory } from './projects.data';
+
+import { PROJECTS, Project, ProjectCategory, LocalizedText } from './projects.data';
+import { LanguageService } from '../../core/i18n/language.service';
 
 type Filter = 'all' | ProjectCategory;
 
@@ -13,6 +15,10 @@ type Filter = 'all' | ProjectCategory;
   styleUrls: ['./projects-section.component.css'],
 })
 export class ProjectsSectionComponent {
+
+  @Output() projectClick = new EventEmitter<Project>();
+
+  constructor(private lang: LanguageService) {}
 
   filters: { label: string; value: Filter }[] = [
     { label: 'projects.filters.all', value: 'all' },
@@ -35,5 +41,15 @@ export class ProjectsSectionComponent {
 
   setFilter(filter: Filter) {
     this.activeFilter = filter;
+  }
+
+  openProject(project: Project) {
+    this.projectClick.emit(project);
+  }
+
+  loc(text: LocalizedText | undefined): string {
+    if (!text) return '';
+    const currentLang = this.lang.current;
+    return text[currentLang] ?? text.fr;
   }
 }

@@ -6,41 +6,135 @@ export type ProjectCategory =
   | 'pao'
   | 'other';
 
+export type ProjectType = 'professional' | 'personal' | 'school';
+
+export type LocalizedText = { fr: string; en: string };
+
 export interface Project {
   id: number;
   title: string;
-  description: string;
   category: ProjectCategory;
+
+  image?: string;
+
+  description: LocalizedText;
+  longDescription?: LocalizedText;
+
+  stack: string[];
+
+  type: ProjectType;
+  featured?: boolean;
+
+  role?: LocalizedText;
+  problem?: LocalizedText;
+  solution?: LocalizedText;
+
+  demoUrl?: string;
   tags: string[];
+  cover?: string;
+  githubUrl?: string;
+  showGithub?: boolean;
 }
 
 export const PROJECTS: Project[] = [
   {
     id: 1,
     title: 'Portfolio Angular',
-    description: 'Portfolio fullstack avec Angular et Spring Boot.',
     category: 'fullstack',
-    tags: ['Angular', 'Spring Boot', 'JWT']
+    image: '/assets/projects/placeholder.jpg',
+    cover: '/assets/projects/placeholder.jpg',
+    tags: ['Angular', 'Tailwind', 'Spring Boot', 'PostgreSQL', 'JWT'],
+    description: {
+      fr: 'Portfolio fullstack avec Angular + Spring Boot.',
+      en: 'Fullstack portfolio with Angular + Spring Boot.'
+    },
+    longDescription: {
+      fr: 'Détails plus longs du projet, objectifs, fonctionnalités, etc.',
+      en: 'Longer project details, goals, features, etc.'
+    },
+    stack: ['Angular', 'Tailwind', 'Spring Boot', 'PostgreSQL'],
+    type: 'personal',
+    featured: true,
+    role: { fr: 'Développeur Full-Stack', en: 'Full-Stack Developer' },
+    problem: { fr: 'Problème à résoudre…', en: 'Problem to solve…' },
+    solution: { fr: 'Solution apportée…', en: 'Solution delivered…' },
+    demoUrl: '#',
+    githubUrl: '#',
+    showGithub: true,
   },
   {
     id: 2,
     title: 'Landing Page Moderne',
-    description: 'Landing page responsive avec animations.',
     category: 'front',
-    tags: ['Angular', 'Tailwind']
+    image: '/assets/projects/placeholder.jpg',
+    cover: '/assets/projects/placeholder.jpg',
+    tags: ['Angular', 'Tailwind', 'Animations'],
+    description: {
+      fr: 'Landing page responsive avec animations.',
+      en: 'Responsive landing page with animations.'
+    },
+    longDescription: {
+      fr: 'Détails plus longs du projet…',
+      en: 'Longer project details…'
+    },
+    stack: ['Angular', 'Tailwind'],
+    type: 'personal',
+    featured: true,
+    role: { fr: 'Intégration / UI', en: 'UI / Integration' },
+    //problem: { fr: 'Problème à résoudre…', en: 'Problem to solve…' },
+    //solution: { fr: 'Solution apportée…', en: 'Solution delivered…' },
+    demoUrl: '#',
+    githubUrl: '#',
+    showGithub: true,
   },
   {
     id: 3,
     title: 'API Sécurisée',
-    description: 'API REST sécurisée avec JWT et RBAC.',
     category: 'back',
-    tags: ['Spring Boot', 'PostgreSQL']
+    image: '/assets/projects/placeholder.jpg',
+    cover: '/assets/projects/placeholder.jpg',
+    tags: ['Spring Boot', 'JWT', 'RBAC', 'PostgreSQL'],
+    description: {
+      fr: 'API REST sécurisée avec JWT et RBAC.',
+      en: 'Secure REST API with JWT and RBAC.'
+    },
+    longDescription: {
+      fr: 'Détails plus longs du projet…',
+      en: 'Longer project details…'
+    },
+    stack: ['Spring Boot', 'Spring Security', 'PostgreSQL', 'JWT'],
+    type: 'personal',
+    featured: true,
+    role: { fr: 'Backend', en: 'Backend' },
+    problem: { fr: 'Problème à résoudre…', en: 'Problem to solve…' },
+    solution: { fr: 'Solution apportée…', en: 'Solution delivered…' },
+    demoUrl: '#',
+    githubUrl: '#',
+    showGithub: true,
   },
   {
     id: 4,
     title: 'Identité Visuelle',
-    description: 'Création logo et supports print.',
     category: 'pao',
-    tags: ['Illustrator', 'Photoshop']
+    image: '/assets/projects/placeholder.jpg',
+    cover: '/assets/projects/placeholder.jpg',
+    tags: ['Illustrator', 'Photoshop', 'Print'],
+    description: {
+      fr: 'Création logo et supports print.',
+      en: 'Logo design and print assets.'
+    },
+    longDescription: {
+      fr: 'Détails plus longs du projet…',
+      en: 'Longer project details…'
+    },
+    stack: ['Illustrator', 'Photoshop'],
+    type: 'personal',
+    featured: true,
+    role: { fr: 'Design / PAO', en: 'Design / DTP' },
+    problem: { fr: 'Problème à résoudre…', en: 'Problem to solve…' },
+    solution: { fr: 'Solution apportée…', en: 'Solution delivered…' },
+    demoUrl: '#',
+    githubUrl: '#',
+    showGithub: true,
   }
 ];

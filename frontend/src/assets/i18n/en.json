@@ -42,6 +42,18 @@
       "uiux": "UI/UX",
       "pao": "DTP",
       "other": "Others"
+    },
+    "featured": "Featured",
+    "stack": "Tech Stack",
+    "role": "Role",
+    "problem": "Problem",
+    "solution": "Solution",
+    "view": "View",
+    "code": "Code",
+    "card": {
+      "detail": "Details",
+      "view": "View",
+      "code": "Code"
     }
   }
 }
