@@ -3,15 +3,12 @@
   
   <main>
     <app-hero></app-hero>
+    
     <app-projects-section
       (projectClick)="openProject($event)">
     </app-projects-section>
-    <section id="about" class="py-24 scroll-mt-24 bg-muted">
-      <div class="max-w-6xl mx-auto px-4">
-        <h2 class="text-4xl font-bold">À propos</h2>
-        <p class="mt-2 opacity-70">Section à propos (à venir)</p>
-      </div>
-    </section>
+    
+    <app-about-section></app-about-section>
 
     <section id="contact" class="py-24 scroll-mt-24">
       <div class="max-w-6xl mx-auto px-4">
@@ -19,7 +16,9 @@
         <p class="mt-2 opacity-70">Section contact (à venir)</p>
       </div>
     </section>
+    
   </main>
+
   <app-project-detail-modal
     [open]="isProjectModalOpen"
     [project]="selectedProject"

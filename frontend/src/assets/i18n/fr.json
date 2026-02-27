@@ -55,6 +55,78 @@
       "view": "Voir",
       "code": "Code"
     }
-  }
+  },
 
+  "about": {
+    "title": "À Propos",
+    "subtitle": "Mon parcours et mes compétences",
+    "downloadCv": "Télécharger mon CV",
+
+    "profile": {
+      "name": "Jamel BOUAZZA",
+      "role": "Développeur Full-Stack",
+      "location": "Paris, France",
+      "bio": "Passionné par le développement web depuis plus de 5 ans, je conçois des applications performantes et des interfaces utilisateurs intuitives. Mon approche combine expertise technique et sensibilité UI/UX pour créer des produits digitaux qui font la différence."
+    },
+
+    "timeline": {
+      "title": "Mon Parcours",
+      "items": {
+        "item1": {
+          "date": "2023 - Présent",
+          "company": "TechCorp Solutions",
+          "title": "Développeur Full-Stack Senior",
+          "desc": "Développement d’applications web complexes avec React et Node.js. Lead technique sur plusieurs projets majeurs."
+        },
+        "item2": {
+          "date": "2021 - 2023",
+          "company": "Digital Agency Paris",
+          "title": "Développeur Front-End",
+          "desc": "Création d’interfaces utilisateur modernes et responsive. Collaboration étroite avec les équipes design."
+        },
+        "item3": {
+          "date": "2019 - 2021",
+          "company": "StartupLab",
+          "title": "Développeur Junior",
+          "desc": "Premiers pas dans le développement professionnel. Apprentissage des bonnes pratiques et méthodologies agiles."
+        },
+        "item4": {
+          "date": "2016 - 2018",
+          "company": "Université Paris-Saclay",
+          "title": "Master Informatique",
+          "desc": "Spécialisation en génie logiciel et systèmes distribués. Projet de fin d’études sur les architectures microservices."
+        }
+      }
+    },
+
+    "skills": {
+      "title": "Compétences Techniques",
+      "groups": {
+        "front": "Front-End",
+        "back": "Back-End",
+        "devops": "DevOps",
+        "design": "Design",
+        "tools": "Outils"
+      }
+    },
+
+    "softSkills": {
+      "title": "Soft Skills",
+      "items": {
+        "teamwork": "Travail d’équipe",
+        "communication": "Communication",
+        "problemSolving": "Résolution de problèmes",
+        "adaptability": "Adaptabilité",
+        "timeManagement": "Gestion du temps",
+        "creativity": "Créativité",
+        "autonomy": "Autonomie",
+        "curiosity": "Curiosité technique"
+      }
+    },
+
+    "objectives": {
+      "title": "Objectifs Professionnels",
+      "text": "En tant que développeur full-stack, je souhaite intégrer une équipe dynamique où je pourrai contribuer sur des projets innovants tout en continuant à développer mes compétences."
+    }
+  }
 }
