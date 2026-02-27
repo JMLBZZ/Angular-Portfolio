@@ -6,15 +6,15 @@ import {
   HostListener,
   OnChanges,
   SimpleChanges,
-  OnDestroy,
-  ElementRef,
-  ViewChild,
-  AfterViewInit
+  OnDestroy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { Project, LocalizedText } from '../projects.data';
 import { LanguageService } from '../../../core/i18n/language.service';
+
+type Layer = { id: number; src: string };
 
 @Component({
   selector: 'app-project-detail-modal',
@@ -22,8 +22,19 @@ import { LanguageService } from '../../../core/i18n/language.service';
   imports: [CommonModule, TranslateModule],
   templateUrl: './project-detail-modal.component.html',
   styleUrls: ['./project-detail-modal.component.css'],
+  animations: [
+    trigger('crossfade', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('450ms ease-in-out', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        animate('450ms ease-in-out', style({ opacity: 0 })),
+      ]),
+    ]),
+  ],
 })
-export class ProjectDetailModalComponent implements OnChanges, OnDestroy, AfterViewInit {
+export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
 
   @Input() open = false;
   @Input() project: Project | null = null;
@@ -32,13 +43,27 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy, AfterV
 
   isVisible = false;
 
-  // root element du modal (pour focus trap)
-  @ViewChild('modalRoot') modalRoot?: ElementRef<HTMLElement>;
+  // Carousel
+  activeImageIndex = 0;
 
-  private focusableSelector =
-    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+  // Crossfade layers
+  layers: Layer[] = [];
+  private layerId = 0;
 
-  constructor(private lang: LanguageService, private host: ElementRef<HTMLElement>) {}
+  private readonly fadeMs = 450;
+  private cleanupTimer: any = null;
+
+  // Swipe (Pointer events)
+  private pointerDown = false;
+  private startX = 0;
+  private startY = 0;
+  private moved = false;
+
+  // Ajuste à ton goût :
+  private readonly swipeThresholdPx = 45;     // distance min horizontale
+  private readonly verticalTolerancePx = 35;  // si trop vertical -> on ignore
+
+  constructor(private lang: LanguageService) {}
 
   get currentLang(): 'fr' | 'en' {
     return this.lang.current;
@@ -49,12 +74,65 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy, AfterV
     return text[this.currentLang] ?? text.fr;
   }
 
+  get images(): string[] {
+    const imgs = this.project?.images?.filter(Boolean) ?? [];
+    if (imgs.length > 0) return imgs;
+
+    const single = this.project?.image;
+    return single ? [single] : [];
+  }
+
+  get hasCarousel(): boolean {
+    return this.images.length > 1;
+  }
+
+  trackLayer = (_: number, layer: Layer) => layer.id;
+
+  private setInitialLayer() {
+    this.layers = [];
+    this.layerId = 0;
+    const first = this.images[0];
+    if (first) this.layers = [{ id: ++this.layerId, src: first }];
+  }
+
+  private goToInternal(nextIndex: number) {
+    const total = this.images.length;
+    if (total === 0) return;
+
+    const normalized = ((nextIndex % total) + total) % total;
+    if (normalized === this.activeImageIndex) return;
+
+    const nextSrc = this.images[normalized];
+    if (!nextSrc) return;
+
+    this.activeImageIndex = normalized;
+
+    // New layer on top -> :enter fade-in
+    this.layers = [...this.layers, { id: ++this.layerId, src: nextSrc }];
+
+    // Cleanup after fade
+    if (this.cleanupTimer) clearTimeout(this.cleanupTimer);
+    this.cleanupTimer = setTimeout(() => {
+      this.layers = this.layers.slice(-1);
+      this.cleanupTimer = null;
+    }, this.fadeMs);
+  }
+
+  goTo(index: number) {
+    this.goToInternal(index);
+  }
+
+  next() {
+    this.goToInternal(this.activeImageIndex + 1);
+  }
+
+  prev() {
+    this.goToInternal(this.activeImageIndex - 1);
+  }
+
   onClose() {
     this.isVisible = false;
-
-    setTimeout(() => {
-      this.close.emit();
-    }, 200);
+    setTimeout(() => this.close.emit(), 200);
   }
 
   @HostListener('document:keydown.escape')
@@ -62,30 +140,58 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy, AfterV
     if (this.open) this.onClose();
   }
 
-  @HostListener('document:keydown.tab', ['$event'])
-  handleTab(event: KeyboardEvent) {
-    if (!this.open) return;
-
-    const root = this.host.nativeElement;
-    const focusables = Array.from(root.querySelectorAll<HTMLElement>(this.focusableSelector))
-      .filter(el => !el.hasAttribute('disabled') && el.tabIndex !== -1);
-
-    if (focusables.length === 0) return;
-
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+  @HostListener('document:keydown.arrowright')
+  handleArrowRight() {
+    if (this.open && this.hasCarousel) this.next();
   }
 
-  ngAfterViewInit(): void {
-    // rien ici, focus géré à l'ouverture
+  @HostListener('document:keydown.arrowleft')
+  handleArrowLeft() {
+    if (this.open && this.hasCarousel) this.prev();
+  }
+
+  // ===== Swipe handlers (called from template) =====
+  onPointerDown(e: PointerEvent) {
+    if (!this.hasCarousel) return;
+    this.pointerDown = true;
+    this.moved = false;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+  }
+
+  onPointerMove(e: PointerEvent) {
+    if (!this.pointerDown || !this.hasCarousel) return;
+    const dx = e.clientX - this.startX;
+    const dy = e.clientY - this.startY;
+
+    // on considère qu'il a "bougé" si on dépasse un mini seuil
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) this.moved = true;
+
+    // Important : on ne bloque pas le scroll vertical (modal scroll),
+    // donc on n'appelle PAS preventDefault ici.
+  }
+
+  onPointerUp(e: PointerEvent) {
+    if (!this.pointerDown || !this.hasCarousel) return;
+
+    const dx = e.clientX - this.startX;
+    const dy = e.clientY - this.startY;
+
+    this.pointerDown = false;
+
+    // Si c'était surtout vertical -> ignore (l'utilisateur scroll)
+    if (Math.abs(dy) > this.verticalTolerancePx && Math.abs(dy) > Math.abs(dx)) return;
+
+    // Si pas assez horizontal -> ignore
+    if (Math.abs(dx) < this.swipeThresholdPx) return;
+
+    // Swipe gauche (dx négatif) => next
+    if (dx < 0) this.next();
+    else this.prev();
+  }
+
+  onPointerCancel() {
+    this.pointerDown = false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -93,44 +199,23 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy, AfterV
       if (this.open) {
         document.body.style.overflow = 'hidden';
 
-        // inert sur tout le reste de la page
-        const appRoot = document.querySelector('app-root') as HTMLElement | null;
-        if (appRoot) {
-          Array.from(appRoot.children).forEach((el) => {
-            if (el.tagName.toLowerCase() !== 'app-project-detail-modal') {
-              (el as HTMLElement).setAttribute('inert', '');
-            }
-          });
-        }
+        this.activeImageIndex = 0;
+        this.setInitialLayer();
 
-        // animation IN
-        setTimeout(() => {
-          this.isVisible = true;
-
-          // focus sur le premier élément focusable du modal
-          const root = this.host.nativeElement;
-          const firstFocusable = root.querySelector<HTMLElement>(this.focusableSelector);
-          firstFocusable?.focus();
-        }, 10);
-
+        setTimeout(() => (this.isVisible = true), 10);
       } else {
         document.body.style.overflow = '';
-        this.removeInert();
       }
+    }
+
+    if (changes['project'] && this.open) {
+      this.activeImageIndex = 0;
+      this.setInitialLayer();
     }
   }
 
   ngOnDestroy(): void {
     document.body.style.overflow = '';
-    this.removeInert();
-  }
-
-  private removeInert() {
-    const appRoot = document.querySelector('app-root') as HTMLElement | null;
-    if (!appRoot) return;
-
-    Array.from(appRoot.children).forEach((el) => {
-      (el as HTMLElement).removeAttribute('inert');
-    });
+    if (this.cleanupTimer) clearTimeout(this.cleanupTimer);
   }
 }

@@ -16,6 +16,7 @@ export interface Project {
   category: ProjectCategory;
 
   image?: string;
+  images?: string[];
 
   description: LocalizedText;
   longDescription?: LocalizedText;
@@ -42,6 +43,7 @@ export const PROJECTS: Project[] = [
     title: 'Portfolio Angular',
     category: 'fullstack',
     image: '/assets/projects/placeholder.jpg',
+    images: ['/assets/projects/placeholder.jpg','/assets/projects/placeholder2.jpg'],
     cover: '/assets/projects/placeholder.jpg',
     tags: ['Angular', 'Tailwind', 'Spring Boot', 'PostgreSQL', 'JWT'],
     description: {
