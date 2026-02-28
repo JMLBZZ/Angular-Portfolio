@@ -1,7 +1,7 @@
 <section id="projects" class="py-24 scroll-mt-24">
     <div class="max-w-6xl mx-auto px-4">
 
-        <!-- Title -->
+        <!-- Titre -->
         <div class="text-center mb-12">
             <h2 class="text-4xl font-bold">
                 {{ 'projects.title' | translate }}
@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <!-- Filters -->
+        <!-- Filtres -->
         <div class="flex flex-wrap justify-center gap-3 mb-12">
             <button *ngFor="let filter of filters" (click)="setFilter(filter.value)"
                 class="px-4 py-2 rounded-full border text-sm font-medium transition" [ngClass]="{
@@ -41,7 +41,7 @@
                         </div>
                     </ng-template>
 
-                    <!-- categorie du badge -->
+                    <!-- Categorie du badge -->
                     <div class="absolute left-4 top-4 z-10">
                         <span
                             class="rounded-full border border-border bg-card/80 px-3 py-1 text-xs text-foreground/70 backdrop-blur">
@@ -49,12 +49,12 @@
                         </span>
                     </div>
 
-                    <!-- hover overlay -->
+                    <!-- Hover overlay -->
                     <div
                         class="absolute inset-0 z-[1] bg-black/55 opacity-0 transition duration-300 group-hover:opacity-100">
                     </div>
 
-                    <!-- hover button -->
+                    <!-- Hover button -->
                     <div
                         class="absolute inset-0 z-[2] flex items-center justify-center opacity-0 transition duration-300 group-hover:opacity-100">
                         <button
@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                <!-- content -->
+                <!-- Content -->
                 <div class="p-6">
                     <h3 class="text-lg font-semibold">
                         {{ project.title }}
@@ -83,7 +83,7 @@
                     </div>
                 </div>
 
-                <!-- effet "gold glow" -->
+                <!-- Effet "gold glow" -->
                 <div
                     class="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl opacity-0 transition group-hover:opacity-100">
                 </div>

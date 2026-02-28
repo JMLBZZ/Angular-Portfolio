@@ -11,6 +11,7 @@ import { ProjectsSectionComponent } from './sections/projects/projects-section.c
 import { Project } from './sections/projects/projects.data';
 import { ProjectDetailModalComponent } from './sections/projects/project-detail-modal/project-detail-modal.component';
 import { AboutSectionComponent } from './sections/about/about-section.component';
+import { ContactSectionComponent } from './sections/contact/contact-section.component';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ import { AboutSectionComponent } from './sections/about/about-section.component'
     HeroComponent, 
     ProjectsSectionComponent,
     ProjectDetailModalComponent,
-    AboutSectionComponent
+    AboutSectionComponent,
+    ContactSectionComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

@@ -6,36 +6,50 @@
             <span class="text-lg">JML</span>
         </div>
 
-        <!-- Nav -->
+        <!-- Navbar buttons -->
         <nav class="hidden md:flex items-center gap-6 text-sm">
-            <button class="opacity-80 hover:opacity-100 transition" (click)="scrollTo('projects')">
+            <button class="transition" [class.text-primary]="isActive('home')" [class.opacity-100]="isActive('home')"
+                [class.font-semibold]="isActive('home')" [class.opacity-80]="!isActive('home')"
+                (click)="scrollTo('home')">
+                {{ 'header.home' | translate }}
+            </button>
+
+            <button class="transition" [class.text-primary]="isActive('projects')"
+                [class.opacity-100]="isActive('projects')" [class.font-semibold]="isActive('projects')"
+                [class.opacity-80]="!isActive('projects')" (click)="scrollTo('projects')">
                 {{ 'header.projects' | translate }}
             </button>
-            <button class="opacity-80 hover:opacity-100 transition" (click)="scrollTo('about')">
+
+            <button class="transition" [class.text-primary]="isActive('about')" [class.opacity-100]="isActive('about')"
+                [class.font-semibold]="isActive('about')" [class.opacity-80]="!isActive('about')"
+                (click)="scrollTo('about')">
                 {{ 'header.about' | translate }}
             </button>
-            <button class="opacity-80 hover:opacity-100 transition" (click)="scrollTo('contact')">
+
+            <button class="transition" [class.text-primary]="isActive('contact')"
+                [class.opacity-100]="isActive('contact')" [class.font-semibold]="isActive('contact')"
+                [class.opacity-80]="!isActive('contact')" (click)="scrollTo('contact')">
                 {{ 'header.contact' | translate }}
             </button>
         </nav>
 
         <!-- Right actions -->
         <div class="flex items-center gap-2">
-            <!-- Admin (cadenas) -->
+            <!-- Admin (cadena) -->
             <button
                 class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                 title="Admin" (click)="goToAdminLogin()">
                 🔒
             </button>
 
-            <!-- Lang -->
+            <!-- Langue -->
             <button
                 class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs"
                 (click)="lang.toggle()" title="Language">
                 {{ lang.current | uppercase }}
             </button>
 
-            <!-- Theme toggle -->
+            <!-- Dark/Light -->
             <button
                 class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                 (click)="theme.toggle()" title="Theme">
@@ -47,13 +61,26 @@
     <!-- Mobile nav -->
     <div class="md:hidden border-t border-slate-200 dark:border-slate-800">
         <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
-            <button class="opacity-80 hover:opacity-100" (click)="scrollTo('projects')">
+            <button class="transition" [class.text-primary]="isActive('home')" [class.font-semibold]="isActive('home')"
+                [class.opacity-80]="!isActive('home')" (click)="scrollTo('home')">
+                {{ 'header.home' | translate }}
+            </button>
+
+            <button class="transition" [class.text-primary]="isActive('projects')"
+                [class.font-semibold]="isActive('projects')" [class.opacity-80]="!isActive('projects')"
+                (click)="scrollTo('projects')">
                 {{ 'header.projects' | translate }}
             </button>
-            <button class="opacity-80 hover:opacity-100" (click)="scrollTo('about')">
+
+            <button class="transition" [class.text-primary]="isActive('about')"
+                [class.font-semibold]="isActive('about')" [class.opacity-80]="!isActive('about')"
+                (click)="scrollTo('about')">
                 {{ 'header.about' | translate }}
             </button>
-            <button class="opacity-80 hover:opacity-100" (click)="scrollTo('contact')">
+
+            <button class="transition" [class.text-primary]="isActive('contact')"
+                [class.font-semibold]="isActive('contact')" [class.opacity-80]="!isActive('contact')"
+                (click)="scrollTo('contact')">
                 {{ 'header.contact' | translate }}
             </button>
         </div>

@@ -1,5 +1,6 @@
 {
   "header": {
+    "home": "Home",
     "projects": "Projects",
     "about": "About",
     "contact": "Contact"
@@ -41,10 +42,10 @@
       "fullstack": "Full-Stack",
       "uiux": "UI/UX",
       "pao": "DTP",
-      "other": "Others"
+      "other": "Other"
     },
     "featured": "Featured",
-    "stack": "Tech Stack",
+    "stack": "Tech stack",
     "role": "Role",
     "problem": "Problem",
     "solution": "Solution",
@@ -66,17 +67,17 @@
       "name": "Jamel BOUAZZA",
       "role": "Full-Stack Developer",
       "location": "Paris, France",
-      "bio": "Passionate about web development for over 5 years, I build performant applications and intuitive user interfaces. My approach combines strong engineering with UI/UX sensibility to craft digital products that make a difference."
+      "bio": "Passionate about web development for over 5 years, I build performant applications and intuitive user interfaces. My approach blends technical expertise with UI/UX sensitivity to create digital products that make a difference."
     },
 
     "timeline": {
-      "title": "My Experience",
+      "title": "My Journey",
       "items": {
         "item1": {
           "date": "2023 - Present",
           "company": "TechCorp Solutions",
           "title": "Senior Full-Stack Developer",
-          "desc": "Building complex web applications with React and Node.js. Tech lead on several key projects."
+          "desc": "Building complex web apps with React and Node.js. Tech lead on major projects."
         },
         "item2": {
           "date": "2021 - 2023",
@@ -88,13 +89,13 @@
           "date": "2019 - 2021",
           "company": "StartupLab",
           "title": "Junior Developer",
-          "desc": "First professional steps in development. Learning best practices and agile methods."
+          "desc": "First steps in professional development. Learning best practices and agile methods."
         },
         "item4": {
-          "date": "2016 - 2018",
-          "company": "Paris-Saclay University",
-          "title": "Master’s Degree in Computer Science",
-          "desc": "Specialization in software engineering and distributed systems. Final project on microservices architectures."
+          "date": "2016 - 2019",
+          "company": "Université Paris-Saclay",
+          "title": "MSc Computer Science",
+          "desc": "Specialization in software engineering and distributed systems. Capstone project on microservices architectures."
         }
       }
     },
@@ -127,6 +128,43 @@
     "objectives": {
       "title": "Professional Goals",
       "text": "As a full-stack developer, I want to join a dynamic team where I can contribute to innovative projects while continuing to grow my skills."
+    }
+  },
+  
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Let’s talk about your next project",
+    "followMe": "or find me on",
+    "info": {
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "locationLabel": "Location",
+      "copyEmail": "Copy email"
+    },
+    "form": {
+      "name": "Your name",
+      "email": "Your email",
+      "subject": "Subject",
+      "message": "Your message",
+      "send": "Send message",
+      "sending": "Sending...",
+      "sent": "Message sent!",
+      "placeholders": {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "subject": "Collaboration opportunity",
+        "message": "Your message..."
+      },
+      "errors": {
+        "name": "Please enter your name.",
+        "email": "Please enter a valid email.",
+        "subject": "Please enter a subject.",
+        "message": "Please write a message (at least 10 characters)."
+      },
+      "alert": {
+        "success": "Your message has been sent successfully.",
+        "error": "Something went wrong. Please try again."
+      }
     }
   }
 }

@@ -1,10 +1,11 @@
 {
   "header": {
+    "home": "Accueil",
     "projects": "Projets",
     "about": "À propos",
     "contact": "Contact"
   },
-
+  
   "theme": {
     "auto": "Auto",
     "toggle": "Thème"
@@ -66,7 +67,7 @@
       "name": "Jamel BOUAZZA",
       "role": "Développeur Full-Stack",
       "location": "Paris, France",
-      "bio": "Passionné par le développement web depuis plus de 5 ans, je conçois des applications performantes et des interfaces utilisateurs intuitives. Mon approche combine expertise technique et sensibilité UI/UX pour créer des produits digitaux qui font la différence."
+      "bio": "Passionné par le développement web depuis plus de 5 ans, je conçois des applications performantes et des interfaces utilisateur intuitives. Mon approche combine expertise technique et sensibilité UI/UX pour créer des produits digitaux qui font la différence."
     },
 
     "timeline": {
@@ -76,13 +77,13 @@
           "date": "2023 - Présent",
           "company": "TechCorp Solutions",
           "title": "Développeur Full-Stack Senior",
-          "desc": "Développement d’applications web complexes avec React et Node.js. Lead technique sur plusieurs projets majeurs."
+          "desc": "Développement d'applications web complexes avec React et Node.js. Lead technique sur plusieurs projets majeurs."
         },
         "item2": {
           "date": "2021 - 2023",
           "company": "Digital Agency Paris",
           "title": "Développeur Front-End",
-          "desc": "Création d’interfaces utilisateur modernes et responsive. Collaboration étroite avec les équipes design."
+          "desc": "Création d'interfaces utilisateur modernes et responsive. Collaboration étroite avec les équipes design."
         },
         "item3": {
           "date": "2019 - 2021",
@@ -91,10 +92,10 @@
           "desc": "Premiers pas dans le développement professionnel. Apprentissage des bonnes pratiques et méthodologies agiles."
         },
         "item4": {
-          "date": "2016 - 2018",
+          "date": "2016 - 2019",
           "company": "Université Paris-Saclay",
           "title": "Master Informatique",
-          "desc": "Spécialisation en génie logiciel et systèmes distribués. Projet de fin d’études sur les architectures microservices."
+          "desc": "Spécialisation en génie logiciel et systèmes distribués. Projet de fin d'études sur les architectures microservices."
         }
       }
     },
@@ -113,7 +114,7 @@
     "softSkills": {
       "title": "Soft Skills",
       "items": {
-        "teamwork": "Travail d’équipe",
+        "teamwork": "Travail d'équipe",
         "communication": "Communication",
         "problemSolving": "Résolution de problèmes",
         "adaptability": "Adaptabilité",
@@ -127,6 +128,43 @@
     "objectives": {
       "title": "Objectifs Professionnels",
       "text": "En tant que développeur full-stack, je souhaite intégrer une équipe dynamique où je pourrai contribuer sur des projets innovants tout en continuant à développer mes compétences."
+    }
+  },
+
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Discutons de votre prochain projet",
+    "followMe": "ou retrouvez-moi sur",
+    "info": {
+      "emailLabel": "Email",
+      "phoneLabel": "Téléphone",
+      "locationLabel": "Localisation",
+      "copyEmail": "Copier l'email"
+    },
+    "form": {
+      "name": "Votre nom",
+      "email": "Votre email",
+      "subject": "Sujet",
+      "message": "Votre message",
+      "send": "Envoyer le message",
+      "sending": "Envoi...",
+      "sent": "Message envoyé !",
+      "placeholders": {
+        "name": "Jean Dupont",
+        "email": "jean@exemple.com",
+        "subject": "Opportunité de collaboration",
+        "message": "Votre message..."
+      },
+      "errors": {
+        "name": "Merci d’indiquer votre nom.",
+        "email": "Merci d’indiquer un email valide.",
+        "subject": "Merci d’indiquer un sujet.",
+        "message": "Merci d’écrire un message (au moins 10 caractères)."
+      },
+      "alert": {
+        "success": "Votre message a bien été envoyé.",
+        "error": "Une erreur est survenue. Veuillez réessayer."
+      }
     }
   }
 }

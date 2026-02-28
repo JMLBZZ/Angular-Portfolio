@@ -1,40 +1,35 @@
-import {
-  Directive,
-  ElementRef,
-  Input,
-  OnDestroy,
-  OnInit,
-  Renderer2,
-} from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appRevealOnScroll]',
   standalone: true,
 })
-export class RevealOnScrollDirective implements OnInit, OnDestroy {
-  @Input() revealClass = 'reveal-visible';
-  @Input() threshold = 0.15; // 0 -> 1 (plus petit = révèle plus tôt)
-
+export class RevealOnScrollDirective implements AfterViewInit, OnDestroy {
   private observer?: IntersectionObserver;
 
   constructor(private el: ElementRef<HTMLElement>, private r: Renderer2) {}
 
-  ngOnInit(): void {
-    // état initial (caché)
-    this.r.addClass(this.el.nativeElement, 'reveal');
-    this.r.removeClass(this.el.nativeElement, this.revealClass);
+  ngAfterViewInit(): void {
+    const baseClasses = [
+      'opacity-0',
+      'translate-y-2',
+      'transition-all',
+      'duration-500',
+      'ease-out',
+      'will-change-[opacity,transform]',
+    ];
+    baseClasses.forEach((c) => this.r.addClass(this.el.nativeElement, c));
 
     this.observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            this.r.addClass(this.el.nativeElement, this.revealClass);
-            // une fois visible, on n’observe plus (perfs)
-            this.observer?.unobserve(this.el.nativeElement);
-          }
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          this.r.removeClass(this.el.nativeElement, 'opacity-0');
+          this.r.removeClass(this.el.nativeElement, 'translate-y-2');
+          this.r.addClass(this.el.nativeElement, 'opacity-100');
+          this.r.addClass(this.el.nativeElement, 'translate-y-0');
         }
       },
-      { threshold: this.threshold }
+      { threshold: 0.15 }
     );
 
     this.observer.observe(this.el.nativeElement);
