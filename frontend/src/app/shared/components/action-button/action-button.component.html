@@ -1,0 +1,17 @@
+<a
+  *ngIf="href; else asButton"
+  [href]="href"
+  [attr.target]="target"
+  [attr.rel]="rel"
+  [class]="classes"
+>
+  <i *ngIf="iconClass" [class]="iconClass"></i>
+  <span class="whitespace-nowrap">{{ label }}</span>
+</a>
+
+<ng-template #asButton>
+  <button type="button" [disabled]="disabled" [class]="classes" (click)="onClick($event)">
+    <i *ngIf="iconClass" [class]="iconClass"></i>
+    <span class="whitespace-nowrap">{{ label }}</span>
+  </button>
+</ng-template>

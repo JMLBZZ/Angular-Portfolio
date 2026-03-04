@@ -1,55 +1,74 @@
 import { Injectable } from '@angular/core';
 
-export type ThemeMode = 'light' | 'dark';
-export type ThemePreference = 'auto' | ThemeMode;
+type ThemeMode = 'light' | 'dark' | 'auto';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private readonly storageKey = 'theme_preference';
+  private storageKey = 'theme-mode';
+  mode: ThemeMode = 'auto';
 
-  /** Préférence utilisateur (auto / light / dark) */
-  getPreference(): ThemePreference {
-    const raw = localStorage.getItem(this.storageKey);
-    if (raw === 'light' || raw === 'dark' || raw === 'auto') return raw;
-    return 'auto';
+  /** Durée du fondu */
+  fadeDurationMs = 350;
+
+  private fadeTimeoutId: number | null = null;
+
+  constructor() {
+    const saved = localStorage.getItem(this.storageKey) as ThemeMode | null;
+    this.mode = saved ?? 'auto';
+    this.apply(false); // au démarrage : pas obligatoire de faire un fade
   }
 
-  setPreference(pref: ThemePreference) {
-    localStorage.setItem(this.storageKey, pref);
-    this.apply();
-  }
-
-  /** Applique le thème effectif en fonction de la préférence et de l’heure */
-  apply() {
-    const pref = this.getPreference();
-    const effective = pref === 'auto' ? this.computeAutoTheme() : pref;
-    this.setHtmlClass(effective);
-  }
-
-  /** Mode auto : light à partir de 07h, dark à partir de 20h */
-  computeAutoTheme(now = new Date()): ThemeMode {
-    const h = now.getHours();
-    return (h >= 7 && h < 20) ? 'light' : 'dark';
-  }
-
-  /** Toggle simple : si auto -> bascule vers l’inverse du mode auto; sinon toggle light/dark */
   toggle() {
-    const pref = this.getPreference();
-    if (pref === 'auto') {
-      const auto = this.computeAutoTheme();
-      this.setPreference(auto === 'light' ? 'dark' : 'light');
-      return;
+    // auto -> light -> dark -> auto
+    if (this.mode === 'auto') this.setMode('light');
+    else if (this.mode === 'light') this.setMode('dark');
+    else this.setMode('auto');
+  }
+
+  setMode(mode: ThemeMode) {
+    this.mode = mode;
+    localStorage.setItem(this.storageKey, mode);
+    this.apply(true); // fade à chaque changement via le toggle
+  }
+
+  apply(withFade: boolean = false) {
+    const root = document.documentElement;
+
+    const shouldBeDark =
+      this.mode === 'dark' ||
+      (this.mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    if (withFade) {
+      this.runFade(() => root.classList.toggle('dark', shouldBeDark));
+    } else {
+      root.classList.toggle('dark', shouldBeDark);
     }
-    this.setPreference(pref === 'light' ? 'dark' : 'light');
   }
 
-  setAuto() {
-    this.setPreference('auto');
-  }
+  private runFade(fn: () => void) {
+    const root = document.documentElement;
 
-  private setHtmlClass(mode: ThemeMode) {
-    const html = document.documentElement;
-    if (mode === 'dark') html.classList.add('dark');
-    else html.classList.remove('dark');
+    // si on reclique vite, on "redémarre" la transition
+    if (this.fadeTimeoutId !== null) {
+      window.clearTimeout(this.fadeTimeoutId);
+      this.fadeTimeoutId = null;
+    }
+
+    // expose la durée au CSS
+    root.style.setProperty('--theme-fade-ms', `${this.fadeDurationMs}ms`);
+
+    // force un re-trigger
+    root.classList.remove('theme-fade');
+    void root.offsetHeight;
+    root.classList.add('theme-fade');
+
+    requestAnimationFrame(() => {
+      fn();
+
+      this.fadeTimeoutId = window.setTimeout(() => {
+        root.classList.remove('theme-fade');
+        this.fadeTimeoutId = null;
+      }, this.fadeDurationMs);
+    });
   }
 }

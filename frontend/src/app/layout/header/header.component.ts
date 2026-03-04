@@ -3,13 +3,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UpperCasePipe } from '@angular/common';
 import { ThemeService } from '../../core/theme/theme.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
+
 
 type SectionId = 'home' | 'projects' | 'about' | 'contact';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [TranslateModule, UpperCasePipe],
+  imports: [TranslateModule, UpperCasePipe, IconButtonComponent],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit {
@@ -30,8 +32,6 @@ export class HeaderComponent implements OnInit {
 
   private updateActiveSection(): void {
     const ids: SectionId[] = ['home', 'projects', 'about', 'contact'];
-
-    // On prend la dernière section dont le top est passé au-dessus de l’offset
     let current: SectionId = 'home';
 
     for (const id of ids) {
@@ -44,7 +44,7 @@ export class HeaderComponent implements OnInit {
       }
     }
 
-    // Cas spécial : si on est tout en bas, on force Contact
+    // Si on est tout en bas, on force Contact
     const nearBottom =
       window.innerHeight + window.scrollY >= document.body.offsetHeight - 2;
     if (nearBottom) current = 'contact';

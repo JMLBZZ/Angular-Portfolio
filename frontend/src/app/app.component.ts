@@ -6,6 +6,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from './core/theme/theme.service';
 import { LanguageService } from './core/i18n/language.service';
 import { HeaderComponent } from './layout/header/header.component';
+import { FooterComponent } from './layout/footer/footer.component';
+
 import { HeroComponent } from './sections/hero/hero.component';
 import { ProjectsSectionComponent } from './sections/projects/projects-section.component';
 import { Project } from './sections/projects/projects.data';
@@ -21,6 +23,7 @@ import { ContactSectionComponent } from './sections/contact/contact-section.comp
     TranslateModule, 
     UpperCasePipe, 
     HeaderComponent, 
+    FooterComponent,
     HeroComponent, 
     ProjectsSectionComponent,
     ProjectDetailModalComponent,

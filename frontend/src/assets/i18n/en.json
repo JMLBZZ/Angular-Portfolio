@@ -166,5 +166,12 @@
         "error": "Something went wrong. Please try again."
       }
     }
+  },
+
+  "footer": {
+    "navigation": "Navigation",
+    "follow": "Follow me",
+    "rights": "© {{year}} Jamel BOUAZZA. All rights reserved.",
+    "madeWith": "Made with ❤️ in Paris"
   }
 }

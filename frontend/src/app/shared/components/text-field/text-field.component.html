@@ -1,0 +1,19 @@
+<div class="space-y-2">
+    <label *ngIf="label" class="text-sm font-semibold">
+        {{ label }}
+    </label>
+
+    <input
+        [id]="id || null"
+        [type]="type"
+        [formControl]="control"
+        [placeholder]="placeholder"
+        [disabled]="disabled"
+        [class]="inputClasses"
+        [attr.aria-invalid]="showError"
+    />
+
+    <p *ngIf="showError && errorText" class="text-xs text-red-500">
+        {{ errorText }}
+    </p>
+</div>

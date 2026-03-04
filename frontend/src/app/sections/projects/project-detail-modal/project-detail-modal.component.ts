@@ -13,13 +13,18 @@ import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { Project, LocalizedText } from '../projects.data';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
 
 type Layer = { id: number; src: string };
 
 @Component({
   selector: 'app-project-detail-modal',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [
+    CommonModule, 
+    TranslateModule, 
+    ActionButtonComponent,
+  ],
   templateUrl: './project-detail-modal.component.html',
   styleUrls: ['./project-detail-modal.component.css'],
   animations: [
@@ -58,10 +63,8 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
   private startX = 0;
   private startY = 0;
   private moved = false;
-
-  // Ajuste à ton goût :
-  private readonly swipeThresholdPx = 45;     // distance min horizontale
-  private readonly verticalTolerancePx = 35;  // si trop vertical -> on ignore
+  private readonly swipeThresholdPx = 45;
+  private readonly verticalTolerancePx = 35;
 
   constructor(private lang: LanguageService) {}
 
@@ -150,7 +153,7 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
     if (this.open && this.hasCarousel) this.prev();
   }
 
-  // ===== Swipe handlers (called from template) =====
+  // ===== Swipe handlers =====
   onPointerDown(e: PointerEvent) {
     if (!this.hasCarousel) return;
     this.pointerDown = true;
@@ -163,12 +166,7 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
     if (!this.pointerDown || !this.hasCarousel) return;
     const dx = e.clientX - this.startX;
     const dy = e.clientY - this.startY;
-
-    // on considère qu'il a "bougé" si on dépasse un mini seuil
     if (Math.abs(dx) > 4 || Math.abs(dy) > 4) this.moved = true;
-
-    // Important : on ne bloque pas le scroll vertical (modal scroll),
-    // donc on n'appelle PAS preventDefault ici.
   }
 
   onPointerUp(e: PointerEvent) {
@@ -179,13 +177,8 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
 
     this.pointerDown = false;
 
-    // Si c'était surtout vertical -> ignore (l'utilisateur scroll)
     if (Math.abs(dy) > this.verticalTolerancePx && Math.abs(dy) > Math.abs(dx)) return;
-
-    // Si pas assez horizontal -> ignore
     if (Math.abs(dx) < this.swipeThresholdPx) return;
-
-    // Swipe gauche (dx négatif) => next
     if (dx < 0) this.next();
     else this.prev();
   }

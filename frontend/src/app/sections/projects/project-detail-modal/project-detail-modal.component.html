@@ -131,16 +131,25 @@
       </div>
 
       <div class="mt-8 flex flex-wrap gap-3">
-        <a *ngIf="project?.demoUrl" [href]="project?.demoUrl" target="_blank" rel="noreferrer"
-          class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95 transition">
-          {{ 'projects.view' | translate }}
-        </a>
+        <app-action-button
+          *ngIf="project?.demoUrl"
+          variant="solid"
+          iconClass="bi bi-box-arrow-up-right"
+          [href]="project?.demoUrl"
+          [label]="'projects.view' | translate"
+          [ariaLabel]="'projects.view' | translate"
+        >
+        </app-action-button>
 
-        <a *ngIf="project?.showGithub && project?.githubUrl" [href]="project?.githubUrl" target="_blank"
-          rel="noreferrer"
-          class="inline-flex items-center justify-center rounded-xl border border-border px-5 py-2.5 text-sm font-semibold hover:bg-muted transition">
-          {{ 'projects.code' | translate }}
-        </a>
+        <app-action-button
+          *ngIf="project?.showGithub && project?.githubUrl"
+          variant="outline"
+          iconClass="bi bi-github"
+          [href]="project?.githubUrl"
+          [label]="'projects.code' | translate"
+          [ariaLabel]="'projects.code' | translate"
+        >
+        </app-action-button>
       </div>
 
     </div>

@@ -20,6 +20,9 @@ html {
 
     /* radius */
     --radius: 16px;
+
+    /* Durée fade dark/light */
+    --theme-fade-ms: 220ms;
 }
 
 .dark {
@@ -32,4 +35,20 @@ html {
 
     --primary: 197 165 103;
     --primary-foreground: 17 24 39;
+}
+
+/* ===== Theme fade (dark/light) ===== */
+html.theme-fade,
+html.theme-fade * {
+  transition-property: background-color, color, border-color, outline-color, fill, stroke, box-shadow;
+  transition-duration: var(--theme-fade-ms);
+  transition-timing-function: ease;
+}
+
+/* Accessibilité des personnes sensibles aux animations */
+@media (prefers-reduced-motion: reduce) {
+  html.theme-fade,
+  html.theme-fade * {
+    transition: none !important;
+  }
 }

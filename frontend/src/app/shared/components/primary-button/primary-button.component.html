@@ -1,0 +1,18 @@
+<button
+    type="button"
+    [attr.aria-label]="ariaLabel || null"
+    [disabled]="disabled || loading"
+    [class]="classes"
+    [ngStyle]="style"
+    (click)="onClick()"
+>
+    <i *ngIf="iconClass" [class]="iconClass + ' text-[14px]'"></i>
+
+    <ng-content></ng-content>
+
+    <span *ngIf="loading" class="ml-1 inline-flex items-center gap-1" aria-hidden="true">
+        <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
+        <span class="h-1.5 w-1.5 rounded-full bg-current opacity-50"></span>
+        <span class="h-1.5 w-1.5 rounded-full bg-current opacity-30"></span>
+    </span>
+</button>

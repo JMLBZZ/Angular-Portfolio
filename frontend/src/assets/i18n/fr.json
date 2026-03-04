@@ -166,5 +166,12 @@
         "error": "Une erreur est survenue. Veuillez réessayer."
       }
     }
+  },
+
+  "footer": {
+    "navigation": "Navigation",
+    "follow": "Suivez-moi",
+    "rights": "© {{year}} Jamel BOUAZZA. Tous droits réservés.",
+    "madeWith": "Fait avec ❤️ à Paris"
   }
 }

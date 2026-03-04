@@ -1,15 +1,36 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  AbstractControl,
+  FormControl,
+} from '@angular/forms';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
+import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
+import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
+import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
+import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
+import { SecondaryButtonComponent } from '../../shared/components/secondary-button/secondary-button.component';
 
 type AlertType = 'success' | 'error';
 
 @Component({
   selector: 'app-contact-section',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ReactiveFormsModule, RevealOnScrollDirective],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    ReactiveFormsModule,
+    RevealOnScrollDirective,
+    IconButtonComponent,
+    TextFieldComponent,
+    TextAreaComponent,
+    PrimaryButtonComponent,
+    SecondaryButtonComponent,
+  ],
   templateUrl: './contact-section.component.html',
 })
 export class ContactSectionComponent {
@@ -22,20 +43,32 @@ export class ContactSectionComponent {
 
   isSubmitting = false;
   emailCopied = false;
-
   hasSubmitted = false;
 
-  /** Alerte UI (faire une version backend plus tard) */
   alert: { type: AlertType; messageKey: string } | null = null;
 
   form = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
-    subject: ['', [Validators.required, Validators.minLength(3)]],
-    message: ['', [Validators.required, Validators.minLength(10)]],
+    name: this.fb.control('', [Validators.required, Validators.minLength(2)]),
+    email: this.fb.control('', [Validators.required, Validators.email]),
+    subject: this.fb.control('', [Validators.required, Validators.minLength(3)]),
+    message: this.fb.control('', [Validators.required, Validators.minLength(10)]),
   });
 
   constructor(private fb: FormBuilder) {}
+
+  // ✅ helpers typés FormControl pour le composant
+  get nameCtrl(): FormControl<string> {
+    return this.form.get('name') as FormControl<string>;
+  }
+  get emailCtrl(): FormControl<string> {
+    return this.form.get('email') as FormControl<string>;
+  }
+  get subjectCtrl(): FormControl<string> {
+    return this.form.get('subject') as FormControl<string>;
+  }
+  get messageCtrl(): FormControl<string> {
+    return this.form.get('message') as FormControl<string>;
+  }
 
   control(name: 'name' | 'email' | 'subject' | 'message'): AbstractControl {
     return this.form.get(name)!;
@@ -92,7 +125,7 @@ export class ContactSectionComponent {
     setTimeout(() => {
       this.isSubmitting = false;
 
-      const simulateError = false; // <- mettre "true" pour tester le message d’erreur
+      const simulateError = false;
 
       if (simulateError) {
         this.showAlert('error', 'contact.form.alert.error');

@@ -54,14 +54,15 @@
                         class="absolute inset-0 z-[1] bg-black/55 opacity-0 transition duration-300 group-hover:opacity-100">
                     </div>
 
-                    <!-- Hover button -->
-                    <div
-                        class="absolute inset-0 z-[2] flex items-center justify-center opacity-0 transition duration-300 group-hover:opacity-100">
-                        <button
-                            class="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95"
-                            (click)="openProject(project); $event.stopPropagation()" type="button">
-                            {{ 'projects.card.detail' | translate }}
-                        </button>
+                    <!-- Hover button DETAIL-->
+                    <div class="absolute inset-0 z-[2] flex items-center justify-center opacity-0 transition duration-300 group-hover:opacity-100">
+                        <app-action-button
+                            variant="solid"
+                            [label]="'projects.card.detail' | translate"
+                            [ariaLabel]="'projects.card.detail' | translate"
+                            (pressed)="openProject(project)"
+                        >
+                        </app-action-button>
                     </div>
                 </div>
 

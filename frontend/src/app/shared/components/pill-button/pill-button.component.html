@@ -1,0 +1,27 @@
+<!-- Link -->
+<a
+  *ngIf="href; else asButton"
+  [href]="href"
+  [attr.target]="target"
+  [attr.rel]="rel"
+  [attr.download]="download ? download : null"
+  [attr.aria-label]="ariaLabel || null"
+  [class]="classes"
+>
+  <i *ngIf="iconClass" [class]="iconClass + ' text-[18px]'"></i>
+  <ng-content></ng-content>
+</a>
+
+<!-- Button -->
+<ng-template #asButton>
+  <button
+    type="button"
+    [disabled]="disabled"
+    [attr.aria-label]="ariaLabel || null"
+    [class]="classes"
+    (click)="onClick()"
+  >
+    <i *ngIf="iconClass" [class]="iconClass + ' text-[18px]'"></i>
+    <ng-content></ng-content>
+  </button>
+</ng-template>

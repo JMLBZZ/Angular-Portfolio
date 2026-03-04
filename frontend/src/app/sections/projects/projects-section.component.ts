@@ -4,13 +4,18 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { PROJECTS, Project, ProjectCategory, LocalizedText } from './projects.data';
 import { LanguageService } from '../../core/i18n/language.service';
+import { ActionButtonComponent } from '../../shared/components/action-button/action-button.component';
 
 type Filter = 'all' | ProjectCategory;
 
 @Component({
   selector: 'app-projects-section',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [
+    CommonModule, 
+    TranslateModule, 
+    ActionButtonComponent,
+  ],
   templateUrl: './projects-section.component.html',
   styleUrls: ['./projects-section.component.css'],
 })
