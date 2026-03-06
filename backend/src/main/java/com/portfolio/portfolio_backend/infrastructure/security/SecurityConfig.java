@@ -36,6 +36,9 @@ public class SecurityConfig {
                 // Important pour les préflights CORS
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                // CONTACT public
+                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+
                 // AUTH public (robuste)
                 .requestMatchers("/auth/**").permitAll()
 
