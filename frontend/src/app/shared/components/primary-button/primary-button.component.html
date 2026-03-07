@@ -1,12 +1,12 @@
 <button
-    type="button"
+    [attr.type]="type"
     [attr.aria-label]="ariaLabel || null"
     [disabled]="disabled || loading"
     [class]="classes"
     [ngStyle]="style"
     (click)="onClick()"
 >
-    <i *ngIf="iconClass" [class]="iconClass + ' text-[14px]'"></i>
+  <i *ngIf="iconClass" [class]="iconClass + ' text-[14px]'"></i>
 
     <ng-content></ng-content>
 

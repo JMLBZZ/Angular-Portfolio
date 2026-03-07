@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -8,6 +8,7 @@ import {
   AbstractControl,
   FormControl,
 } from '@angular/forms';
+
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
@@ -15,7 +16,8 @@ import { TextAreaComponent } from '../../shared/components/text-area/text-area.c
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { SecondaryButtonComponent } from '../../shared/components/secondary-button/secondary-button.component';
 
-type AlertType = 'success' | 'error';
+import { ToastService } from '../../shared/services/toast.service';
+import { ContactApiService } from '../../core/api/contact-api.service';
 
 @Component({
   selector: 'app-contact-section',
@@ -45,27 +47,34 @@ export class ContactSectionComponent {
   emailCopied = false;
   hasSubmitted = false;
 
-  alert: { type: AlertType; messageKey: string } | null = null;
-
   form = this.fb.group({
     name: this.fb.control('', [Validators.required, Validators.minLength(2)]),
     email: this.fb.control('', [Validators.required, Validators.email]),
     subject: this.fb.control('', [Validators.required, Validators.minLength(3)]),
     message: this.fb.control('', [Validators.required, Validators.minLength(10)]),
+    // honeyspot control
+    website: this.fb.control(''),
   });
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private contactApi: ContactApiService,
+    private toastService: ToastService,
+    private translate: TranslateService
+  ) {}
 
-  // ✅ helpers typés FormControl pour le composant
   get nameCtrl(): FormControl<string> {
     return this.form.get('name') as FormControl<string>;
   }
+
   get emailCtrl(): FormControl<string> {
     return this.form.get('email') as FormControl<string>;
   }
+
   get subjectCtrl(): FormControl<string> {
     return this.form.get('subject') as FormControl<string>;
   }
+
   get messageCtrl(): FormControl<string> {
     return this.form.get('message') as FormControl<string>;
   }
@@ -81,6 +90,7 @@ export class ContactSectionComponent {
 
   errorKey(name: 'name' | 'email' | 'subject' | 'message'): string {
     const c = this.control(name);
+
     if (!c.errors) return '';
 
     if (c.errors['required']) return `contact.form.errors.${name}`;
@@ -90,29 +100,26 @@ export class ContactSectionComponent {
     return `contact.form.errors.${name}`;
   }
 
-  private showAlert(type: AlertType, messageKey: string) {
-    this.alert = { type, messageKey };
-    setTimeout(() => {
-      if (this.alert?.messageKey === messageKey) this.alert = null;
-    }, 3500);
-  }
-
-  dismissAlert() {
-    this.alert = null;
-  }
-
   async copyEmail(): Promise<void> {
     try {
       await navigator.clipboard.writeText(this.email);
+
+      this.toastService.success(
+        this.translate.instant('contact.form.alert.emailCopied')
+      );
+
       this.emailCopied = true;
-      setTimeout(() => (this.emailCopied = false), 1600);
+      setTimeout(() => {
+        this.emailCopied = false;
+      }, 1600);
     } catch {
-      // ignore
+      this.toastService.error(
+        this.translate.instant('contact.form.alert.copyError')
+      );
     }
   }
 
   onSubmit(): void {
-    this.alert = null;
     this.hasSubmitted = true;
 
     if (this.form.invalid) {
@@ -122,19 +129,80 @@ export class ContactSectionComponent {
 
     this.isSubmitting = true;
 
-    setTimeout(() => {
-      this.isSubmitting = false;
+    const payload = {
+      name: this.nameCtrl.value ?? '',
+      email: this.emailCtrl.value ?? '',
+      subject: this.subjectCtrl.value ?? '',
+      message: this.messageCtrl.value ?? '',
+      website: this.form.get('website')?.value ?? '',
+    };
 
-      const simulateError = false;
+    this.contactApi.send(payload).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
 
-      if (simulateError) {
-        this.showAlert('error', 'contact.form.alert.error');
-        return;
-      }
+        if (res?.success) {
+          this.toastService.success(
+            this.translate.instant('contact.form.alert.success')
+          );
 
-      this.showAlert('success', 'contact.form.alert.success');
-      this.hasSubmitted = false;
-      this.form.reset();
-    }, 900);
+          this.hasSubmitted = false;
+
+          this.form.reset({
+            name: '',
+            email: '',
+            subject: '',
+            message: '',
+            website: '',
+          });
+
+          return;
+        }
+
+        const errorCode = res?.error?.code ?? 'UNKNOWN_ERROR';
+        this.showErrorToastByCode(errorCode);
+      },
+
+      error: (err) => {
+        this.isSubmitting = false;
+
+        const errorCode = err?.error?.error?.code ?? 'UNKNOWN_ERROR';
+        this.showErrorToastByCode(errorCode);
+      },
+    });
+  }
+
+  private showErrorToastByCode(code: string): void {
+    switch (code) {
+      case 'RATE_LIMIT':
+        this.toastService.warning(
+          this.translate.instant('contact.form.alert.rateLimit')
+        );
+        break;
+
+      case 'SPAM_DETECTED':
+        this.toastService.error(
+          this.translate.instant('contact.form.alert.spam')
+        );
+        break;
+
+      case 'SMTP_ERROR':
+        this.toastService.error(
+          this.translate.instant('contact.form.alert.smtpError')
+        );
+        break;
+
+      case 'VALIDATION_ERROR':
+        this.toastService.error(
+          this.translate.instant('contact.form.alert.validationError')
+        );
+        break;
+
+      default:
+        this.toastService.error(
+          this.translate.instant('contact.form.alert.error')
+        );
+        break;
+    }
   }
 }

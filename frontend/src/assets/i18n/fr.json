@@ -163,7 +163,13 @@
       },
       "alert": {
         "success": "Votre message a bien été envoyé.",
-        "error": "Une erreur est survenue. Veuillez réessayer."
+        "error": "Une erreur est survenue. Veuillez réessayer.",
+        "emailCopied": "Adresse e-mail copiée.",
+        "copyError": "Impossible de copier l’adresse e-mail.",
+        "rateLimit": "Vous avez envoyé trop de messages. Veuillez patienter avant de réessayer.",
+        "spam": "Le message a été bloqué par la protection anti-spam.",
+        "smtpError": "Le serveur email est momentanément indisponible.",
+        "validationError": "Certains champs sont invalides. Vérifiez le formulaire."
       }
     }
   },

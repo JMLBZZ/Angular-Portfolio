@@ -1,0 +1,30 @@
+<div class="pointer-events-none fixed top-6 right-6 z-[1000] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-3">
+    <ng-container *ngIf="toasts$ | async as toasts">
+        <div 
+            *ngFor="let toast of toasts; trackBy: trackByToastId"
+            class="pointer-events-auto rounded-2xl border px-4 py-3 shadow-soft backdrop-blur-xl"
+            [ngClass]="getToastClasses(toast.type)" 
+            role="alert" 
+            aria-live="polite"
+            >
+            <div class="flex items-start gap-3">
+                <div class="mt-0.5 shrink-0">
+                    <i [class]="getIconClass(toast.type)"></i>
+                </div>
+
+                <div class="flex-1 text-sm font-medium leading-6">
+                    {{ toast.message }}
+                </div>
+
+                <button 
+                    type="button" 
+                    class="shrink-0 opacity-70 transition hover:opacity-100"
+                    (click)="removeToast(toast.id)" 
+                    aria-label="Close notification"
+                    >
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </ng-container>
+</div>

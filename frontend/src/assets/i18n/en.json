@@ -163,7 +163,13 @@
       },
       "alert": {
         "success": "Your message has been sent successfully.",
-        "error": "Something went wrong. Please try again."
+        "error": "Something went wrong. Please try again.",
+        "emailCopied": "Email address copied.",
+        "copyError": "Unable to copy the email address.",
+        "rateLimit": "You have sent too many messages. Please wait before trying again.",
+        "spam": "The message was blocked by the anti-spam protection.",
+        "smtpError": "The email server is temporarily unavailable.",
+        "validationError": "Some fields are invalid. Please check the form."
       }
     }
   },

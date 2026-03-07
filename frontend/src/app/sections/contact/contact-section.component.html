@@ -100,43 +100,9 @@
       <div appRevealOnScroll class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
         <div class="p-6">
           <!-- Alert message -->
-          <div *ngIf="alert" class="mb-5">
-            <!-- SUCCESS -->
-            <div *ngIf="alert.type === 'success'"
-              class="flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600">
-              <div class="mt-0.5">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-              </div>
 
-              <div class="flex-1">
-                {{ alert.messageKey | translate }}
-              </div>
 
-              <button type="button" (click)="dismissAlert()" class="opacity-80 hover:opacity-100 transition"
-                aria-label="Close">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-
-            <!-- ERROR -->
-            <div *ngIf="alert.type === 'error'"
-              class="flex items-start gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
-              <div class="mt-0.5">
-                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-              </div>
-
-              <div class="flex-1">
-                {{ alert.messageKey | translate }}
-              </div>
-
-              <button type="button" (click)="dismissAlert()" class="opacity-80 hover:opacity-100 transition"
-                aria-label="Close">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-          </div>
-
-          <form [formGroup]="form" class="space-y-5">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
             <!-- Nom -->
             <app-text-field
               [label]="'contact.form.name' | translate"
@@ -175,8 +141,15 @@
               [errorText]="(errorKey('message') | translate)"
             ></app-text-area>
 
+            <!-- Honeypot anti-spam (champ caché) -->
+            <div class="sr-only" aria-hidden="true">
+              <label for="website">Website</label>
+              <input id="website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
+            </div>
+
             <!-- Submit -->
             <app-primary-button
+              type="submit"
               [loading]="isSubmitting"
               [disabled]="isSubmitting"
               iconClass="bi bi-send-fill"
