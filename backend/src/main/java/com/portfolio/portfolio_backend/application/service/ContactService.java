@@ -1,6 +1,10 @@
 package com.portfolio.portfolio_backend.application.service;
 
+import com.portfolio.portfolio_backend.application.exception.RateLimitException;
+import com.portfolio.portfolio_backend.application.exception.SpamDetectedException;
 import com.portfolio.portfolio_backend.web.dto.ContactRequestDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class ContactService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
+
+    private static final Duration COOLDOWN = Duration.ofSeconds(30);
+
     private final JavaMailSender mailSender;
 
     @Value("${app.contact.to}")
@@ -22,67 +30,110 @@ public class ContactService {
     @Value("${app.contact.from}")
     private String from;
 
-    // Rate-limit basique en mémoire: 1 message / 30s / IP
     private final Map<String, Instant> lastSentByIp = new ConcurrentHashMap<>();
-    private static final Duration COOLDOWN = Duration.ofSeconds(30);
 
     public ContactService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     public void send(ContactRequestDTO dto, String clientIp) {
-        // 1) Honeypot anti-spam
-        if (dto.getWebsite() != null && !dto.getWebsite().trim().isEmpty()) {
-            throw new IllegalArgumentException("SPAM_DETECTED");
-        }
+        String safeIp = normalizeIp(clientIp);
 
-        // 2) Rate limit basique
-        if (clientIp == null || clientIp.isBlank()) clientIp = "unknown";
-        Instant now = Instant.now();
-        Instant last = lastSentByIp.get(clientIp);
-        if (last != null && Duration.between(last, now).compareTo(COOLDOWN) < 0) {
-            throw new IllegalStateException("RATE_LIMIT");
-        }
-        lastSentByIp.put(clientIp, now);
+        logger.info("Contact request received from IP={}", safeIp);
 
-        // 3) Sanitization simple
+        checkHoneypot(dto);
+        checkRateLimit(safeIp);
+
         String name = sanitize(dto.getName(), 80);
         String email = sanitize(dto.getEmail(), 120);
         String subject = sanitize(dto.getSubject(), 120);
         String message = sanitize(dto.getMessage(), 4000);
 
+        String safeFrom = buildSafeFrom();
+        String safeReplyTo = buildSafeReplyTo(email, safeFrom);
+
         String fullSubject = "[Portfolio] " + subject;
 
         String body = """
                 Nouveau message via le portfolio
-                
+
                 Nom: %s
                 Email: %s
                 IP: %s
-                
+
                 Message:
                 %s
-                """.formatted(name, email, clientIp, message);
+                """.formatted(name, email, safeIp, message);
 
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setTo(to);
-        mail.setFrom(from);
-
-        // Important: reply-to = email du visiteur
-        mail.setReplyTo(email);
-
+        mail.setFrom(safeFrom);
+        mail.setReplyTo(safeReplyTo);
         mail.setSubject(fullSubject);
         mail.setText(body);
 
         mailSender.send(mail);
+
+        logger.info("Contact email successfully sent for IP={}", safeIp);
     }
 
-    private String sanitize(String input, int maxLen) {
-        if (input == null) return "";
-        String s = input
+    private void checkHoneypot(ContactRequestDTO dto) {
+        if (dto.getWebsite() != null && !dto.getWebsite().trim().isEmpty()) {
+            logger.warn("Spam detected via honeypot field");
+            throw new SpamDetectedException("Spam detected");
+        }
+    }
+
+    private void checkRateLimit(String clientIp) {
+        Instant now = Instant.now();
+        Instant lastSentAt = lastSentByIp.get(clientIp);
+
+        if (lastSentAt != null) {
+            Duration elapsed = Duration.between(lastSentAt, now);
+
+            if (elapsed.compareTo(COOLDOWN) < 0) {
+                logger.warn("Rate limit exceeded for IP={}", clientIp);
+                throw new RateLimitException("Too many requests");
+            }
+        }
+
+        lastSentByIp.put(clientIp, now);
+    }
+
+    private String normalizeIp(String clientIp) {
+        if (clientIp == null || clientIp.isBlank()) {
+            return "unknown";
+        }
+        return clientIp.trim();
+    }
+
+    private String buildSafeFrom() {
+        if (from == null || from.isBlank()) {
+            return "no-reply@localhost.localdomain";
+        }
+        return from.trim();
+    }
+
+    private String buildSafeReplyTo(String email, String fallback) {
+        if (email == null || email.isBlank()) {
+            return fallback;
+        }
+        return email.trim();
+    }
+
+    private String sanitize(String input, int maxLength) {
+        if (input == null) {
+            return "";
+        }
+
+        String sanitized = input
                 .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")
                 .trim();
-        if (s.length() > maxLen) s = s.substring(0, maxLen);
-        return s;
+
+        if (sanitized.length() > maxLength) {
+            sanitized = sanitized.substring(0, maxLength);
+        }
+
+        return sanitized;
     }
 }
