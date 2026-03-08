@@ -5,7 +5,6 @@ import { ThemeService } from '../../core/theme/theme.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
 
-
 type SectionId = 'home' | 'projects' | 'about' | 'contact';
 
 @Component({
@@ -48,11 +47,10 @@ export class HeaderComponent implements OnInit {
     const nearBottom =
       window.innerHeight + window.scrollY >= document.body.offsetHeight - 2;
     if (nearBottom) current = 'contact';
-
     this.activeSection = current;
   }
 
-  scrollTo(id: SectionId) {
+  scrollTo(id: SectionId): void {
     if (id === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -69,7 +67,36 @@ export class HeaderComponent implements OnInit {
     return this.activeSection === id;
   }
 
-  goToAdminLogin() {
+  goToAdminLogin(): void {
     window.location.href = '/admin/login';
+  }
+
+  getNavAriaCurrent(id: SectionId): 'page' | null {
+    return this.isActive(id) ? 'page' : null;
+  }
+
+  getSectionAriaLabel(id: SectionId): string {
+    switch (id) {
+      case 'home':
+        return 'Aller à la section accueil';
+      case 'projects':
+        return 'Aller à la section projets';
+      case 'about':
+        return 'Aller à la section à propos';
+      case 'contact':
+        return 'Aller à la section contact';
+      default:
+        return 'Aller à la section';
+    }
+  }
+
+  getLanguageButtonLabel(): string {
+    return this.lang.current === 'fr'
+      ? 'Changer la langue en anglais'
+      : 'Switch language to French';
+  }
+
+  getThemeButtonLabel(): string {
+    return 'Changer le thème (clair ou sombre)';
   }
 }

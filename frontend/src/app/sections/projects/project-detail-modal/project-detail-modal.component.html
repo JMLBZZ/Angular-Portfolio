@@ -1,16 +1,25 @@
 <div *ngIf="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
 
   <!-- BACKDROP -->
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-    [class.opacity-100]="isVisible" [class.opacity-0]="!isVisible" (click)="onClose()">
+  <div
+    class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+    [class.opacity-100]="isVisible"
+    [class.opacity-0]="!isVisible"
+    (click)="onClose()">
   </div>
 
   <!-- MODAL (scrollable) -->
   <div
     class="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card shadow-[0_30px_80px_rgba(0,0,0,0.35)] transition-all duration-300"
-    [class.opacity-100]="isVisible" [class.scale-100]="isVisible" [class.opacity-0]="!isVisible"
-    [class.scale-95]="!isVisible" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
-    [attr.aria-label]="project?.title || 'Project details'">
+    [class.opacity-100]="isVisible"
+    [class.scale-100]="isVisible"
+    [class.opacity-0]="!isVisible"
+    [class.scale-95]="!isVisible"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="dialogTitleId"
+    [attr.aria-describedby]="dialogDescriptionId">
 
     <!-- IMAGE / CAROUSEL -->
     <div
@@ -22,8 +31,16 @@
     >
       <!-- Crossfade layers -->
       <ng-container *ngIf="layers.length > 0; else noImage">
-        <img *ngFor="let layer of layers; let i = index; trackBy: trackLayer" [src]="layer.src" [alt]="project?.title"
-          class="absolute inset-0 h-full w-full object-cover select-none" [style.zIndex]="i" [@crossfade]
+        <img
+          *ngFor="let layer of layers; let i = index; trackBy: trackLayer"
+          [src]="layer.src"
+          [alt]="project?.title || 'Project image'"
+          class="absolute inset-0 h-full w-full object-cover select-none"
+          [style.zIndex]="i"
+          [@crossfade]
+          decoding="async"
+          width="1200"
+          height="675"
           draggable="false" />
       </ng-container>
 
@@ -35,31 +52,45 @@
 
       <!-- Close -->
       <button
-        class="absolute top-4 right-4 z-20 rounded-xl bg-card/80 px-3 py-1 text-sm border border-border backdrop-blur hover:bg-card transition"
-        (click)="onClose()" type="button">
+        #closeButton
+        class="absolute top-4 right-4 z-20 rounded-xl bg-card/80 px-3 py-1 text-sm border border-border backdrop-blur hover:bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        (click)="onClose()"
+        type="button"
+        aria-label="Fermer la fenêtre du projet">
         ✕
       </button>
 
       <!-- Prev / Next -->
-      <button *ngIf="hasCarousel"
-        class="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-black/40 px-3 py-2 text-white backdrop-blur hover:bg-black/55 transition"
-        type="button" (click)="prev()">
+      <button
+        *ngIf="hasCarousel"
+        class="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-black/40 px-3 py-2 text-white backdrop-blur hover:bg-black/55 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        type="button"
+        (click)="prev()"
+        aria-label="Image précédente">
         ‹
       </button>
 
-      <button *ngIf="hasCarousel"
-        class="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-black/40 px-3 py-2 text-white backdrop-blur hover:bg-black/55 transition"
-        type="button" (click)="next()">
+      <button
+        *ngIf="hasCarousel"
+        class="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-black/40 px-3 py-2 text-white backdrop-blur hover:bg-black/55 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        type="button"
+        (click)="next()"
+        aria-label="Image suivante">
         ›
       </button>
 
       <!-- Points -->
       <div *ngIf="hasCarousel" class="absolute bottom-3 left-0 right-0 z-20 flex items-center justify-center gap-2">
-        <button *ngFor="let _ of images; let i = index" type="button" class="h-2.5 w-2.5 rounded-full transition"
+        <button
+          *ngFor="let _ of images; let i = index"
+          type="button"
+          class="h-2.5 w-2.5 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           [ngClass]="{
-        'bg-white': i === activeImageIndex,
-        'bg-white/40 hover:bg-white/70': i !== activeImageIndex
-      }" (click)="goTo(i)">
+            'bg-white': i === activeImageIndex,
+            'bg-white/40 hover:bg-white/70': i !== activeImageIndex
+          }"
+          (click)="goTo(i)"
+          [attr.aria-label]="'Aller à l’image ' + (i + 1)">
         </button>
       </div>
 
@@ -78,11 +109,15 @@
         </span>
       </div>
 
-      <h3 class="text-3xl font-bold">
+      <h3
+        class="text-3xl font-bold"
+        [id]="dialogTitleId">
         {{ project?.title }}
       </h3>
 
-      <p class="mt-4 text-foreground/70 leading-relaxed">
+      <p
+        class="mt-4 text-foreground/70 leading-relaxed"
+        [id]="dialogDescriptionId">
         {{ loc(project?.longDescription || project?.description) }}
       </p>
 
@@ -137,8 +172,7 @@
           iconClass="bi bi-box-arrow-up-right"
           [href]="project?.demoUrl"
           [label]="'projects.view' | translate"
-          [ariaLabel]="'projects.view' | translate"
-        >
+          [ariaLabel]="'projects.view' | translate">
         </app-action-button>
 
         <app-action-button
@@ -147,8 +181,7 @@
           iconClass="bi bi-github"
           [href]="project?.githubUrl"
           [label]="'projects.code' | translate"
-          [ariaLabel]="'projects.code' | translate"
-        >
+          [ariaLabel]="'projects.code' | translate">
         </app-action-button>
       </div>
 

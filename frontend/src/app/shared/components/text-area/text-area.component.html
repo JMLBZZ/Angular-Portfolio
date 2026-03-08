@@ -1,19 +1,28 @@
 <div class="space-y-2">
-    <label *ngIf="label" class="text-sm font-semibold">
+    <label
+        *ngIf="label"
+        class="text-sm font-semibold"
+        [attr.for]="computedId"
+    >
         {{ label }}
     </label>
 
     <textarea
-        [id]="id || null"
+        [id]="computedId"
         [rows]="rows"
         [formControl]="control"
         [placeholder]="placeholder"
         [disabled]="disabled"
         [class]="textareaClasses"
-        [attr.aria-invalid]="showError"
+        [attr.aria-invalid]="showError ? 'true' : 'false'"
+        [attr.aria-describedby]="describedBy"
     ></textarea>
 
-    <p *ngIf="showError && errorText" class="text-xs text-red-500">
+    <p
+        *ngIf="showError && errorText"
+        class="text-xs text-red-500"
+        [id]="errorId"
+    >
         {{ errorText }}
     </p>
 </div>

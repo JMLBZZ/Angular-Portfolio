@@ -12,8 +12,8 @@ type Filter = 'all' | ProjectCategory;
   selector: 'app-projects-section',
   standalone: true,
   imports: [
-    CommonModule, 
-    TranslateModule, 
+    CommonModule,
+    TranslateModule,
     ActionButtonComponent,
   ],
   templateUrl: './projects-section.component.html',
@@ -39,16 +39,19 @@ export class ProjectsSectionComponent {
 
   projects = PROJECTS;
 
+  private imageLoadedState: Record<string, boolean> = {};
+  private imageErrorState: Record<string, boolean> = {};
+
   get filteredProjects(): Project[] {
     if (this.activeFilter === 'all') return this.projects;
-    return this.projects.filter(p => p.category === this.activeFilter);
+    return this.projects.filter((p) => p.category === this.activeFilter);
   }
 
-  setFilter(filter: Filter) {
+  setFilter(filter: Filter): void {
     this.activeFilter = filter;
   }
 
-  openProject(project: Project) {
+  openProject(project: Project): void {
     this.projectClick.emit(project);
   }
 
@@ -56,5 +59,23 @@ export class ProjectsSectionComponent {
     if (!text) return '';
     const currentLang = this.lang.current;
     return text[currentLang] ?? text.fr;
+  }
+
+  onImageLoad(project: Project): void {
+    this.imageLoadedState[project.title] = true;
+    this.imageErrorState[project.title] = false;
+  }
+
+  onImageError(project: Project): void {
+    this.imageLoadedState[project.title] = false;
+    this.imageErrorState[project.title] = true;
+  }
+
+  isImageLoaded(project: Project): boolean {
+    return !!this.imageLoadedState[project.title];
+  }
+
+  hasImageError(project: Project): boolean {
+    return !!this.imageErrorState[project.title];
   }
 }

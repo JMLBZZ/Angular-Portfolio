@@ -1,88 +1,162 @@
 <header
-    class="sticky top-0 z-50 backdrop-blur bg-white/70 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <!-- Logo -->
-        <div class="font-bold tracking-tight">
-            <span class="text-lg">JML</span>
-        </div>
-
-        <!-- Navbar buttons -->
-        <nav class="hidden md:flex items-center gap-6 text-sm">
-            <button class="transition" [class.text-primary]="isActive('home')" [class.opacity-100]="isActive('home')"
-                [class.font-semibold]="isActive('home')" [class.opacity-80]="!isActive('home')"
-                (click)="scrollTo('home')">
-                {{ 'header.home' | translate }}
-            </button>
-
-            <button class="transition" [class.text-primary]="isActive('projects')"
-                [class.opacity-100]="isActive('projects')" [class.font-semibold]="isActive('projects')"
-                [class.opacity-80]="!isActive('projects')" (click)="scrollTo('projects')">
-                {{ 'header.projects' | translate }}
-            </button>
-
-            <button class="transition" [class.text-primary]="isActive('about')" [class.opacity-100]="isActive('about')"
-                [class.font-semibold]="isActive('about')" [class.opacity-80]="!isActive('about')"
-                (click)="scrollTo('about')">
-                {{ 'header.about' | translate }}
-            </button>
-
-            <button class="transition" [class.text-primary]="isActive('contact')"
-                [class.opacity-100]="isActive('contact')" [class.font-semibold]="isActive('contact')"
-                [class.opacity-80]="!isActive('contact')" (click)="scrollTo('contact')">
-                {{ 'header.contact' | translate }}
-            </button>
-        </nav>
-
-        <!-- Right actions -->
-        <div class="flex items-center gap-2">
-            <!-- Admin (cadena) -->
-            <button
-                class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                title="Admin" (click)="goToAdminLogin()">
-                🔒
-            </button>
-
-            <!-- Langue -->
-            <button
-                class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs"
-                (click)="lang.toggle()" title="Language">
-                {{ lang.current | uppercase }}
-            </button>
-
-            <!-- Dark/Light -->
-            <button
-                class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                (click)="theme.toggle()" title="Theme">
-                🌓
-            </button>
-        </div>
+  class="sticky top-0 z-50 backdrop-blur bg-white/70 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800"
+>
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="font-bold tracking-tight" aria-label="JMLBZZ portfolio">
+      <span class="text-lg">JML</span>
     </div>
 
-    <!-- Mobile nav -->
-    <div class="md:hidden border-t border-slate-200 dark:border-slate-800">
-        <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
-            <button class="transition" [class.text-primary]="isActive('home')" [class.font-semibold]="isActive('home')"
-                [class.opacity-80]="!isActive('home')" (click)="scrollTo('home')">
-                {{ 'header.home' | translate }}
-            </button>
+    <!-- Navbar buttons -->
+    <nav class="hidden md:flex items-center gap-6 text-sm" aria-label="Navigation principale">
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('home')"
+        [class.opacity-100]="isActive('home')"
+        [class.font-semibold]="isActive('home')"
+        [class.opacity-80]="!isActive('home')"
+        [attr.aria-current]="getNavAriaCurrent('home')"
+        [attr.aria-label]="getSectionAriaLabel('home')"
+        (click)="scrollTo('home')"
+      >
+        {{ 'header.home' | translate }}
+      </button>
 
-            <button class="transition" [class.text-primary]="isActive('projects')"
-                [class.font-semibold]="isActive('projects')" [class.opacity-80]="!isActive('projects')"
-                (click)="scrollTo('projects')">
-                {{ 'header.projects' | translate }}
-            </button>
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('projects')"
+        [class.opacity-100]="isActive('projects')"
+        [class.font-semibold]="isActive('projects')"
+        [class.opacity-80]="!isActive('projects')"
+        [attr.aria-current]="getNavAriaCurrent('projects')"
+        [attr.aria-label]="getSectionAriaLabel('projects')"
+        (click)="scrollTo('projects')"
+      >
+        {{ 'header.projects' | translate }}
+      </button>
 
-            <button class="transition" [class.text-primary]="isActive('about')"
-                [class.font-semibold]="isActive('about')" [class.opacity-80]="!isActive('about')"
-                (click)="scrollTo('about')">
-                {{ 'header.about' | translate }}
-            </button>
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('about')"
+        [class.opacity-100]="isActive('about')"
+        [class.font-semibold]="isActive('about')"
+        [class.opacity-80]="!isActive('about')"
+        [attr.aria-current]="getNavAriaCurrent('about')"
+        [attr.aria-label]="getSectionAriaLabel('about')"
+        (click)="scrollTo('about')"
+      >
+        {{ 'header.about' | translate }}
+      </button>
 
-            <button class="transition" [class.text-primary]="isActive('contact')"
-                [class.font-semibold]="isActive('contact')" [class.opacity-80]="!isActive('contact')"
-                (click)="scrollTo('contact')">
-                {{ 'header.contact' | translate }}
-            </button>
-        </div>
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('contact')"
+        [class.opacity-100]="isActive('contact')"
+        [class.font-semibold]="isActive('contact')"
+        [class.opacity-80]="!isActive('contact')"
+        [attr.aria-current]="getNavAriaCurrent('contact')"
+        [attr.aria-label]="getSectionAriaLabel('contact')"
+        (click)="scrollTo('contact')"
+      >
+        {{ 'header.contact' | translate }}
+      </button>
+    </nav>
+
+    <!-- Right actions -->
+    <div class="flex items-center gap-2" aria-label="Actions du header">
+      <!-- Admin -->
+      <button
+        type="button"
+        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        aria-label="Accéder à l’espace administrateur"
+        title="Admin"
+        (click)="goToAdminLogin()"
+      >
+        <span aria-hidden="true">🔒</span>
+      </button>
+
+      <!-- Langue -->
+      <button
+        type="button"
+        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        [attr.aria-label]="getLanguageButtonLabel()"
+        title="Language"
+        (click)="lang.toggle()"
+      >
+        {{ lang.current | uppercase }}
+      </button>
+
+      <!-- Dark/Light -->
+      <button
+        type="button"
+        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        [attr.aria-label]="getThemeButtonLabel()"
+        title="Theme"
+        (click)="theme.toggle()"
+      >
+        <span aria-hidden="true">🌓</span>
+      </button>
     </div>
+  </div>
+
+  <!-- Mobile nav -->
+  <div class="md:hidden border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between text-sm" aria-label="Navigation mobile">
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('home')"
+        [class.font-semibold]="isActive('home')"
+        [class.opacity-80]="!isActive('home')"
+        [attr.aria-current]="getNavAriaCurrent('home')"
+        [attr.aria-label]="getSectionAriaLabel('home')"
+        (click)="scrollTo('home')"
+      >
+        {{ 'header.home' | translate }}
+      </button>
+
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('projects')"
+        [class.font-semibold]="isActive('projects')"
+        [class.opacity-80]="!isActive('projects')"
+        [attr.aria-current]="getNavAriaCurrent('projects')"
+        [attr.aria-label]="getSectionAriaLabel('projects')"
+        (click)="scrollTo('projects')"
+      >
+        {{ 'header.projects' | translate }}
+      </button>
+
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('about')"
+        [class.font-semibold]="isActive('about')"
+        [class.opacity-80]="!isActive('about')"
+        [attr.aria-current]="getNavAriaCurrent('about')"
+        [attr.aria-label]="getSectionAriaLabel('about')"
+        (click)="scrollTo('about')"
+      >
+        {{ 'header.about' | translate }}
+      </button>
+
+      <button
+        type="button"
+        class="transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        [class.text-primary]="isActive('contact')"
+        [class.font-semibold]="isActive('contact')"
+        [class.opacity-80]="!isActive('contact')"
+        [attr.aria-current]="getNavAriaCurrent('contact')"
+        [attr.aria-label]="getSectionAriaLabel('contact')"
+        (click)="scrollTo('contact')"
+      >
+        {{ 'header.contact' | translate }}
+      </button>
+    </div>
+  </div>
 </header>

@@ -3,8 +3,8 @@
   *ngIf="href; else asButton"
   [href]="href"
   [attr.target]="target"
-  [attr.rel]="rel"
-  [attr.aria-label]="ariaLabel || label || null"
+  [attr.rel]="computedRel"
+  [attr.aria-label]="computedAriaLabel"
   class="inline-flex items-center justify-center gap-2
          rounded-full border border-border/70 bg-card/40 backdrop-blur
          px-5 py-3 text-sm font-semibold text-foreground/70
@@ -13,7 +13,7 @@
          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
   [ngClass]="[widthClass, className]"
 >
-  <i *ngIf="iconClass" [class]="iconClass + ' text-[18px]'"></i>
+  <i *ngIf="iconClass" [class]="iconClass + ' text-[18px]'" aria-hidden="true"></i>
   <span class="whitespace-nowrap">{{ label }}</span>
   <ng-content></ng-content>
 </a>
@@ -23,7 +23,7 @@
   <button
     type="button"
     [disabled]="disabled"
-    [attr.aria-label]="ariaLabel || label || null"
+    [attr.aria-label]="computedAriaLabel"
     class="inline-flex items-center justify-center gap-2
            rounded-full border border-border/70 bg-card/40 backdrop-blur
            px-5 py-3 text-sm font-semibold text-foreground/70
@@ -34,7 +34,7 @@
     [ngClass]="[widthClass, className]"
     (click)="onClick()"
   >
-    <i *ngIf="iconClass" [class]="iconClass + ' text-[18px]'"></i>
+    <i *ngIf="iconClass" [class]="iconClass + ' text-[18px]'" aria-hidden="true"></i>
     <span class="whitespace-nowrap">{{ label }}</span>
     <ng-content></ng-content>
   </button>

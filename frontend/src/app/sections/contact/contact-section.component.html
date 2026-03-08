@@ -19,7 +19,7 @@
             <!-- Email -->
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-envelope-fill text-primary text-[18px]"></i>
+                <i class="bi bi-envelope-fill text-primary text-[18px]" aria-hidden="true"></i>
               </div>
 
               <div class="flex-1">
@@ -41,7 +41,7 @@
             <!-- Phone -->
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-telephone-fill text-primary text-[18px]"></i>
+                <i class="bi bi-telephone-fill text-primary text-[18px]" aria-hidden="true"></i>
               </div>
 
               <div>
@@ -55,7 +55,7 @@
             <!-- Location -->
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-geo-alt-fill text-primary text-[18px]"></i>
+                <i class="bi bi-geo-alt-fill text-primary text-[18px]" aria-hidden="true"></i>
               </div>
 
               <div>
@@ -99,21 +99,20 @@
       <!-- RIGHT (Form) -->
       <div appRevealOnScroll class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
         <div class="p-6">
-          <!-- Alert message -->
-
-
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
             <!-- Nom -->
             <app-text-field
+              id="contact-name"
               [label]="'contact.form.name' | translate"
               [placeholder]="'contact.form.placeholders.name' | translate"
               [control]="nameCtrl"
               [showError]="showError('name')"
               [errorText]="(errorKey('name') | translate)"
             ></app-text-field>
-            
+
             <!-- Email -->
             <app-text-field
+              id="contact-email"
               type="email"
               [label]="'contact.form.email' | translate"
               [placeholder]="'contact.form.placeholders.email' | translate"
@@ -124,6 +123,7 @@
 
             <!-- Sujet -->
             <app-text-field
+              id="contact-subject"
               [label]="'contact.form.subject' | translate"
               [placeholder]="'contact.form.placeholders.subject' | translate"
               [control]="subjectCtrl"
@@ -133,6 +133,7 @@
 
             <!-- Message -->
             <app-text-area
+              id="contact-message"
               [label]="'contact.form.message' | translate"
               [placeholder]="'contact.form.placeholders.message' | translate"
               [control]="messageCtrl"
@@ -153,7 +154,6 @@
               [loading]="isSubmitting"
               [disabled]="isSubmitting"
               iconClass="bi bi-send-fill"
-              (pressed)="onSubmit()"
               fullWidthMode="always"
             >
               <span *ngIf="!isSubmitting">{{ 'contact.form.send' | translate }}</span>

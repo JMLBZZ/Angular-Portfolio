@@ -14,7 +14,7 @@ export class IconButtonComponent {
   /** Si href existe => rendu <a> */
   @Input() href?: string;
   @Input() target: '_blank' | '_self' = '_blank';
-  @Input() rel = 'noopener';
+  @Input() rel = 'noopener noreferrer';
 
   /** Taille du bouton */
   @Input() sizeClass = 'h-11 w-11';
@@ -33,9 +33,15 @@ export class IconButtonComponent {
 
   @Output() pressed = new EventEmitter<void>();
 
-  onClick() {
+  onClick(): void {
     if (this.disabled) return;
     this.pressed.emit();
+  }
+
+  get computedRel(): string | null {
+    if (!this.href) return null;
+    if (this.target === '_blank') return 'noopener noreferrer';
+    return this.rel || null;
   }
 
   get classes(): string {

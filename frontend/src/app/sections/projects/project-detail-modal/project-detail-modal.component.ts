@@ -6,7 +6,9 @@ import {
   HostListener,
   OnChanges,
   SimpleChanges,
-  OnDestroy
+  OnDestroy,
+  ElementRef,
+  ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,8 +23,8 @@ type Layer = { id: number; src: string };
   selector: 'app-project-detail-modal',
   standalone: true,
   imports: [
-    CommonModule, 
-    TranslateModule, 
+    CommonModule,
+    TranslateModule,
     ActionButtonComponent,
   ],
   templateUrl: './project-detail-modal.component.html',
@@ -45,6 +47,8 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
   @Input() project: Project | null = null;
 
   @Output() close = new EventEmitter<void>();
+
+  @ViewChild('closeButton') closeButton?: ElementRef<HTMLButtonElement>;
 
   isVisible = false;
 
@@ -70,6 +74,14 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
 
   get currentLang(): 'fr' | 'en' {
     return this.lang.current;
+  }
+
+  get dialogTitleId(): string {
+    return 'project-modal-title';
+  }
+
+  get dialogDescriptionId(): string {
+    return 'project-modal-description';
   }
 
   loc(text: LocalizedText | undefined): string {
@@ -195,7 +207,10 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
         this.activeImageIndex = 0;
         this.setInitialLayer();
 
-        setTimeout(() => (this.isVisible = true), 10);
+        setTimeout(() => {
+          this.isVisible = true;
+          this.closeButton?.nativeElement.focus();
+        }, 10);
       } else {
         document.body.style.overflow = '';
       }

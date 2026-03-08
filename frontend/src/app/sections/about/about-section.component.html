@@ -18,7 +18,16 @@
           class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft overflow-hidden lg:sticky lg:top-28">
           <!-- Image + fondu -->
           <div class="relative h-[280px] w-full overflow-hidden bg-background">
-            <img [src]="avatarUrl" alt="Profile" class="h-full w-full object-cover object-top" />
+            <img
+              [src]="avatarUrl"
+              alt="Profile"
+              class="h-full w-full object-cover object-top"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+              width="800"
+              height="1000"
+            />
             <!-- fondu vers la couleur de fond -->
             <div
               class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background">

@@ -13,7 +13,7 @@ export class SecondaryButtonComponent {
   @Input() label = '';
   @Input() href?: string;
   @Input() target: '_blank' | '_self' = '_blank';
-  @Input() rel = 'noopener';
+  @Input() rel = 'noopener noreferrer';
   @Input() ariaLabel = '';
   @Input() iconClass?: string;
 
@@ -34,5 +34,15 @@ export class SecondaryButtonComponent {
     if (this.fullWidthMode === 'always') return 'w-full';
     if (this.fullWidthMode === 'mobile') return 'w-full sm:w-auto';
     return 'w-auto';
+  }
+
+  get computedAriaLabel(): string | null {
+    return this.ariaLabel || this.label || null;
+  }
+
+  get computedRel(): string | null {
+    if (!this.href) return null;
+    if (this.target === '_blank') return 'noopener noreferrer';
+    return this.rel || null;
   }
 }

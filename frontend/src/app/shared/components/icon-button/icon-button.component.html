@@ -4,10 +4,13 @@
   [href]="href"
   [attr.aria-label]="ariaLabel"
   [attr.target]="target"
-  [attr.rel]="rel"
+  [attr.rel]="computedRel"
   [class]="classes"
 >
-  <i [class]="iconClass + ' ' + iconSizeClass + ' ' + iconExtraClass"></i>
+  <i
+    [class]="iconClass + ' ' + iconSizeClass + ' ' + iconExtraClass"
+    aria-hidden="true"
+  ></i>
 </a>
 
 <!-- Sinon => <button> -->
@@ -19,6 +22,9 @@
     [class]="classes"
     (click)="onClick()"
   >
-    <i [class]="iconClass + ' ' + iconSizeClass + ' ' + iconExtraClass"></i>
+    <i
+      [class]="iconClass + ' ' + iconSizeClass + ' ' + iconExtraClass"
+      aria-hidden="true"
+    ></i>
   </button>
 </ng-template>

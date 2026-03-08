@@ -18,6 +18,18 @@ export class TextAreaComponent {
   @Input() rows = 6;
   @Input() id = '';
 
+  get computedId(): string | null {
+    return this.id || null;
+  }
+
+  get errorId(): string | null {
+    return this.id ? `${this.id}-error` : null;
+  }
+
+  get describedBy(): string | null {
+    return this.showError && this.errorText && this.errorId ? this.errorId : null;
+  }
+
   get textareaClasses(): string {
     return [
       'w-full min-h-[160px] rounded-3xl border px-4 py-3 text-sm outline-none transition resize-none',

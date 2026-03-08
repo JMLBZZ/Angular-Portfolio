@@ -22,6 +22,18 @@ export class TextFieldComponent {
   @Input() disabled = false;
   @Input() id = '';
 
+  get computedId(): string | null {
+    return this.id || null;
+  }
+
+  get errorId(): string | null {
+    return this.id ? `${this.id}-error` : null;
+  }
+
+  get describedBy(): string | null {
+    return this.showError && this.errorText && this.errorId ? this.errorId : null;
+  }
+
   get inputClasses(): string {
     return [
       'w-full h-11 rounded-full border px-4 text-sm outline-none transition',
