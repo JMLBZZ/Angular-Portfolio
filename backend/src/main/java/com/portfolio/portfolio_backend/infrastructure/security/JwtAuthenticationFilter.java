@@ -32,9 +32,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getServletPath();
-
+        
         // Ignore endpoints publics
-        if (path.startsWith("/auth/")
+        if (path.startsWith("/api/auth/")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")
                 || path.equals("/swagger-ui.html")) {
@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-
+        
         // Token invalide -> on laisse Spring Security répondre 401 plus tard
         if (!jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);

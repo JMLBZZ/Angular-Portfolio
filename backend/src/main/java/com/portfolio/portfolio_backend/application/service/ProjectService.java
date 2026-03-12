@@ -1,5 +1,6 @@
 package com.portfolio.portfolio_backend.application.service;
 
+import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.domain.port.out.ProjectRepositoryPort;
 
@@ -27,44 +28,51 @@ public class ProjectService {
     public Project update(UUID id, Project updatedProject) {
 
         Project existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         Project project = new Project(
                 existing.getId(),
+                updatedProject.getSlug(),
                 updatedProject.getTitle(),
+                updatedProject.getCategory(),
+                updatedProject.getImage(),
+                updatedProject.getCover(),
+                updatedProject.getImages(),
                 updatedProject.getDescription(),
+                updatedProject.getLongDescription(),
+                updatedProject.getStack(),
+                updatedProject.getType(),
+                updatedProject.isFeatured(),
+                updatedProject.getRole(),
+                updatedProject.getProblem(),
+                updatedProject.getSolution(),
+                updatedProject.getDemoUrl(),
+                updatedProject.getTags(),
                 updatedProject.getGithubUrl(),
-                updatedProject.getLiveUrl(),
+                updatedProject.isShowGithub(),
+                updatedProject.isPublished(),
+                updatedProject.getDisplayOrder(),
                 existing.getCreatedAt()
         );
 
         return repository.save(project);
     }
-/* 
-    public Page<Project> getAll(String search, Pageable pageable) {
 
-        if (search != null && !search.isBlank()) {
-            return repository.search(search, pageable);
-        }
-
-        return repository.findAll(pageable);
+    public Page<Project> getAll(
+            String search,
+            Boolean hasGithub,
+            Boolean hasLive,
+            LocalDate afterDate,
+            Pageable pageable
+    ) {
+        return repository.searchWithFilters(
+                search,
+                hasGithub,
+                hasLive,
+                afterDate,
+                pageable
+        );
     }
-*/
-public Page<Project> getAll(
-        String search,
-        Boolean hasGithub,
-        Boolean hasLive,
-        LocalDate afterDate,
-        Pageable pageable) {
-
-    return repository.searchWithFilters(
-            search,
-            hasGithub,
-            hasLive,
-            afterDate,
-            pageable
-    );
-}
 
     public Optional<Project> getById(UUID id) {
         return repository.findById(id);

@@ -2,27 +2,27 @@ package com.portfolio.portfolio_backend.web.controller;
 
 import com.portfolio.portfolio_backend.application.service.ProjectService;
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
+import com.portfolio.portfolio_backend.domain.model.LocalizedText;
 import com.portfolio.portfolio_backend.domain.model.Project;
+import com.portfolio.portfolio_backend.web.dto.LocalizedTextDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectRequestDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectResponseDTO;
 import com.portfolio.portfolio_backend.web.response.ApiResult;
 import com.portfolio.portfolio_backend.web.response.PageMetadata;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import org.springdoc.core.annotations.ParameterObject;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,126 +33,169 @@ import java.util.UUID;
 @Tag(name = "Projects", description = "Gestion des projets du portfolio")
 public class ProjectController {
 
-        private final ProjectService service;
+    private final ProjectService service;
 
-        public ProjectController(ProjectService service) {
-                this.service = service;
+    public ProjectController(ProjectService service) {
+        this.service = service;
+    }
+
+    //USER ou ADMIN (GET projects)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Récupérer tous les projets")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
+    @GetMapping
+    public ApiResult<List<ProjectResponseDTO>> getAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean hasGithub,
+            @RequestParam(required = false) Boolean hasLive,
+            @RequestParam(required = false) LocalDate afterDate,
+            @ParameterObject
+            @PageableDefault(page = 0, size = 10, sort = "displayOrder", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+
+        Page<ProjectResponseDTO> pageResult = service
+                .getAll(search, hasGithub, hasLive, afterDate, pageable)
+                .map(this::toResponse);
+
+        PageMetadata meta = new PageMetadata(
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages()
+        );
+
+        return new ApiResult<>(
+                true,
+                pageResult.getContent(),
+                meta
+        );
+    }
+
+    //USER ou ADMIN (GET projects/{id})
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Operation(summary = "Récupérer un projet par ID")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet trouvé"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
+    })
+    @GetMapping("/{id}")
+    public ProjectResponseDTO getById(
+            @Parameter(description = "UUID du projet") @PathVariable UUID id
+    ) {
+        Project project = service.getById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        return toResponse(project);
+    }
+
+    //ADMIN (POST projects)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Créer un nouveau projet")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet créé"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Données invalides")
+    })
+    @PostMapping
+    public ProjectResponseDTO create(@Valid @RequestBody ProjectRequestDTO dto) {
+        Project project = toDomain(dto, UUID.randomUUID(), LocalDate.now());
+        return toResponse(service.create(project));
+    }
+
+    //ADMIN (DELETE projects/{id})
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Supprimer un projet")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet supprimé"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
+    })
+    @DeleteMapping("/{id}")
+    public void delete(
+            @Parameter(description = "UUID du projet à supprimer") @PathVariable UUID id
+    ) {
+        service.delete(id);
+    }
+    
+    //ADMIN (PUT projects/{id})
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Modifier un projet par ID")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet modifié"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
+    })
+    @PutMapping("/{id}")
+    public ProjectResponseDTO update(
+            @PathVariable UUID id,
+            @Valid @RequestBody ProjectRequestDTO dto
+    ) {
+        Project project = toDomain(dto, id, LocalDate.now());
+        return toResponse(service.update(id, project));
+    }
+
+    private Project toDomain(ProjectRequestDTO dto, UUID id, LocalDate createdAt) {
+        return new Project(
+                id,
+                dto.getSlug(),
+                dto.getTitle(),
+                dto.getCategory(),
+                dto.getImage(),
+                dto.getCover(),
+                dto.getImages(),
+                toDomainLocalized(dto.getDescription()),
+                toDomainLocalized(dto.getLongDescription()),
+                dto.getStack(),
+                dto.getType(),
+                Boolean.TRUE.equals(dto.getFeatured()),
+                toDomainLocalized(dto.getRole()),
+                toDomainLocalized(dto.getProblem()),
+                toDomainLocalized(dto.getSolution()),
+                dto.getDemoUrl(),
+                dto.getTags(),
+                dto.getGithubUrl(),
+                Boolean.TRUE.equals(dto.getShowGithub()),
+                dto.getPublished() == null || dto.getPublished(),
+                dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 0,
+                createdAt
+        );
+    }
+
+    private ProjectResponseDTO toResponse(Project project) {
+        return new ProjectResponseDTO(
+                project.getId(),
+                project.getSlug(),
+                project.getTitle(),
+                project.getCategory(),
+                project.getImage(),
+                project.getCover(),
+                project.getImages(),
+                toDtoLocalized(project.getDescription()),
+                toDtoLocalized(project.getLongDescription()),
+                project.getStack(),
+                project.getType(),
+                project.isFeatured(),
+                toDtoLocalized(project.getRole()),
+                toDtoLocalized(project.getProblem()),
+                toDtoLocalized(project.getSolution()),
+                project.getDemoUrl(),
+                project.getTags(),
+                project.getGithubUrl(),
+                project.isShowGithub(),
+                project.isPublished(),
+                project.getDisplayOrder(),
+                project.getCreatedAt()
+        );
+    }
+
+    private LocalizedText toDomainLocalized(LocalizedTextDTO dto) {
+        if (dto == null) {
+            return null;
         }
+        return new LocalizedText(dto.getFr(), dto.getEn());
+    }
 
-        //USER ou ADMIN (GET projects)
-        @PreAuthorize("hasAnyRole('USER','ADMIN')")
-        @Operation(summary = "Récupérer tous les projets")
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
-        @GetMapping
-        public ApiResult<List<ProjectResponseDTO>> getAll(
-                        @RequestParam(required = false) String search,
-                        @RequestParam(required = false) Boolean hasGithub,
-                        @RequestParam(required = false) Boolean hasLive,
-                        @RequestParam(required = false) LocalDate afterDate,
-                        @ParameterObject
-                        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-                        ) {
-
-                Page<ProjectResponseDTO> pageResult = service
-                                .getAll(search, hasGithub, hasLive, afterDate, pageable)
-                                .map(this::toResponse);
-
-                PageMetadata meta = new PageMetadata(
-                                pageResult.getNumber(),
-                                pageResult.getSize(),
-                                pageResult.getTotalElements(),
-                                pageResult.getTotalPages());
-
-                return new ApiResult<>(
-                                true,
-                                pageResult.getContent(),
-                                meta);
+    private LocalizedTextDTO toDtoLocalized(LocalizedText text) {
+        if (text == null) {
+            return null;
         }
-
-        //USER ou ADMIN (GET projects/{id})
-        @PreAuthorize("hasAnyRole('USER','ADMIN')")
-        @Operation(summary = "Récupérer un projet par ID")
-        @ApiResponses({
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet trouvé"),
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
-        })
-        @GetMapping("/{id}")
-        public ProjectResponseDTO getById(
-                        @Parameter(description = "UUID du projet") @PathVariable UUID id) {
-
-                Project project = service.getById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-                return toResponse(project);
-        }
-
-        //ADMIN (POST projects)
-        @PreAuthorize("hasRole('ADMIN')")
-        @Operation(summary = "Créer un nouveau projet")
-        @ApiResponses({
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet créé"),
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Données invalides")
-        })
-        @PostMapping
-        public ProjectResponseDTO create(
-                        @Valid @RequestBody ProjectRequestDTO dto) {
-
-                Project project = new Project(
-                                UUID.randomUUID(),
-                                dto.getTitle(),
-                                dto.getDescription(),
-                                dto.getGithubUrl(),
-                                dto.getLiveUrl(),
-                                LocalDate.now());
-
-                return toResponse(service.create(project));
-        }
-
-        //ADMIN (DELETE projects/{id})
-        @PreAuthorize("hasRole('ADMIN')")
-        @Operation(summary = "Supprimer un projet")
-        @ApiResponses({
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet supprimé"),
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
-        })
-        @DeleteMapping("/{id}")
-        public void delete(
-                        @Parameter(description = "UUID du projet à supprimer") @PathVariable UUID id) {
-                service.delete(id);
-        }
-
-        //ADMIN (PUT projects/{id})
-        @PreAuthorize("hasRole('ADMIN')")
-        @Operation(summary = "Modifier un projet par ID")
-        @ApiResponses({
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet modifié"),
-                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
-        })
-        @PutMapping("/{id}")
-        public ProjectResponseDTO update(
-                        @PathVariable UUID id,
-                        @Valid @RequestBody ProjectRequestDTO dto) {
-
-                Project project = new Project(
-                                id,
-                                dto.getTitle(),
-                                dto.getDescription(),
-                                dto.getGithubUrl(),
-                                dto.getLiveUrl(),
-                                LocalDate.now() // ignoré par le service
-                );
-
-                return toResponse(service.update(id, project));
-        }
-
-        private ProjectResponseDTO toResponse(Project project) {
-
-                return new ProjectResponseDTO(
-                                project.getId(),
-                                project.getTitle(),
-                                project.getDescription(),
-                                project.getGithubUrl(),
-                                project.getLiveUrl(),
-                                project.getCreatedAt());
-        }
+        return new LocalizedTextDTO(text.getFr(), text.getEn());
+    }
 }

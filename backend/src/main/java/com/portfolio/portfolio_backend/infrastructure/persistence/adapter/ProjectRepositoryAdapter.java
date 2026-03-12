@@ -24,43 +24,32 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
 
     public ProjectRepositoryAdapter(
             JpaProjectRepository repository,
-            ProjectMapper mapper) {
+            ProjectMapper mapper
+    ) {
         this.repository = repository;
         this.mapper = mapper;
     }
 
     @Override
     public Project save(Project project) {
-
         ProjectEntity entity = mapper.toEntity(project);
         ProjectEntity saved = repository.save(entity);
-
         return mapper.toDomain(saved);
     }
 
     @Override
     public Optional<Project> findById(UUID id) {
-
-        return repository.findById(id)
-                .map(mapper::toDomain);
+        return repository.findById(id).map(mapper::toDomain);
     }
 
     @Override
     public Page<Project> findAll(Pageable pageable) {
-
-        return repository.findAll(pageable)
-                .map(mapper::toDomain);
+        return repository.findAll(pageable).map(mapper::toDomain);
     }
 
     @Override
     public Page<Project> search(String search, Pageable pageable) {
-
-        return repository
-                .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
-                        search,
-                        search,
-                        pageable)
-                .map(mapper::toDomain);
+        return searchWithFilters(search, null, null, null, pageable);
     }
 
     @Override
@@ -69,8 +58,8 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
             Boolean hasGithub,
             Boolean hasLive,
             LocalDate afterDate,
-            Pageable pageable) {
-
+            Pageable pageable
+    ) {
         Specification<ProjectEntity> spec = Specification
                 .where(ProjectSpecification.containsText(search))
                 .and(ProjectSpecification.hasGithub(hasGithub))

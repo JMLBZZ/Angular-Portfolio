@@ -29,33 +29,31 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults()) // Active CORS via CorsConfigurationSource
+            .cors(Customizer.withDefaults())// Active CORS via CorsConfigurationSource
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
             .authorizeHttpRequests(auth -> auth
                 // Important pour les préflights CORS
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // CONTACT public
+                // public auth
+                .requestMatchers("/api/auth/**").permitAll()
+
+                // public contact
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
 
-                // AUTH public (robuste)
-                .requestMatchers("/auth/**").permitAll()
-
-                // Swagger public
+                // swagger
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/swagger-ui.html"
                 ).permitAll()
 
-                // page d’erreur spring
+                // spring error
                 .requestMatchers("/error").permitAll()
 
-                // le reste protégé
+                // tout le reste protégé
                 .anyRequest().authenticated()
             )
-
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
