@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,6 +44,11 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    public Optional<Project> findBySlug(String slug) {
+        return repository.findBySlug(slug).map(mapper::toDomain);
+    }
+
+    @Override
     public Page<Project> findAll(Pageable pageable) {
         return repository.findAll(pageable).map(mapper::toDomain);
     }
@@ -60,13 +66,35 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
             LocalDate afterDate,
             Pageable pageable
     ) {
-        Specification<ProjectEntity> spec = Specification
-                .where(ProjectSpecification.containsText(search))
-                .and(ProjectSpecification.hasGithub(hasGithub))
-                .and(ProjectSpecification.hasLive(hasLive))
-                .and(ProjectSpecification.createdAfter(afterDate));
+        Specification<ProjectEntity> spec = ProjectSpecification.containsText(search);
 
-        return repository.findAll(spec, pageable)
+        if (spec == null) {
+            spec = Specification.unrestricted();
+        }
+        if (ProjectSpecification.hasGithub(hasGithub) != null) {
+            spec = spec.and(ProjectSpecification.hasGithub(hasGithub));
+        }
+        if (ProjectSpecification.hasLive(hasLive) != null) {
+            spec = spec.and(ProjectSpecification.hasLive(hasLive));
+        }
+        if (ProjectSpecification.createdAfter(afterDate) != null) {
+            spec = spec.and(ProjectSpecification.createdAfter(afterDate));
+        }
+
+        return repository.findAll(spec, pageable).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Project> findPublishedOrdered() {
+        return repository.findByPublishedTrueOrderByDisplayOrderAscCreatedAtDesc()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<Project> findPublishedBySlug(String slug) {
+        return repository.findBySlugAndPublishedTrue(slug)
                 .map(mapper::toDomain);
     }
 

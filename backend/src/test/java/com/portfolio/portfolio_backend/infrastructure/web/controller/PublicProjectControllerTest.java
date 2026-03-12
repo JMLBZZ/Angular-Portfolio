@@ -5,7 +5,7 @@ import com.portfolio.portfolio_backend.domain.model.LocalizedText;
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.infrastructure.security.JwtAuthenticationFilter;
 import com.portfolio.portfolio_backend.infrastructure.security.JwtService;
-import com.portfolio.portfolio_backend.web.controller.ProjectController;
+import com.portfolio.portfolio_backend.web.controller.PublicProjectController;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +23,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ProjectController.class)
+@WebMvcTest(PublicProjectController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ProjectControllerTest {
+class PublicProjectControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -40,39 +40,47 @@ class ProjectControllerTest {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
-    void shouldReturnProjectWhenIdExists() throws Exception {
-        UUID id = UUID.randomUUID();
+    void shouldReturnPublishedProjects() throws Exception {
+        Project project = buildProject(UUID.randomUUID(), "portfolio-angular", true);
 
-        Project project = buildProject(id);
+        when(service.getPublishedProjects()).thenReturn(List.of(project));
 
-        when(service.getById(id))
-                .thenReturn(Optional.of(project));
-
-        mockMvc.perform(get("/projects/{id}", id))
+        mockMvc.perform(get("/api/public/projects"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Test Project"))
-                .andExpect(jsonPath("$.slug").value("test-project"))
-                .andExpect(jsonPath("$.description.fr").value("Description FR"))
-                .andExpect(jsonPath("$.description.en").value("Description EN"))
-                .andExpect(jsonPath("$.category").value("fullstack"));
+                .andExpect(jsonPath("$[0].slug").value("portfolio-angular"))
+                .andExpect(jsonPath("$[0].title").value("Portfolio Angular"))
+                .andExpect(jsonPath("$[0].published").value(true));
     }
 
     @Test
-    void shouldReturn404WhenProjectDoesNotExist() throws Exception {
-        UUID id = UUID.randomUUID();
+    void shouldReturnPublishedProjectBySlug() throws Exception {
+        Project project = buildProject(UUID.randomUUID(), "portfolio-angular", true);
 
-        when(service.getById(id))
+        when(service.getPublishedProjectBySlug("portfolio-angular"))
+                .thenReturn(Optional.of(project));
+
+        mockMvc.perform(get("/api/public/projects/portfolio-angular"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.slug").value("portfolio-angular"))
+                .andExpect(jsonPath("$.title").value("Portfolio Angular"))
+                .andExpect(jsonPath("$.description.fr").value("Description FR"))
+                .andExpect(jsonPath("$.description.en").value("Description EN"));
+    }
+
+    @Test
+    void shouldReturn404WhenPublishedProjectDoesNotExist() throws Exception {
+        when(service.getPublishedProjectBySlug("inexistant"))
                 .thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/projects/{id}", id))
+        mockMvc.perform(get("/api/public/projects/inexistant"))
                 .andExpect(status().isNotFound());
     }
 
-    private Project buildProject(UUID id) {
+    private Project buildProject(UUID id, String slug, boolean published) {
         return new Project(
                 id,
-                "test-project",
-                "Test Project",
+                slug,
+                "Portfolio Angular",
                 "fullstack",
                 "/assets/projects/test.jpg",
                 "/assets/projects/test-cover.jpg",
@@ -92,7 +100,7 @@ class ProjectControllerTest {
                 List.of("Angular", "Java", "JWT"),
                 "https://github.com/test/project",
                 true,
-                true,
+                published,
                 1,
                 LocalDate.now()
         );

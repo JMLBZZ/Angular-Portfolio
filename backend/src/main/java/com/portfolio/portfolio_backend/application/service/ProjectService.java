@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +27,6 @@ public class ProjectService {
     }
 
     public Project update(UUID id, Project updatedProject) {
-
         Project existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
@@ -65,17 +65,23 @@ public class ProjectService {
             LocalDate afterDate,
             Pageable pageable
     ) {
-        return repository.searchWithFilters(
-                search,
-                hasGithub,
-                hasLive,
-                afterDate,
-                pageable
-        );
+        return repository.searchWithFilters(search, hasGithub, hasLive, afterDate, pageable);
     }
 
     public Optional<Project> getById(UUID id) {
         return repository.findById(id);
+    }
+
+    public Optional<Project> getBySlug(String slug) {
+        return repository.findBySlug(slug);
+    }
+
+    public List<Project> getPublishedProjects() {
+        return repository.findPublishedOrdered();
+    }
+
+    public Optional<Project> getPublishedProjectBySlug(String slug) {
+        return repository.findPublishedBySlug(slug);
     }
 
     public void delete(UUID id) {

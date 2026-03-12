@@ -29,20 +29,18 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/projects")
-@Tag(name = "Projects", description = "Gestion des projets du portfolio")
-public class ProjectController {
+@RequestMapping("/api/admin/projects")
+@PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Admin Projects", description = "Gestion admin des projets du portfolio")
+public class AdminProjectController {
 
     private final ProjectService service;
 
-    public ProjectController(ProjectService service) {
+    public AdminProjectController(ProjectService service) {
         this.service = service;
     }
 
-    //USER ou ADMIN (GET projects)
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    @Operation(summary = "Récupérer tous les projets")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des projets récupérée")
+    @Operation(summary = "Récupérer tous les projets pour l'administration")
     @GetMapping
     public ApiResult<List<ProjectResponseDTO>> getAll(
             @RequestParam(required = false) String search,
@@ -50,9 +48,8 @@ public class ProjectController {
             @RequestParam(required = false) Boolean hasLive,
             @RequestParam(required = false) LocalDate afterDate,
             @ParameterObject
-            @PageableDefault(page = 0, size = 10, sort = "displayOrder", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(page = 0, size = 20, sort = "displayOrder", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-
         Page<ProjectResponseDTO> pageResult = service
                 .getAll(search, hasGithub, hasLive, afterDate, pageable)
                 .map(this::toResponse);
@@ -64,64 +61,30 @@ public class ProjectController {
                 pageResult.getTotalPages()
         );
 
-        return new ApiResult<>(
-                true,
-                pageResult.getContent(),
-                meta
-        );
+        return new ApiResult<>(true, pageResult.getContent(), meta);
     }
 
-    //USER ou ADMIN (GET projects/{id})
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    @Operation(summary = "Récupérer un projet par ID")
+    @Operation(summary = "Récupérer un projet admin par ID")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet trouvé"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
     })
     @GetMapping("/{id}")
-    public ProjectResponseDTO getById(
-            @Parameter(description = "UUID du projet") @PathVariable UUID id
-    ) {
+    public ProjectResponseDTO getById(@Parameter(description = "UUID du projet") @PathVariable UUID id) {
         Project project = service.getById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         return toResponse(project);
     }
 
-    //ADMIN (POST projects)
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Créer un nouveau projet")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet créé"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Données invalides")
-    })
+    @Operation(summary = "Créer un projet")
     @PostMapping
     public ProjectResponseDTO create(@Valid @RequestBody ProjectRequestDTO dto) {
         Project project = toDomain(dto, UUID.randomUUID(), LocalDate.now());
         return toResponse(service.create(project));
     }
 
-    //ADMIN (DELETE projects/{id})
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Supprimer un projet")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet supprimé"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
-    })
-    @DeleteMapping("/{id}")
-    public void delete(
-            @Parameter(description = "UUID du projet à supprimer") @PathVariable UUID id
-    ) {
-        service.delete(id);
-    }
-    
-    //ADMIN (PUT projects/{id})
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Modifier un projet par ID")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projet modifié"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Projet non trouvé")
-    })
+    @Operation(summary = "Modifier un projet")
     @PutMapping("/{id}")
     public ProjectResponseDTO update(
             @PathVariable UUID id,
@@ -129,6 +92,12 @@ public class ProjectController {
     ) {
         Project project = toDomain(dto, id, LocalDate.now());
         return toResponse(service.update(id, project));
+    }
+
+    @Operation(summary = "Supprimer un projet")
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable UUID id) {
+        service.delete(id);
     }
 
     private Project toDomain(ProjectRequestDTO dto, UUID id, LocalDate createdAt) {
