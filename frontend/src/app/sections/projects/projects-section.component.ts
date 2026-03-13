@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { PROJECTS, Project, ProjectCategory, LocalizedText } from './projects.data';
+import { Project, ProjectCategory, LocalizedText } from '../../shared/models/project.model';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ActionButtonComponent } from '../../shared/components/action-button/action-button.component';
+import { ProjectsApiService } from '../../core/api/projects-api.service';
 
 type Filter = 'all' | ProjectCategory;
 
@@ -19,11 +20,14 @@ type Filter = 'all' | ProjectCategory;
   templateUrl: './projects-section.component.html',
   styleUrls: ['./projects-section.component.css'],
 })
-export class ProjectsSectionComponent {
+export class ProjectsSectionComponent implements OnInit {
 
   @Output() projectClick = new EventEmitter<Project>();
 
-  constructor(private lang: LanguageService) {}
+  constructor(
+    private lang: LanguageService,
+    private projectsApi: ProjectsApiService
+  ) {}
 
   filters: { label: string; value: Filter }[] = [
     { label: 'projects.filters.all', value: 'all' },
@@ -37,10 +41,17 @@ export class ProjectsSectionComponent {
 
   activeFilter: Filter = 'all';
 
-  projects = PROJECTS;
+  projects: Project[] = [];
+
+  isLoading = true;
+  hasError = false;
 
   private imageLoadedState: Record<string, boolean> = {};
   private imageErrorState: Record<string, boolean> = {};
+
+  ngOnInit(): void {
+    this.loadProjects();
+  }
 
   get filteredProjects(): Project[] {
     if (this.activeFilter === 'all') return this.projects;
@@ -62,20 +73,38 @@ export class ProjectsSectionComponent {
   }
 
   onImageLoad(project: Project): void {
-    this.imageLoadedState[project.title] = true;
-    this.imageErrorState[project.title] = false;
+    this.imageLoadedState[project.slug] = true;
+    this.imageErrorState[project.slug] = false;
   }
 
   onImageError(project: Project): void {
-    this.imageLoadedState[project.title] = false;
-    this.imageErrorState[project.title] = true;
+    this.imageLoadedState[project.slug] = false;
+    this.imageErrorState[project.slug] = true;
   }
 
   isImageLoaded(project: Project): boolean {
-    return !!this.imageLoadedState[project.title];
+    return !!this.imageLoadedState[project.slug];
   }
 
   hasImageError(project: Project): boolean {
-    return !!this.imageErrorState[project.title];
+    return !!this.imageErrorState[project.slug];
+  }
+
+  private loadProjects(): void {
+    this.isLoading = true;
+    this.hasError = false;
+
+    this.projectsApi.getPublishedProjects().subscribe({
+      next: (projects) => {
+        this.projects = projects;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des projets publics :', error);
+        this.projects = [];
+        this.hasError = true;
+        this.isLoading = false;
+      }
+    });
   }
 }

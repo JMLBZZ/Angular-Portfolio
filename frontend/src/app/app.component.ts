@@ -12,7 +12,7 @@ import { FooterComponent } from './layout/footer/footer.component';
 
 import { HeroComponent } from './sections/hero/hero.component';
 import { ProjectsSectionComponent } from './sections/projects/projects-section.component';
-import { Project } from './sections/projects/projects.data';
+import { Project } from './shared/models/project.model';
 import { ProjectDetailModalComponent } from './sections/projects/project-detail-modal/project-detail-modal.component';
 import { AboutSectionComponent } from './sections/about/about-section.component';
 import { ContactSectionComponent } from './sections/contact/contact-section.component';

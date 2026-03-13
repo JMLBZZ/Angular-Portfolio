@@ -13,7 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { Project, LocalizedText } from '../projects.data';
+import { Project, LocalizedText } from '../../../shared/models/project.model';
 import { LanguageService } from '../../../core/i18n/language.service';
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
 
