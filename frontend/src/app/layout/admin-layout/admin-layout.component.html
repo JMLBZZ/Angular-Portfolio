@@ -1,0 +1,51 @@
+<div class="min-h-screen bg-background text-foreground">
+  <header class="border-b border-border/70 bg-card/70 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">Admin</p>
+        <h1 class="text-sm sm:text-base font-bold">Backoffice portfolio</h1>
+      </div>
+
+      <nav class="flex items-center gap-3 text-sm">
+        <a
+          routerLink="/admin/dashboard"
+          routerLinkActive="text-primary font-semibold"
+          class="hover:opacity-100 opacity-80 transition"
+        >
+          Dashboard
+        </a>
+
+        <a
+          routerLink="/admin/projects/new"
+          routerLinkActive="text-primary font-semibold"
+          class="hover:opacity-100 opacity-80 transition"
+        >
+          Nouveau projet
+        </a>
+
+        <a
+          routerLink="/"
+          class="hover:opacity-100 opacity-80 transition"
+        >
+          Voir le site
+        </a>
+
+        <button
+          type="button"
+          class="rounded-full border border-border/70 px-4 h-10 hover:bg-card transition"
+          (click)="logout()"
+        >
+          Déconnexion
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="mb-6 text-sm opacity-80">
+      Connecté en tant que <span class="font-semibold">{{ email }}</span>
+    </div>
+
+    <router-outlet></router-outlet>
+  </main>
+</div>

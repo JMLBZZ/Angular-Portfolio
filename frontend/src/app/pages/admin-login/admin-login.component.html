@@ -1,0 +1,57 @@
+<div class="min-h-screen bg-background text-foreground px-4 py-10">
+  <div class="max-w-md mx-auto">
+    <a
+      routerLink="/"
+      class="inline-flex items-center text-sm opacity-80 hover:opacity-100 transition mb-6"
+    >
+      ← Retour au portfolio
+    </a>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 backdrop-blur p-6 sm:p-8 shadow-soft">
+      <div class="mb-6">
+        <p class="text-sm uppercase tracking-[0.2em] text-primary font-semibold">
+          Admin
+        </p>
+        <h1 class="text-2xl font-bold mt-2">Connexion au backoffice</h1>
+        <p class="text-sm opacity-80 mt-2">
+          Accès réservé à l’administration du portfolio.
+        </p>
+      </div>
+
+      <form class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+        <app-text-field
+          id="admin-email"
+          label="Email"
+          type="email"
+          placeholder="admin@email.com"
+          [control]="emailControl"
+          [showError]="emailControl.invalid && emailControl.touched"
+          errorText="Veuillez saisir un email valide.">
+        </app-text-field>
+
+        <app-text-field
+          id="admin-password"
+          label="Mot de passe"
+          type="password"
+          placeholder="••••••••"
+          [control]="passwordControl"
+          [showError]="passwordControl.invalid && passwordControl.touched"
+          errorText="Le mot de passe est obligatoire.">
+        </app-text-field>
+
+        <p *ngIf="errorMessage" class="text-sm text-red-500">
+          {{ errorMessage }}
+        </p>
+
+        <app-primary-button
+          type="submit"
+          fullWidthMode="always"
+          [loading]="isSubmitting"
+          [disabled]="isSubmitting"
+          ariaLabel="Se connecter au backoffice">
+          Se connecter
+        </app-primary-button>
+      </form>
+    </div>
+  </div>
+</div>

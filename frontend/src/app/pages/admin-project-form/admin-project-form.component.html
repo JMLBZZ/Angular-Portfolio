@@ -1,0 +1,288 @@
+<section class="space-y-6">
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <a
+        routerLink="/admin/dashboard"
+        class="inline-flex items-center text-sm opacity-80 hover:opacity-100 transition mb-3"
+      >
+        ← Retour au dashboard
+      </a>
+
+      <h2 class="text-2xl font-bold">{{ pageTitle }}</h2>
+      <p class="text-sm opacity-80 mt-2">
+        Les champs images sont pour l’instant des URLs, car aucun endpoint d’upload n’existe encore côté backend.
+      </p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="rounded-3xl border border-border/70 bg-card/60 p-6">
+    Chargement du projet...
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm text-red-500">
+    {{ errorMessage }}
+  </p>
+
+  <form
+    *ngIf="!isLoading"
+    class="space-y-6"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+  >
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-4">
+      <h3 class="text-lg font-bold">Informations principales</h3>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <app-text-field
+          id="project-slug"
+          label="Slug"
+          placeholder="mon-projet-angular"
+          [control]="slugControl"
+          [showError]="slugControl.invalid && slugControl.touched"
+          errorText="Le slug est obligatoire.">
+        </app-text-field>
+
+        <app-text-field
+          id="project-title"
+          label="Titre"
+          placeholder="Mon projet portfolio"
+          [control]="titleControl"
+          [showError]="titleControl.invalid && titleControl.touched"
+          errorText="Le titre est obligatoire.">
+        </app-text-field>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold" for="project-category">Catégorie</label>
+          <select
+            id="project-category"
+            formControlName="category"
+            class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <option *ngFor="let option of categoryOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-semibold" for="project-type">Type</label>
+          <select
+            id="project-type"
+            formControlName="type"
+            class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <option *ngFor="let option of typeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <app-text-field
+          id="project-image"
+          label="Image principale (URL)"
+          placeholder="https://..."
+          [control]="imageControl">
+        </app-text-field>
+
+        <app-text-field
+          id="project-cover"
+          label="Cover (URL)"
+          placeholder="https://..."
+          [control]="coverControl">
+        </app-text-field>
+      </div>
+
+      <app-text-field
+        id="project-images"
+        label="Images secondaires (URLs séparées par des virgules)"
+        placeholder="https://img1.jpg, https://img2.jpg"
+        [control]="imagesInputControl">
+      </app-text-field>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <app-text-field
+          id="project-stack"
+          label="Stack (séparée par des virgules)"
+          placeholder="Angular, Spring Boot, PostgreSQL"
+          [control]="stackInputControl"
+          [showError]="stackInputControl.invalid && stackInputControl.touched"
+          errorText="La stack est obligatoire.">
+        </app-text-field>
+
+        <app-text-field
+          id="project-tags"
+          label="Tags (séparés par des virgules)"
+          placeholder="portfolio, admin, jwt"
+          [control]="tagsInputControl"
+          [showError]="tagsInputControl.invalid && tagsInputControl.touched"
+          errorText="Les tags sont obligatoires.">
+        </app-text-field>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <app-text-field
+          id="project-demo-url"
+          label="URL de démo"
+          placeholder="https://..."
+          [control]="demoUrlControl">
+        </app-text-field>
+
+        <app-text-field
+          id="project-github-url"
+          label="URL GitHub"
+          placeholder="https://github.com/..."
+          [control]="githubUrlControl">
+        </app-text-field>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold" for="project-order">Ordre d’affichage</label>
+          <input
+            id="project-order"
+            type="number"
+            min="0"
+            formControlName="displayOrder"
+            class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 items-end">
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" formControlName="featured" />
+            Mis en avant
+          </label>
+
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" formControlName="published" />
+            Publié
+          </label>
+
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" formControlName="showGithub" />
+            Afficher GitHub
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-4">
+      <h3 class="text-lg font-bold">Contenus localisés</h3>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <app-text-area
+          id="description-fr"
+          label="Description courte FR"
+          placeholder="Description courte en français"
+          [control]="descriptionFrControl"
+          [showError]="descriptionFrControl.invalid && descriptionFrControl.touched"
+          errorText="La description FR est obligatoire."
+          [rows]="5">
+        </app-text-area>
+
+        <app-text-area
+          id="description-en"
+          label="Description courte EN"
+          placeholder="Short description in English"
+          [control]="descriptionEnControl"
+          [showError]="descriptionEnControl.invalid && descriptionEnControl.touched"
+          errorText="La description EN est obligatoire."
+          [rows]="5">
+        </app-text-area>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <app-text-area
+          id="long-description-fr"
+          label="Description longue FR"
+          placeholder="Description longue en français"
+          [control]="longDescriptionFrControl"
+          [rows]="6">
+        </app-text-area>
+
+        <app-text-area
+          id="long-description-en"
+          label="Description longue EN"
+          placeholder="Long description in English"
+          [control]="longDescriptionEnControl"
+          [rows]="6">
+        </app-text-area>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <app-text-area
+          id="role-fr"
+          label="Rôle FR"
+          placeholder="Mon rôle sur ce projet"
+          [control]="roleFrControl"
+          [rows]="4">
+        </app-text-area>
+
+        <app-text-area
+          id="role-en"
+          label="Rôle EN"
+          placeholder="My role on this project"
+          [control]="roleEnControl"
+          [rows]="4">
+        </app-text-area>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <app-text-area
+          id="problem-fr"
+          label="Problème FR"
+          placeholder="Quel problème devait être résolu ?"
+          [control]="problemFrControl"
+          [rows]="4">
+        </app-text-area>
+
+        <app-text-area
+          id="problem-en"
+          label="Problème EN"
+          placeholder="What problem had to be solved?"
+          [control]="problemEnControl"
+          [rows]="4">
+        </app-text-area>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <app-text-area
+          id="solution-fr"
+          label="Solution FR"
+          placeholder="Quelle solution a été mise en place ?"
+          [control]="solutionFrControl"
+          [rows]="4">
+        </app-text-area>
+
+        <app-text-area
+          id="solution-en"
+          label="Solution EN"
+          placeholder="What solution was implemented?"
+          [control]="solutionEnControl"
+          [rows]="4">
+        </app-text-area>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <app-primary-button
+        type="submit"
+        [loading]="isSubmitting"
+        [disabled]="isSubmitting"
+        ariaLabel="Enregistrer le projet">
+        {{ submitLabel }}
+      </app-primary-button>
+
+      <a
+        routerLink="/admin/dashboard"
+        class="inline-flex items-center justify-center h-11 px-6 rounded-full border border-border/70 hover:bg-card transition"
+      >
+        Annuler
+      </a>
+    </div>
+  </form>
+</section>

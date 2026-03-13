@@ -1,0 +1,23 @@
+<div class="min-h-screen bg-background text-foreground transition-colors">
+  <app-header></app-header>
+
+  <main>
+    <app-hero></app-hero>
+
+    <app-projects-section
+      (projectClick)="openProject($event)">
+    </app-projects-section>
+
+    <app-about-section></app-about-section>
+
+    <app-contact-section></app-contact-section>
+  </main>
+
+  <app-footer></app-footer>
+
+  <app-project-detail-modal
+    [open]="isProjectModalOpen"
+    [project]="selectedProject"
+    (close)="closeProjectModal()">
+  </app-project-detail-modal>
+</div>

@@ -1,0 +1,110 @@
+<section class="space-y-6">
+  <div class="grid gap-4 sm:grid-cols-3">
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">Total projets</p>
+      <p class="mt-2 text-3xl font-bold">{{ projects.length }}</p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">Projets publiés</p>
+      <p class="mt-2 text-3xl font-bold">{{ publishedCount }}</p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">Projets mis en avant</p>
+      <p class="mt-2 text-3xl font-bold">{{ featuredCount }}</p>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h2 class="text-xl font-bold">Gestion des projets</h2>
+      <p class="text-sm opacity-80">Créer, modifier ou supprimer les projets du portfolio.</p>
+    </div>
+
+    <a
+      routerLink="/admin/projects/new"
+      class="inline-flex items-center justify-center h-11 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-soft hover:opacity-95 transition"
+    >
+      Nouveau projet
+    </a>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm text-red-500">
+    {{ errorMessage }}
+  </p>
+
+  <div *ngIf="isLoading" class="rounded-3xl border border-border/70 bg-card/60 p-6">
+    Chargement des projets...
+  </div>
+
+  <div *ngIf="!isLoading && projects.length === 0" class="rounded-3xl border border-border/70 bg-card/60 p-6">
+    Aucun projet trouvé.
+  </div>
+
+  <div *ngIf="!isLoading && projects.length > 0" class="space-y-4">
+    <article
+      *ngFor="let project of projects; trackBy: trackByProjectId"
+      class="rounded-3xl border border-border/70 bg-card/60 p-5"
+    >
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <h3 class="text-lg font-bold">{{ project.title }}</h3>
+
+            <span class="text-xs rounded-full px-3 py-1 border border-border/70">
+              {{ project.category }}
+            </span>
+
+            <span
+              class="text-xs rounded-full px-3 py-1 border"
+              [class.border-emerald-500]="project.published"
+              [class.text-emerald-600]="project.published"
+              [class.border-slate-400]="!project.published"
+              [class.opacity-70]="!project.published"
+            >
+              {{ project.published ? 'Publié' : 'Brouillon' }}
+            </span>
+
+            <span
+              *ngIf="project.featured"
+              class="text-xs rounded-full px-3 py-1 border border-primary text-primary"
+            >
+              Mis en avant
+            </span>
+          </div>
+
+          <p class="text-sm opacity-80 mb-2">
+            <strong>Slug :</strong> {{ project.slug }}
+          </p>
+
+          <p class="text-sm opacity-80 mb-2">
+            <strong>Type :</strong> {{ project.type }}
+          </p>
+
+          <p class="text-sm opacity-80">
+            <strong>Ordre :</strong> {{ project.displayOrder ?? 0 }}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            [routerLink]="['/admin/projects', project.id, 'edit']"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+          >
+            Modifier
+          </a>
+
+          <button
+            type="button"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-60"
+            [disabled]="deletingProjectId === project.id"
+            (click)="deleteProject(project)"
+          >
+            {{ deletingProjectId === project.id ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
