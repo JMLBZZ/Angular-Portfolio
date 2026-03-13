@@ -1,5 +1,5 @@
 <section class="space-y-6">
-  <div class="grid gap-4 sm:grid-cols-3">
+  <div class="grid gap-4 sm:grid-cols-4">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
       <p class="text-sm opacity-70">Total projets</p>
       <p class="mt-2 text-3xl font-bold">{{ projects.length }}</p>
@@ -11,40 +11,113 @@
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">Brouillons</p>
+      <p class="mt-2 text-3xl font-bold">{{ draftCount }}</p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
       <p class="text-sm opacity-70">Projets mis en avant</p>
       <p class="mt-2 text-3xl font-bold">{{ featuredCount }}</p>
     </div>
   </div>
 
-  <div class="flex items-center justify-between gap-4">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
       <h2 class="text-xl font-bold">Gestion des projets</h2>
-      <p class="text-sm opacity-80">Créer, modifier ou supprimer les projets du portfolio.</p>
+      <p class="text-sm opacity-80">
+        Créer, modifier, filtrer ou supprimer les projets du portfolio.
+      </p>
     </div>
 
     <a
       routerLink="/admin/projects/new"
-      class="inline-flex items-center justify-center h-11 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-soft hover:opacity-95 transition"
+      class="inline-flex items-center justify-center h-11 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-soft hover:opacity-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
     >
       Nouveau projet
     </a>
   </div>
 
-  <p *ngIf="errorMessage" class="text-sm text-red-500">
+  <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-4">
+    <div class="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_auto]">
+      <app-text-field
+        id="admin-project-search"
+        label="Recherche"
+        placeholder="Titre, slug, catégorie, stack, tag..."
+        [control]="searchControl">
+      </app-text-field>
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold" for="status-filter">Statut</label>
+        <select
+          id="status-filter"
+          class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+          [value]="statusFilter"
+          (change)="setStatusFilter($any($event.target).value)"
+          aria-label="Filtrer les projets par statut"
+        >
+          <option value="all">Tous</option>
+          <option value="published">Publiés</option>
+          <option value="draft">Brouillons</option>
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold" for="featured-filter">Mise en avant</label>
+        <select
+          id="featured-filter"
+          class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+          [value]="featuredFilter"
+          (change)="setFeaturedFilter($any($event.target).value)"
+          aria-label="Filtrer les projets par mise en avant"
+        >
+          <option value="all">Tous</option>
+          <option value="featured">Mis en avant</option>
+          <option value="not-featured">Non mis en avant</option>
+        </select>
+      </div>
+
+      <div class="flex items-end">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition w-full lg:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          (click)="clearFilters()"
+          aria-label="Réinitialiser la recherche et les filtres"
+        >
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
+    <div class="text-sm opacity-75" aria-live="polite">
+      {{ resultCount }} projet(s) affiché(s)
+    </div>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm text-red-500" aria-live="assertive">
     {{ errorMessage }}
   </p>
 
-  <div *ngIf="isLoading" class="rounded-3xl border border-border/70 bg-card/60 p-6">
+  <div
+    *ngIf="isLoading"
+    class="rounded-3xl border border-border/70 bg-card/60 p-6"
+    aria-live="polite"
+  >
     Chargement des projets...
   </div>
 
-  <div *ngIf="!isLoading && projects.length === 0" class="rounded-3xl border border-border/70 bg-card/60 p-6">
-    Aucun projet trouvé.
+  <div
+    *ngIf="!isLoading && filteredProjects.length === 0"
+    class="rounded-3xl border border-border/70 bg-card/60 p-8 text-center"
+  >
+    <p class="font-semibold mb-2">Aucun projet ne correspond aux filtres actuels.</p>
+    <p class="text-sm opacity-75">
+      Essaie de modifier la recherche ou de réinitialiser les filtres.
+    </p>
   </div>
 
-  <div *ngIf="!isLoading && projects.length > 0" class="space-y-4">
+  <div *ngIf="!isLoading && filteredProjects.length > 0" class="space-y-4">
     <article
-      *ngFor="let project of projects; trackBy: trackByProjectId"
+      *ngFor="let project of filteredProjects; trackBy: trackByProjectId"
       class="rounded-3xl border border-border/70 bg-card/60 p-5"
     >
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -82,24 +155,30 @@
             <strong>Type :</strong> {{ project.type }}
           </p>
 
-          <p class="text-sm opacity-80">
+          <p class="text-sm opacity-80 mb-2">
             <strong>Ordre :</strong> {{ project.displayOrder ?? 0 }}
+          </p>
+
+          <p class="text-sm opacity-80" *ngIf="project.stack?.length">
+            <strong>Stack :</strong> {{ project.stack?.join(', ') }}
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
           <a
             [routerLink]="['/admin/projects', project.id, 'edit']"
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [attr.aria-label]="'Modifier le projet ' + project.title"
           >
             Modifier
           </a>
 
           <button
             type="button"
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-60"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
             [disabled]="deletingProjectId === project.id"
             (click)="deleteProject(project)"
+            [attr.aria-label]="'Supprimer le projet ' + project.title"
           >
             {{ deletingProjectId === project.id ? 'Suppression...' : 'Supprimer' }}
           </button>

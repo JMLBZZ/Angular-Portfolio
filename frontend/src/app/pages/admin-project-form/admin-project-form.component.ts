@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
@@ -9,6 +10,15 @@ import { PrimaryButtonComponent } from '../../shared/components/primary-button/p
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminProject, AdminProjectPayload } from '../../core/auth/auth.models';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { ToastService } from '../../shared/services/toast.service';
+import {
+  commaSeparatedListValidator,
+  commaSeparatedUrlListValidator,
+  optionalUrlValidator,
+  slugValidator,
+} from '../../shared/validators/project-form.validators';
+import { FallbackImageDirective } from '../../shared/directives/fallback-image.directive';
 
 @Component({
   selector: 'app-admin-project-form',
@@ -20,16 +30,29 @@ import { extractApiErrorMessage } from '../../core/api/api-error.utils';
     TextFieldComponent,
     TextAreaComponent,
     PrimaryButtonComponent,
+    FallbackImageDirective,
   ],
   templateUrl: './admin-project-form.component.html',
 })
-export class AdminProjectFormComponent implements OnInit {
+export class AdminProjectFormComponent
+  implements OnInit, OnDestroy, PendingChangesComponent
+{
   isEditMode = false;
   projectId: string | null = null;
 
   isLoading = false;
   isSubmitting = false;
   errorMessage = '';
+
+  /**
+   * Permet de ne plus écraser automatiquement le slug si l'utilisateur l'a modifié à la main.
+   */
+  private slugManuallyEdited = false;
+
+  /**
+   * Utilisé pour nettoyer les subscriptions.
+   */
+  private subscriptions = new Subscription();
 
   readonly categoryOptions = [
     { value: 'front', label: 'Front' },
@@ -47,53 +70,128 @@ export class AdminProjectFormComponent implements OnInit {
   ];
 
   readonly form = new FormGroup({
-    slug: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    category: new FormControl('fullstack', { nonNullable: true, validators: [Validators.required] }),
-    type: new FormControl('personal', { nonNullable: true, validators: [Validators.required] }),
+    slug: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, slugValidator()],
+    }),
+    title: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(120)],
+    }),
+    category: new FormControl('fullstack', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    type: new FormControl('personal', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
 
-    image: new FormControl('', { nonNullable: true }),
-    cover: new FormControl('', { nonNullable: true }),
-    imagesInput: new FormControl('', { nonNullable: true }),
+    image: new FormControl('', {
+      nonNullable: true,
+      validators: [optionalUrlValidator()],
+    }),
+    cover: new FormControl('', {
+      nonNullable: true,
+      validators: [optionalUrlValidator()],
+    }),
+    imagesInput: new FormControl('', {
+      nonNullable: true,
+      validators: [commaSeparatedUrlListValidator()],
+    }),
 
-    descriptionFr: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    descriptionEn: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    descriptionFr: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(300)],
+    }),
+    descriptionEn: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(300)],
+    }),
 
-    longDescriptionFr: new FormControl('', { nonNullable: true }),
-    longDescriptionEn: new FormControl('', { nonNullable: true }),
+    longDescriptionFr: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(3000)],
+    }),
+    longDescriptionEn: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(3000)],
+    }),
 
-    stackInput: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    tagsInput: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    stackInput: new FormControl('', {
+      nonNullable: true,
+      validators: [commaSeparatedListValidator({ minItems: 1, unique: true })],
+    }),
+    tagsInput: new FormControl('', {
+      nonNullable: true,
+      validators: [commaSeparatedListValidator({ minItems: 1, unique: true })],
+    }),
 
-    roleFr: new FormControl('', { nonNullable: true }),
-    roleEn: new FormControl('', { nonNullable: true }),
-    problemFr: new FormControl('', { nonNullable: true }),
-    problemEn: new FormControl('', { nonNullable: true }),
-    solutionFr: new FormControl('', { nonNullable: true }),
-    solutionEn: new FormControl('', { nonNullable: true }),
+    roleFr: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1200)],
+    }),
+    roleEn: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1200)],
+    }),
+    problemFr: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1200)],
+    }),
+    problemEn: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1200)],
+    }),
+    solutionFr: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1200)],
+    }),
+    solutionEn: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1200)],
+    }),
 
-    demoUrl: new FormControl('', { nonNullable: true }),
-    githubUrl: new FormControl('', { nonNullable: true }),
+    demoUrl: new FormControl('', {
+      nonNullable: true,
+      validators: [optionalUrlValidator()],
+    }),
+    githubUrl: new FormControl('', {
+      nonNullable: true,
+      validators: [optionalUrlValidator()],
+    }),
 
     featured: new FormControl(false, { nonNullable: true }),
     showGithub: new FormControl(false, { nonNullable: true }),
     published: new FormControl(true, { nonNullable: true }),
-    displayOrder: new FormControl(0, { nonNullable: true, validators: [Validators.min(0)] }),
+    displayOrder: new FormControl(0, {
+      nonNullable: true,
+      validators: [Validators.min(0), Validators.max(9999)],
+    }),
   });
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private adminProjectsApi: AdminProjectsApiService
+    private adminProjectsApi: AdminProjectsApiService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.projectId;
 
+    this.setupSlugAutofill();
+
     if (this.projectId) {
       this.loadProject(this.projectId);
+    } else {
+      this.form.markAsPristine();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   loadProject(id: string): void {
@@ -103,6 +201,8 @@ export class AdminProjectFormComponent implements OnInit {
     this.adminProjectsApi.getById(id).subscribe({
       next: (project) => {
         this.patchForm(project);
+        this.slugManuallyEdited = true;
+        this.form.markAsPristine();
         this.isLoading = false;
       },
       error: (error) => {
@@ -110,6 +210,7 @@ export class AdminProjectFormComponent implements OnInit {
           error,
           'Impossible de charger le projet à modifier.'
         );
+        this.toastService.error(this.errorMessage);
         this.isLoading = false;
       },
     });
@@ -118,6 +219,7 @@ export class AdminProjectFormComponent implements OnInit {
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toastService.warning('Veuillez corriger les champs du formulaire.');
       return;
     }
 
@@ -126,13 +228,22 @@ export class AdminProjectFormComponent implements OnInit {
 
     const payload = this.buildPayload();
 
-    const request$ = this.isEditMode && this.projectId
-      ? this.adminProjectsApi.update(this.projectId, payload)
-      : this.adminProjectsApi.create(payload);
+    const request$ =
+      this.isEditMode && this.projectId
+        ? this.adminProjectsApi.update(this.projectId, payload)
+        : this.adminProjectsApi.create(payload);
 
     request$.subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.form.markAsPristine();
+
+        this.toastService.success(
+          this.isEditMode
+            ? 'Projet modifié avec succès.'
+            : 'Projet créé avec succès.'
+        );
+
         this.router.navigate(['/admin/dashboard']);
       },
       error: (error) => {
@@ -141,8 +252,44 @@ export class AdminProjectFormComponent implements OnInit {
           error,
           'L’enregistrement du projet a échoué.'
         );
+        this.toastService.error(this.errorMessage);
       },
     });
+  }
+
+  canDeactivate(): boolean {
+    if (this.isSubmitting || !this.form.dirty) {
+      return true;
+    }
+
+    return window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
+    );
+  }
+
+  private setupSlugAutofill(): void {
+    const slugSubscription = this.slugControl.valueChanges.subscribe((value) => {
+      const titleSlug = this.slugify(this.titleControl.value);
+
+      if (value && value !== titleSlug) {
+        this.slugManuallyEdited = true;
+      }
+    });
+
+    const titleSubscription = this.titleControl.valueChanges.subscribe((title) => {
+      if (this.slugManuallyEdited) {
+        return;
+      }
+
+      const generatedSlug = this.slugify(title);
+
+      this.slugControl.setValue(generatedSlug, {
+        emitEvent: false,
+      });
+    });
+
+    this.subscriptions.add(slugSubscription);
+    this.subscriptions.add(titleSubscription);
   }
 
   private patchForm(project: AdminProject): void {
@@ -186,7 +333,7 @@ export class AdminProjectFormComponent implements OnInit {
     const raw = this.form.getRawValue();
 
     return {
-      slug: raw.slug.trim(),
+      slug: this.slugify(raw.slug),
       title: raw.title.trim(),
       category: raw.category,
       type: raw.type,
@@ -200,7 +347,10 @@ export class AdminProjectFormComponent implements OnInit {
         en: raw.descriptionEn.trim(),
       },
 
-      longDescription: this.toLocalizedOptional(raw.longDescriptionFr, raw.longDescriptionEn),
+      longDescription: this.toLocalizedOptional(
+        raw.longDescriptionFr,
+        raw.longDescriptionEn
+      ),
       stack: this.toArray(raw.stackInput),
       featured: raw.featured,
 
@@ -218,7 +368,10 @@ export class AdminProjectFormComponent implements OnInit {
     };
   }
 
-  private toLocalizedOptional(fr: string, en: string): { fr: string; en: string } | null {
+  private toLocalizedOptional(
+    fr: string,
+    en: string
+  ): { fr: string; en: string } | null {
     const cleanFr = fr.trim();
     const cleanEn = en.trim();
 
@@ -236,7 +389,10 @@ export class AdminProjectFormComponent implements OnInit {
     return value
       .split(',')
       .map((item) => item.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter((item, index, array) => {
+        return array.findIndex((current) => current.toLowerCase() === item.toLowerCase()) === index;
+      });
   }
 
   private cleanString(value: string): string | undefined {
@@ -244,12 +400,49 @@ export class AdminProjectFormComponent implements OnInit {
     return cleaned ? cleaned : undefined;
   }
 
+  private slugify(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  get galleryPreviewUrls(): string[] {
+    return this.toArray(this.imagesInputControl.value);
+  }
+
+  get hasImagePreview(): boolean {
+    return !!this.imageControl.value.trim() && this.imageControl.valid;
+  }
+
+  get hasCoverPreview(): boolean {
+    return !!this.coverControl.value.trim() && this.coverControl.valid;
+  }
+
   get pageTitle(): string {
     return this.isEditMode ? 'Modifier un projet' : 'Créer un projet';
   }
 
   get submitLabel(): string {
-    return this.isEditMode ? 'Enregistrer les modifications' : 'Créer le projet';
+    return this.isEditMode
+      ? 'Enregistrer les modifications'
+      : 'Créer le projet';
+  }
+
+  get titleLength(): number {
+    return this.titleControl.value.length;
+  }
+
+  get descriptionFrLength(): number {
+    return this.descriptionFrControl.value.length;
+  }
+
+  get descriptionEnLength(): number {
+    return this.descriptionEnControl.value.length;
   }
 
   get slugControl(): FormControl<string> {
@@ -326,5 +519,71 @@ export class AdminProjectFormComponent implements OnInit {
 
   get githubUrlControl(): FormControl<string> {
     return this.form.controls.githubUrl;
+  }
+
+  get displayOrderControl(): FormControl<number> {
+    return this.form.controls.displayOrder;
+  }
+
+  getSlugErrorMessage(): string {
+    const control = this.slugControl;
+
+    if (control.hasError('required')) {
+      return 'Le slug est obligatoire.';
+    }
+
+    if (control.hasError('slugFormat')) {
+      return 'Le slug doit contenir uniquement des lettres minuscules, chiffres et tirets.';
+    }
+
+    return '';
+  }
+
+  getUrlErrorMessage(control: FormControl<string>): string {
+    if (control.hasError('invalidUrl')) {
+      return 'Veuillez saisir une URL valide commençant par http:// ou https://';
+    }
+
+    return '';
+  }
+
+  getListErrorMessage(control: FormControl<string>, label: string): string {
+    if (control.hasError('minItems')) {
+      return `Le champ ${label} doit contenir au moins un élément.`;
+    }
+
+    if (control.hasError('duplicatedItems')) {
+      return `Le champ ${label} contient des doublons.`;
+    }
+
+    if (control.hasError('invalidUrlList')) {
+      return `Chaque URL du champ ${label} doit être valide.`;
+    }
+
+    return '';
+  }
+
+  getMaxLengthErrorMessage(control: FormControl<string>, label: string): string {
+    const error = control.getError('maxlength');
+
+    if (!error) {
+      return '';
+    }
+
+    return `${label} dépasse la longueur maximale autorisée (${error.requiredLength} caractères).`;
+  }
+
+  getDisplayOrderErrorMessage(): string {
+    const control = this.displayOrderControl;
+
+    if (control.hasError('min')) {
+      return 'L’ordre d’affichage ne peut pas être négatif.';
+    }
+
+    if (control.hasError('max')) {
+      return 'L’ordre d’affichage ne peut pas dépasser 9999.';
+    }
+
+    return '';
   }
 }

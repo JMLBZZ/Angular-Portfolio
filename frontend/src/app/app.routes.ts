@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/auth/auth.guard';
+import { pendingChangesGuard } from './core/auth/pending-changes.guard';
+
 import { PublicHomePageComponent } from './pages/public-home/public-home-page.component';
 import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
@@ -28,10 +30,12 @@ export const routes: Routes = [
       {
         path: 'projects/new',
         component: AdminProjectFormComponent,
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'projects/:id/edit',
         component: AdminProjectFormComponent,
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: '',

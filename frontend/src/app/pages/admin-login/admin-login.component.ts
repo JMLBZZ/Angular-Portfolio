@@ -7,6 +7,7 @@ import { TextFieldComponent } from '../../shared/components/text-field/text-fiel
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { AuthService } from '../../core/auth/auth.service';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-admin-login',
@@ -37,7 +38,8 @@ export class AdminLoginComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +60,7 @@ export class AdminLoginComponent implements OnInit {
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.toastService.success('Connexion réussie.');
         this.router.navigate(['/admin/dashboard']);
       },
       error: (error) => {
@@ -66,6 +69,7 @@ export class AdminLoginComponent implements OnInit {
           error,
           'Impossible de se connecter au backoffice.'
         );
+        this.toastService.error(this.errorMessage);
       },
     });
   }
