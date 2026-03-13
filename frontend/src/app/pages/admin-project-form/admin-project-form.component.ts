@@ -8,6 +8,7 @@ import { TextAreaComponent } from '../../shared/components/text-area/text-area.c
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminProject, AdminProjectPayload } from '../../core/auth/auth.models';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 
 @Component({
   selector: 'app-admin-project-form',
@@ -104,8 +105,11 @@ export class AdminProjectFormComponent implements OnInit {
         this.patchForm(project);
         this.isLoading = false;
       },
-      error: () => {
-        this.errorMessage = 'Impossible de charger le projet à modifier.';
+      error: (error) => {
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger le projet à modifier.'
+        );
         this.isLoading = false;
       },
     });
@@ -131,9 +135,12 @@ export class AdminProjectFormComponent implements OnInit {
         this.isSubmitting = false;
         this.router.navigate(['/admin/dashboard']);
       },
-      error: () => {
+      error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = 'L’enregistrement du projet a échoué.';
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'L’enregistrement du projet a échoué.'
+        );
       },
     });
   }

@@ -8,11 +8,17 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth/auth.interceptor';
+import { errorInterceptor } from './core/api/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        authInterceptor,
+        errorInterceptor,
+      ])
+    ),
     provideAnimations(),
 
     provideTranslateService({

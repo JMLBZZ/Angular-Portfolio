@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { AuthService } from '../../core/auth/auth.service';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 
 @Component({
   selector: 'app-admin-login',
@@ -61,13 +62,10 @@ export class AdminLoginComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-
-        if (error?.status === 401) {
-          this.errorMessage = 'Email ou mot de passe incorrect.';
-          return;
-        }
-
-        this.errorMessage = 'Impossible de se connecter au backoffice.';
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de se connecter au backoffice.'
+        );
       },
     });
   }

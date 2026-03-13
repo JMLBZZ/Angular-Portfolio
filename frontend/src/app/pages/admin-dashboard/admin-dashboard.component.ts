@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminProject } from '../../core/auth/auth.models';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -35,9 +36,12 @@ export class AdminDashboardComponent implements OnInit {
         this.projects = response.data;
         this.isLoading = false;
       },
-      error: () => {
+      error: (error) => {
         this.projects = [];
-        this.errorMessage = 'Impossible de charger la liste des projets.';
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger la liste des projets.'
+        );
         this.isLoading = false;
       },
     });
@@ -53,14 +57,18 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     this.deletingProjectId = project.id;
+    this.errorMessage = '';
 
     this.adminProjectsApi.delete(project.id).subscribe({
       next: () => {
         this.projects = this.projects.filter((item) => item.id !== project.id);
         this.deletingProjectId = null;
       },
-      error: () => {
-        this.errorMessage = 'La suppression du projet a échoué.';
+      error: (error) => {
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'La suppression du projet a échoué.'
+        );
         this.deletingProjectId = null;
       },
     });
