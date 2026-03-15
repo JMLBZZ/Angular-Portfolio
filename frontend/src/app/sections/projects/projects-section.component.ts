@@ -1,11 +1,13 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
 
-import { Project, ProjectCategory, LocalizedText } from '../../shared/models/project.model';
+import { ProjectsApiService } from '../../core/api/projects-api.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ActionButtonComponent } from '../../shared/components/action-button/action-button.component';
-import { ProjectsApiService } from '../../core/api/projects-api.service';
+import { FallbackImageDirective } from '../../shared/directives/fallback-image.directive';
+import { Project, ProjectCategory, LocalizedText } from '../../shared/models/project.model';
 
 type Filter = 'all' | ProjectCategory;
 
@@ -15,7 +17,9 @@ type Filter = 'all' | ProjectCategory;
   imports: [
     CommonModule,
     TranslateModule,
+    RouterLink,
     ActionButtonComponent,
+    FallbackImageDirective,
   ],
   templateUrl: './projects-section.component.html',
   styleUrls: ['./projects-section.component.css'],

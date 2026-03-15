@@ -5,12 +5,10 @@
     "about": "À propos",
     "contact": "Contact"
   },
-  
   "theme": {
     "auto": "Auto",
     "toggle": "Thème"
   },
-
   "hero": {
     "available": "Disponible pour une opportunité",
     "titleLine1": "Développeur",
@@ -30,7 +28,6 @@
     "kpi3Value": "Qualité",
     "scrollHint": "Découvrir"
   },
-
   "projects": {
     "title": "Mes Projets",
     "subtitle": "Découvrez mes réalisations récentes.",
@@ -55,21 +52,23 @@
       "detail": "Détails",
       "view": "Voir",
       "code": "Code"
+    },
+    "seo": {
+      "pageTitleSuffix": "Projet | JMLBZZ",
+      "notFoundTitle": "Projet introuvable | JMLBZZ",
+      "notFoundDescription": "La fiche projet demandée est introuvable."
     }
   },
-
   "about": {
     "title": "À Propos",
     "subtitle": "Mon parcours et mes compétences",
     "downloadCv": "Télécharger mon CV",
-
     "profile": {
       "name": "Jamel BOUAZZA",
       "role": "Développeur Full-Stack",
       "location": "Paris, France",
       "bio": "Passionné par le développement web depuis plus de 5 ans, je conçois des applications performantes et des interfaces utilisateur intuitives. Mon approche combine expertise technique et sensibilité UI/UX pour créer des produits digitaux qui font la différence."
     },
-
     "timeline": {
       "title": "Mon Parcours",
       "items": {
@@ -99,7 +98,6 @@
         }
       }
     },
-
     "skills": {
       "title": "Compétences Techniques",
       "groups": {
@@ -110,7 +108,6 @@
         "tools": "Outils"
       }
     },
-
     "softSkills": {
       "title": "Soft Skills",
       "items": {
@@ -124,13 +121,11 @@
         "curiosity": "Curiosité technique"
       }
     },
-
     "objectives": {
       "title": "Objectifs Professionnels",
       "text": "En tant que développeur full-stack, je souhaite intégrer une équipe dynamique où je pourrai contribuer sur des projets innovants tout en continuant à développer mes compétences."
     }
   },
-
   "contact": {
     "title": "Contact",
     "subtitle": "Discutons de votre prochain projet",
@@ -173,11 +168,14 @@
       }
     }
   },
-
   "footer": {
     "navigation": "Navigation",
     "follow": "Suivez-moi",
     "rights": "© {{year}} Jamel BOUAZZA. Tous droits réservés.",
     "madeWith": "Fait avec ❤️ à Paris"
+  },
+  "seo": {
+    "homeTitle": "JMLBZZ — Développeur Full-Stack Angular & Spring Boot",
+    "homeDescription": "Portfolio de JMLBZZ, développeur full-stack spécialisé en Angular, Spring Boot et PostgreSQL. Découvrez mes projets, mes compétences et contactez-moi."
   }
 }

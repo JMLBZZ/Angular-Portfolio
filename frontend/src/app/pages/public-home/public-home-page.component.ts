@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UpperCasePipe } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 import { LanguageService } from '../../core/i18n/language.service';
 import { SeoService } from '../../core/seo/seo.service';
@@ -32,26 +33,32 @@ import { Project } from '../../shared/models/project.model';
   ],
   templateUrl: './public-home-page.component.html',
 })
-export class PublicHomePageComponent implements OnInit {
+export class PublicHomePageComponent implements OnInit, OnDestroy {
   title = 'Portfolio JMLBZZ';
 
   selectedProject: Project | null = null;
   isProjectModalOpen = false;
 
+  private readonly subscription = new Subscription();
+
   constructor(
     public lang: LanguageService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
-    // Configuration SEO du portfolio
-    this.seoService.updateSeo({
-      title: 'JMLBZZ — Développeur Full-Stack',
-      description:
-        'Portfolio de JMLBZZ, développeur full-stack spécialisé en Angular, Spring Boot et PostgreSQL. Découvrez mes projets, mes compétences et contactez-moi.',
-      image: 'https://domainearemplacer.com/og-image.jpg',//<!-- A REMPLACER LORSQUE J'AURAIS MON NOM DE DOMAINE-->
-      url: 'https://domainearemplacer.com',//<!-- A REMPLACER LORSQUE J'AURAIS MON NOM DE DOMAINE-->
-    });
+    this.updateSeo();
+
+    this.subscription.add(
+      this.translate.onLangChange.subscribe(() => {
+        this.updateSeo();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   openProject(project: Project): void {
@@ -62,5 +69,19 @@ export class PublicHomePageComponent implements OnInit {
   closeProjectModal(): void {
     this.isProjectModalOpen = false;
     setTimeout(() => (this.selectedProject = null), 200);
+  }
+
+  private updateSeo(): void {
+    const baseUrl = window.location.origin;
+
+    this.seoService.updateSeo({
+      title: this.translate.instant('seo.homeTitle'),
+      description: this.translate.instant('seo.homeDescription'),
+      image: `${baseUrl}/assets/projects/project-placeholder.svg`,
+      url: baseUrl,
+      type: 'website',
+      robots: 'index, follow',
+      lang: this.lang.current,
+    });
   }
 }

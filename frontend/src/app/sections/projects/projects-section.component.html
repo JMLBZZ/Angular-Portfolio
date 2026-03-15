@@ -73,18 +73,19 @@
 
                     <!-- Image -->
                     <img
-                        *ngIf="project.cover && !hasImageError(project); else fallbackCover"
-                        [src]="project.cover"
+                        *ngIf="!hasImageError(project); else fallbackCover"
+                        [src]="project.cover || project.image || 'assets/projects/project-placeholder.svg'"
+                        appFallbackImage
                         [alt]="project.title"
                         class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                        [class.opacity-0]="!isImageLoaded(project)"
-                        [class.opacity-100]="isImageLoaded(project)"
+                        [class.opacity-0]="project.cover && !isImageLoaded(project)"
+                        [class.opacity-100]="!project.cover || isImageLoaded(project)"
                         loading="lazy"
                         decoding="async"
                         fetchpriority="low"
                         width="800"
                         height="450"
-                        (load)="onImageLoad(project)"
+                        (load)="project.cover ? onImageLoad(project) : null"
                         (error)="onImageError(project)"
                     />
 
@@ -136,6 +137,17 @@
                             {{ tag }}
                         </span>
                     </div>
+                    
+                    <div class="mt-5">
+                        <a
+                            [routerLink]="['/projects', project.slug]"
+                            class="inline-flex items-center text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+                            (click)="$event.stopPropagation()"
+                            [attr.aria-label]="'Ouvrir la page du projet ' + project.title">
+                            Voir la fiche projet →
+                        </a>
+                    </div>
+                    
                 </div>
 
                 <!-- Effet "gold glow" -->

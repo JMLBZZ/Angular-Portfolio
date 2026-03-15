@@ -1,0 +1,64 @@
+<section class="min-h-screen py-16">
+  <div class="max-w-5xl mx-auto px-4">
+
+    <a
+      routerLink="/"
+      fragment="projects"
+      class="inline-flex items-center text-sm opacity-80 hover:opacity-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md mb-8"
+    >
+      ← Retour aux projets
+    </a>
+
+    <div
+      *ngIf="isLoading"
+      class="rounded-2xl border border-border bg-card p-8"
+      aria-live="polite"
+    >
+      Chargement du projet...
+    </div>
+
+    <div
+      *ngIf="!isLoading && hasError"
+      class="rounded-2xl border border-red-200 bg-red-50 px-6 py-10 text-center text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300"
+      aria-live="assertive"
+    >
+      Impossible de charger ce projet.
+    </div>
+
+    <article *ngIf="!isLoading && !hasError && project" class="space-y-10">
+
+      <div class="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+        <img
+          [src]="heroImage"
+          appFallbackImage
+          [alt]="'Visuel du projet ' + project.title"
+          class="w-full aspect-video object-cover"
+          width="1200"
+          height="675"
+          decoding="async"
+        />
+      </div>
+
+      <app-project-content [project]="project"></app-project-content>
+
+      <section *ngIf="project.images?.length" class="space-y-4">
+        <h2 class="text-sm uppercase tracking-wider text-foreground/60 font-semibold">
+          Galerie
+        </h2>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <img
+            *ngFor="let image of project.images"
+            [src]="image"
+            appFallbackImage
+            [alt]="'Illustration du projet ' + project.title"
+            class="w-full h-64 object-cover rounded-2xl border border-border"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </section>
+
+    </article>
+  </div>
+</section>

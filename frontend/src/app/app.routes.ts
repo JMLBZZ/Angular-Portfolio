@@ -8,6 +8,7 @@ import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { AdminProjectFormComponent } from './pages/admin-project-form/admin-project-form.component';
+import { ProjectDetailPageComponent } from './pages/project-detail/project-detail-page.component';
 
 export const routes: Routes = [
   {
@@ -43,6 +44,10 @@ export const routes: Routes = [
         redirectTo: 'dashboard',
       },
     ],
+  },
+  {
+    path: 'projects/:slug',
+    component: ProjectDetailPageComponent,
   },
   {
     path: '**',

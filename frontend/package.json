@@ -4,9 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "npm run sitemap && ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "sitemap": "node scripts/generate-sitemap.mjs",
+    "sitemap:local": "SITE_URL=http://localhost:4200 PROJECTS_API_URL=http://localhost:8080/api/public/projects node scripts/generate-sitemap.mjs"
   },
   "private": true,
   "dependencies": {

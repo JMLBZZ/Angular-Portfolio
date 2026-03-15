@@ -13,9 +13,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { Project, LocalizedText } from '../../../shared/models/project.model';
+
 import { LanguageService } from '../../../core/i18n/language.service';
+
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
+import { ProjectContentComponent } from '../../../shared/components/project-content/project-content.component';
+import { FallbackImageDirective } from '../../../shared/directives/fallback-image.directive';
+import { Project, LocalizedText } from '../../../shared/models/project.model';
 
 type Layer = { id: number; src: string };
 
@@ -26,6 +30,8 @@ type Layer = { id: number; src: string };
     CommonModule,
     TranslateModule,
     ActionButtonComponent,
+    FallbackImageDirective,
+    ProjectContentComponent,
   ],
   templateUrl: './project-detail-modal.component.html',
   styleUrls: ['./project-detail-modal.component.css'],
