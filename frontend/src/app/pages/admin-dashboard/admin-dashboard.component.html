@@ -25,16 +25,38 @@
     <div>
       <h2 class="text-xl font-bold">Gestion des projets</h2>
       <p class="text-sm opacity-80">
-        Créer, modifier, filtrer ou supprimer les projets du portfolio.
+        Créer, modifier, filtrer, sélectionner ou supprimer les projets du portfolio.
       </p>
     </div>
 
-    <a
-      routerLink="/admin/projects/new"
-      class="inline-flex items-center justify-center h-11 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-soft hover:opacity-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-    >
-      Nouveau projet
-    </a>
+    <div class="flex flex-wrap gap-3">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center h-11 px-6 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        [disabled]="!canDeleteSelectedProjects || isDeleteActionLocked"
+        (click)="requestDeleteSelection()"
+        aria-label="Supprimer les projets sélectionnés"
+      >
+        Supprimer la sélection
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center h-11 px-6 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        [disabled]="!canDeleteAllFilteredProjects || isDeleteActionLocked"
+        (click)="requestDeleteAll()"
+        aria-label="Supprimer tous les projets actuellement affichés"
+      >
+        Tout supprimer
+      </button>
+
+      <a
+        routerLink="/admin/projects/new"
+        class="inline-flex items-center justify-center h-11 px-6 rounded-full bg-primary text-primary-foreground font-semibold shadow-soft hover:opacity-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        Nouveau projet
+      </a>
+    </div>
   </div>
 
   <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-4">
@@ -88,8 +110,98 @@
       </div>
     </div>
 
-    <div class="text-sm opacity-75" aria-live="polite">
-      {{ resultCount }} projet(s) affiché(s)
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="text-sm opacity-75" aria-live="polite">
+        {{ resultCount }} projet(s) affiché(s)
+      </div>
+
+      <div class="flex items-center gap-3">
+        <label class="inline-flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            [checked]="areAllFilteredProjectsSelected"
+            [disabled]="filteredProjects.length === 0 || isDeleteActionLocked"
+            (change)="toggleSelectAllFiltered($any($event.target).checked)"
+          />
+          Tout sélectionner
+        </label>
+
+        <span class="text-sm opacity-75">
+          {{ selectedCount }} sélectionné(s)
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="isConfirmDeleteSelectionOpen"
+    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 space-y-4"
+    aria-live="assertive"
+  >
+    <div class="space-y-2">
+      <p class="font-semibold text-red-600">
+        Confirmer la suppression des projets sélectionnés ?
+      </p>
+
+      <p class="text-sm opacity-80">
+        Cette action supprimera définitivement les {{ selectedCount }} projet(s) sélectionné(s), ainsi que leurs images uploadées associées qui ne sont plus utilisées.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        [disabled]="isDeleteActionLocked"
+        (click)="confirmDeleteSelection()"
+      >
+        {{ isDeletingSelectedProjects ? 'Suppression...' : 'Oui, supprimer la sélection' }}
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        [disabled]="isDeleteActionLocked"
+        (click)="cancelDeleteSelection()"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="isConfirmDeleteAllOpen"
+    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 space-y-4"
+    aria-live="assertive"
+  >
+    <div class="space-y-2">
+      <p class="font-semibold text-red-600">
+        Confirmer la suppression de tous les projets affichés ?
+      </p>
+
+      <p class="text-sm opacity-80">
+        Cette action supprimera définitivement les {{ resultCount }} projet(s) actuellement visibles dans la liste, ainsi que leurs images uploadées associées qui ne sont plus utilisées.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        [disabled]="isDeleteActionLocked"
+        (click)="confirmDeleteAll()"
+      >
+        {{ isDeletingAllProjects ? 'Suppression...' : 'Oui, tout supprimer définitivement' }}
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        [disabled]="isDeleteActionLocked"
+        (click)="cancelDeleteAll()"
+      >
+        Annuler
+      </button>
     </div>
   </div>
 
@@ -121,47 +233,66 @@
       class="rounded-3xl border border-border/70 bg-card/60 p-5"
     >
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2 mb-2">
-            <h3 class="text-lg font-bold">{{ project.title }}</h3>
-
-            <span class="text-xs rounded-full px-3 py-1 border border-border/70">
-              {{ project.category }}
-            </span>
-
-            <span
-              class="text-xs rounded-full px-3 py-1 border"
-              [class.border-emerald-500]="project.published"
-              [class.text-emerald-600]="project.published"
-              [class.border-slate-400]="!project.published"
-              [class.opacity-70]="!project.published"
-            >
-              {{ project.published ? 'Publié' : 'Brouillon' }}
-            </span>
-
-            <span
-              *ngIf="project.featured"
-              class="text-xs rounded-full px-3 py-1 border border-primary text-primary"
-            >
-              Mis en avant
-            </span>
+        <div class="flex gap-4 min-w-0 flex-1">
+          <div class="pt-1">
+            <input
+              type="checkbox"
+              [checked]="isProjectSelected(project)"
+              [disabled]="isDeleteActionLocked"
+              (change)="toggleProjectSelection(project, $any($event.target).checked)"
+              [attr.aria-label]="'Sélectionner le projet ' + project.title"
+            />
           </div>
 
-          <p class="text-sm opacity-80 mb-2">
-            <strong>Slug :</strong> {{ project.slug }}
-          </p>
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <h3 class="text-lg font-bold">{{ project.title }}</h3>
 
-          <p class="text-sm opacity-80 mb-2">
-            <strong>Type :</strong> {{ project.type }}
-          </p>
+              <span class="text-xs rounded-full px-3 py-1 border border-border/70">
+                {{ project.category }}
+              </span>
 
-          <p class="text-sm opacity-80 mb-2">
-            <strong>Ordre :</strong> {{ project.displayOrder ?? 0 }}
-          </p>
+              <span
+                class="text-xs rounded-full px-3 py-1 border"
+                [class.border-emerald-500]="project.published"
+                [class.text-emerald-600]="project.published"
+                [class.border-slate-400]="!project.published"
+                [class.opacity-70]="!project.published"
+              >
+                {{ project.published ? 'Publié' : 'Brouillon' }}
+              </span>
 
-          <p class="text-sm opacity-80" *ngIf="project.stack?.length">
-            <strong>Stack :</strong> {{ project.stack?.join(', ') }}
-          </p>
+              <span
+                *ngIf="project.featured"
+                class="text-xs rounded-full px-3 py-1 border border-primary text-primary"
+              >
+                Mis en avant
+              </span>
+
+              <span
+                *ngIf="isProjectSelected(project)"
+                class="text-xs rounded-full px-3 py-1 border border-primary text-primary"
+              >
+                Sélectionné
+              </span>
+            </div>
+
+            <p class="text-sm opacity-80 mb-2">
+              <strong>Slug :</strong> {{ project.slug }}
+            </p>
+
+            <p class="text-sm opacity-80 mb-2">
+              <strong>Type :</strong> {{ project.type }}
+            </p>
+
+            <p class="text-sm opacity-80 mb-2">
+              <strong>Ordre :</strong> {{ project.displayOrder ?? 0 }}
+            </p>
+
+            <p class="text-sm opacity-80" *ngIf="project.stack?.length">
+              <strong>Stack :</strong> {{ project.stack?.join(', ') }}
+            </p>
+          </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -176,11 +307,47 @@
           <button
             type="button"
             class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-            [disabled]="deletingProjectId === project.id"
-            (click)="deleteProject(project)"
+            [disabled]="isDeleteActionLocked"
+            (click)="requestDelete(project)"
             [attr.aria-label]="'Supprimer le projet ' + project.title"
           >
-            {{ deletingProjectId === project.id ? 'Suppression...' : 'Supprimer' }}
+            {{ isDeleteConfirmationOpen(project) ? 'Confirmation ouverte' : 'Supprimer' }}
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="isDeleteConfirmationOpen(project)"
+        class="mt-4 rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-4"
+        aria-live="assertive"
+      >
+        <div class="space-y-2">
+          <p class="font-semibold text-red-600">
+            Confirmer la suppression de « {{ project.title }} » ?
+          </p>
+
+          <p class="text-sm opacity-80">
+            Cette action supprimera définitivement le projet ainsi que ses images uploadées associées qui ne sont plus utilisées.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            [disabled]="isDeleteActionLocked"
+            (click)="confirmDelete(project)"
+          >
+            {{ isDeletingProject(project) ? 'Suppression...' : 'Oui, supprimer définitivement' }}
+          </button>
+
+          <button
+            type="button"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [disabled]="isDeleteActionLocked"
+            (click)="cancelDelete()"
+          >
+            Annuler
           </button>
         </div>
       </div>

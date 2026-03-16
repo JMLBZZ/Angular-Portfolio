@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -186,7 +186,8 @@ export class AdminProjectFormComponent
     private router: Router,
     private adminProjectsApi: AdminProjectsApiService,
     private adminProjectImagesApi: AdminProjectImagesApiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit(): void {
@@ -232,6 +233,7 @@ export class AdminProjectFormComponent
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.toastService.warning('Veuillez corriger les champs du formulaire.');
+      this.focusFirstInvalidField();
       return;
     }
 
@@ -582,6 +584,25 @@ export class AdminProjectFormComponent
 
   private resolvePreviewUrl(value: string): string | undefined {
     return resolveMediaUrl(value);
+  }
+
+  private focusFirstInvalidField(): void {
+    setTimeout(() => {
+      const firstInvalidField = this.elementRef.nativeElement.querySelector(
+        'input.ng-invalid, textarea.ng-invalid, select.ng-invalid'
+      ) as HTMLElement | null;
+
+      if (!firstInvalidField) {
+        return;
+      }
+
+      firstInvalidField.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      firstInvalidField.focus();
+    });
   }
 
   get galleryPreviewUrls(): string[] {
