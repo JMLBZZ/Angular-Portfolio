@@ -1,5 +1,6 @@
 package com.portfolio.portfolio_backend.web.exception;
 
+import com.portfolio.portfolio_backend.application.exception.FileStorageException;
 import com.portfolio.portfolio_backend.application.exception.RateLimitException;
 import com.portfolio.portfolio_backend.application.exception.SpamDetectedException;
 import com.portfolio.portfolio_backend.domain.exception.EmailAlreadyUsedException;
@@ -120,6 +121,19 @@ public class GlobalExceptionHandler {
 
         return new ApiResult<>(
                 new ApiError("Internal server error", "INTERNAL_ERROR")
+        );
+    }
+
+/**
+     * Gestion générique des erreurs upload
+     */
+    @ExceptionHandler(FileStorageException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResult<?> handleFileStorageException(FileStorageException ex) {
+        logger.warn("File storage error: {}", ex.getMessage());
+
+        return new ApiResult<>(
+                new ApiError(ex.getMessage(), "FILE_STORAGE_ERROR")
         );
     }
 }

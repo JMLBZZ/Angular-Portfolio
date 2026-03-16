@@ -19,12 +19,22 @@ export class ProjectsApiService {
   getPublishedProjects(): Observable<Project[]> {
     return this.http
       .get<Project[]>(`${this.baseUrl}/api/public/projects`)
-      .pipe(map((projects) => projects.map((project) => normalizeProject(project))));
+      .pipe(
+        map((projects) =>
+          projects.map((project) =>
+            normalizeProject(project, { resolveMediaUrls: true })
+          )
+        )
+      );
   }
 
   getPublishedProjectBySlug(slug: string): Observable<Project> {
     return this.http
       .get<Project>(`${this.baseUrl}/api/public/projects/${slug}`)
-      .pipe(map((project) => normalizeProject(project)));
+      .pipe(
+        map((project) =>
+          normalizeProject(project, { resolveMediaUrls: true })
+        )
+      );
   }
 }

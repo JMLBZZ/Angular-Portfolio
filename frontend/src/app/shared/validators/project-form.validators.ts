@@ -18,6 +18,23 @@ export function slugValidator(): ValidatorFn {
   };
 }
 
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function isValidUploadedFilePath(value: string): boolean {
+  return value.startsWith('/uploads/');
+}
+
+function isAcceptedImageValue(value: string): boolean {
+  return isValidHttpUrl(value) || isValidUploadedFilePath(value);
+}
+
 export function optionalUrlValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = String(control.value ?? '').trim();
@@ -26,14 +43,7 @@ export function optionalUrlValidator(): ValidatorFn {
       return null;
     }
 
-    try {
-      const url = new URL(value);
-      const isHttp = url.protocol === 'http:' || url.protocol === 'https:';
-
-      return isHttp ? null : { invalidUrl: true };
-    } catch {
-      return { invalidUrl: true };
-    }
+    return isAcceptedImageValue(value) ? null : { invalidUrl: true };
   };
 }
 
@@ -92,14 +102,7 @@ export function commaSeparatedUrlListValidator(): ValidatorFn {
       .map((item) => item.trim())
       .filter(Boolean);
 
-    const invalidItem = items.find((item) => {
-      try {
-        const url = new URL(item);
-        return !(url.protocol === 'http:' || url.protocol === 'https:');
-      } catch {
-        return true;
-      }
-    });
+    const invalidItem = items.find((item) => !isAcceptedImageValue(item));
 
     return invalidItem
       ? {

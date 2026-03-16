@@ -2,7 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, from, concatMap, finalize, toArray } from 'rxjs';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
@@ -19,6 +20,8 @@ import {
   slugValidator,
 } from '../../shared/validators/project-form.validators';
 import { FallbackImageDirective } from '../../shared/directives/fallback-image.directive';
+import { AdminProjectImagesApiService } from '../../core/api/admin-project-images-api.service';
+import { resolveMediaUrl } from '../../core/api/media-url.utils';
 
 @Component({
   selector: 'app-admin-project-form',
@@ -31,6 +34,7 @@ import { FallbackImageDirective } from '../../shared/directives/fallback-image.d
     TextAreaComponent,
     PrimaryButtonComponent,
     FallbackImageDirective,
+    DragDropModule,
   ],
   templateUrl: './admin-project-form.component.html',
 })
@@ -43,6 +47,13 @@ export class AdminProjectFormComponent
   isLoading = false;
   isSubmitting = false;
   errorMessage = '';
+
+  isUploadingImage = false;
+  isUploadingCover = false;
+  isUploadingGallery = false;
+  uploadErrorMessage = '';
+
+  readonly acceptedImageTypes = 'image/png,image/jpeg,image/jpg,image/webp';
 
   /**
    * Permet de ne plus écraser automatiquement le slug si l'utilisateur l'a modifié à la main.
@@ -174,6 +185,7 @@ export class AdminProjectFormComponent
     private route: ActivatedRoute,
     private router: Router,
     private adminProjectsApi: AdminProjectsApiService,
+    private adminProjectImagesApi: AdminProjectImagesApiService,
     private toastService: ToastService
   ) {}
 
@@ -255,6 +267,159 @@ export class AdminProjectFormComponent
         this.toastService.error(this.errorMessage);
       },
     });
+  }
+
+  onImageFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.uploadErrorMessage = '';
+    this.isUploadingImage = true;
+
+    this.adminProjectImagesApi
+      .upload(file)
+      .pipe(
+        finalize(() => {
+          this.isUploadingImage = false;
+          input.value = '';
+        })
+      )
+      .subscribe({
+        next: (url) => {
+          this.imageControl.setValue(url);
+          this.imageControl.markAsDirty();
+          this.imageControl.markAsTouched();
+          this.toastService.success('Image principale uploadée avec succès.');
+        },
+        error: (error) => {
+          this.uploadErrorMessage = extractApiErrorMessage(
+            error,
+            'L’upload de l’image principale a échoué.'
+          );
+          this.toastService.error(this.uploadErrorMessage);
+        },
+      });
+  }
+
+  onCoverFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.uploadErrorMessage = '';
+    this.isUploadingCover = true;
+
+    this.adminProjectImagesApi
+      .upload(file)
+      .pipe(
+        finalize(() => {
+          this.isUploadingCover = false;
+          input.value = '';
+        })
+      )
+      .subscribe({
+        next: (url) => {
+          this.coverControl.setValue(url);
+          this.coverControl.markAsDirty();
+          this.coverControl.markAsTouched();
+          this.toastService.success('Cover uploadée avec succès.');
+        },
+        error: (error) => {
+          this.uploadErrorMessage = extractApiErrorMessage(
+            error,
+            'L’upload de la cover a échoué.'
+          );
+          this.toastService.error(this.uploadErrorMessage);
+        },
+      });
+  }
+
+  onGalleryFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    this.uploadErrorMessage = '';
+    this.isUploadingGallery = true;
+
+    from(Array.from(files))
+      .pipe(
+        concatMap((file) => this.adminProjectImagesApi.upload(file)),
+        toArray(),
+        finalize(() => {
+          this.isUploadingGallery = false;
+          input.value = '';
+        })
+      )
+      .subscribe({
+        next: (uploadedUrls) => {
+          const currentUrls = this.toArray(this.imagesInputControl.value);
+          const mergedUrls = [...currentUrls, ...uploadedUrls].filter(
+            (item, index, array) =>
+              array.findIndex(
+                (current) => current.toLowerCase() === item.toLowerCase()
+              ) === index
+          );
+
+          this.imagesInputControl.setValue(mergedUrls.join(', '));
+          this.imagesInputControl.markAsDirty();
+          this.imagesInputControl.markAsTouched();
+
+          this.toastService.success(
+            uploadedUrls.length > 1
+              ? 'Images de galerie uploadées avec succès.'
+              : 'Image de galerie uploadée avec succès.'
+          );
+        },
+        error: (error) => {
+          this.uploadErrorMessage = extractApiErrorMessage(
+            error,
+            'L’upload des images de galerie a échoué.'
+          );
+          this.toastService.error(this.uploadErrorMessage);
+        },
+      });
+  }
+
+  onGalleryDrop(event: CdkDragDrop<string[]>): void {
+    const items = this.toArray(this.imagesInputControl.value);
+
+    moveItemInArray(items, event.previousIndex, event.currentIndex);
+
+    this.imagesInputControl.setValue(items.join(', '));
+    this.imagesInputControl.markAsDirty();
+    this.imagesInputControl.markAsTouched();
+  }
+
+  removeMainImage(): void {
+    this.imageControl.setValue('');
+    this.imageControl.markAsDirty();
+    this.imageControl.markAsTouched();
+  }
+
+  removeCoverImage(): void {
+    this.coverControl.setValue('');
+    this.coverControl.markAsDirty();
+    this.coverControl.markAsTouched();
+  }
+
+  removeGalleryImage(index: number): void {
+    const items = this.toArray(this.imagesInputControl.value);
+    items.splice(index, 1);
+
+    this.imagesInputControl.setValue(items.join(', '));
+    this.imagesInputControl.markAsDirty();
+    this.imagesInputControl.markAsTouched();
   }
 
   canDeactivate(): boolean {
@@ -391,7 +556,11 @@ export class AdminProjectFormComponent
       .map((item) => item.trim())
       .filter(Boolean)
       .filter((item, index, array) => {
-        return array.findIndex((current) => current.toLowerCase() === item.toLowerCase()) === index;
+        return (
+          array.findIndex(
+            (current) => current.toLowerCase() === item.toLowerCase()
+          ) === index
+        );
       });
   }
 
@@ -411,16 +580,34 @@ export class AdminProjectFormComponent
       .replace(/-+/g, '-');
   }
 
+  private resolvePreviewUrl(value: string): string | undefined {
+    return resolveMediaUrl(value);
+  }
+
   get galleryPreviewUrls(): string[] {
     return this.toArray(this.imagesInputControl.value);
   }
 
+  get galleryResolvedPreviewUrls(): string[] {
+    return this.galleryPreviewUrls
+      .map((url) => this.resolvePreviewUrl(url))
+      .filter((url): url is string => !!url);
+  }
+
+  get mainImagePreviewUrl(): string | undefined {
+    return this.resolvePreviewUrl(this.imageControl.value);
+  }
+
+  get coverPreviewUrl(): string | undefined {
+    return this.resolvePreviewUrl(this.coverControl.value);
+  }
+
   get hasImagePreview(): boolean {
-    return !!this.imageControl.value.trim() && this.imageControl.valid;
+    return !!this.mainImagePreviewUrl && this.imageControl.valid;
   }
 
   get hasCoverPreview(): boolean {
-    return !!this.coverControl.value.trim() && this.coverControl.valid;
+    return !!this.coverPreviewUrl && this.coverControl.valid;
   }
 
   get pageTitle(): string {
@@ -525,6 +712,10 @@ export class AdminProjectFormComponent
     return this.form.controls.displayOrder;
   }
 
+  trackByImageUrl(index: number, imageUrl: string): string {
+    return `${index}-${imageUrl}`;
+  }
+
   getSlugErrorMessage(): string {
     const control = this.slugControl;
 
@@ -541,7 +732,7 @@ export class AdminProjectFormComponent
 
   getUrlErrorMessage(control: FormControl<string>): string {
     if (control.hasError('invalidUrl')) {
-      return 'Veuillez saisir une URL valide commençant par http:// ou https://';
+      return 'Veuillez saisir une URL valide commençant par http:// ou https://, ou un chemin /uploads/...';
     }
 
     return '';
@@ -557,7 +748,7 @@ export class AdminProjectFormComponent
     }
 
     if (control.hasError('invalidUrlList')) {
-      return `Chaque URL du champ ${label} doit être valide.`;
+      return `Chaque valeur du champ ${label} doit être une URL valide ou un chemin /uploads/...`;
     }
 
     return '';

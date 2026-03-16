@@ -1,21 +1,26 @@
 import { Project, ProjectCategory } from '../../shared/models/project.model';
+import { resolveMediaUrl } from './media-url.utils';
 
-export function normalizeProject(project: Project): Project {
+interface NormalizeProjectOptions {
+  resolveMediaUrls?: boolean;
+}
+
+export function normalizeProject(
+  project: Project,
+  options: NormalizeProjectOptions = {}
+): Project {
   return {
     ...project,
     category: normalizeCategory(project.category),
-    image: normalizeImage(project.image),
-    cover: normalizeImage(project.cover),
+    image: normalizeImage(project.image, options.resolveMediaUrls ?? false),
+    cover: normalizeImage(project.cover, options.resolveMediaUrls ?? false),
     images: project.images
-      ?.map((img) => normalizeImage(img))
+      ?.map((img) => normalizeImage(img, options.resolveMediaUrls ?? false))
       .filter(Boolean) as string[] | undefined,
   };
 }
 
-/**
- * Le backend peut renvoyer "frontend" / "backend"
- * alors que le frontend filtre avec "front" / "back".
- */
+/** Le backend peut renvoyer "frontend" / "backend" alors que le frontend filtre avec "front" / "back".*/
 function normalizeCategory(category: string | undefined): ProjectCategory {
   switch ((category ?? '').toLowerCase()) {
     case 'frontend':
@@ -42,7 +47,10 @@ function normalizeCategory(category: string | undefined): ProjectCategory {
   }
 }
 
-function normalizeImage(image: string | undefined): string | undefined {
+function normalizeImage(
+  image: string | undefined,
+  resolveUrls: boolean
+): string | undefined {
   if (!image) return undefined;
-  return image;
+  return resolveUrls ? resolveMediaUrl(image) : image;
 }

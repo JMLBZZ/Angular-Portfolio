@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,9 +18,14 @@ import java.util.UUID;
 public class ProjectService {
 
     private final ProjectRepositoryPort repository;
+    private final ProjectImageStorageService projectImageStorageService;
 
-    public ProjectService(ProjectRepositoryPort repository) {
+    public ProjectService(
+            ProjectRepositoryPort repository,
+            ProjectImageStorageService projectImageStorageService
+    ) {
         this.repository = repository;
+        this.projectImageStorageService = projectImageStorageService;
     }
 
     public Project create(Project project) {
@@ -29,6 +35,9 @@ public class ProjectService {
     public Project update(UUID id, Project updatedProject) {
         Project existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        LinkedHashSet<String> existingImageUrls = collectProjectImageUrls(existing);
+        LinkedHashSet<String> updatedImageUrls = collectProjectImageUrls(updatedProject);
 
         Project project = new Project(
                 existing.getId(),
@@ -55,7 +64,15 @@ public class ProjectService {
                 existing.getCreatedAt()
         );
 
-        return repository.save(project);
+        Project savedProject = repository.save(project);
+
+        for (String existingImageUrl : existingImageUrls) {
+            if (!updatedImageUrls.contains(existingImageUrl)) {
+                projectImageStorageService.delete(existingImageUrl);
+            }
+        }
+
+        return savedProject;
     }
 
     public Page<Project> getAll(
@@ -85,6 +102,36 @@ public class ProjectService {
     }
 
     public void delete(UUID id) {
+        Project existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        LinkedHashSet<String> imageUrlsToDelete = collectProjectImageUrls(existing);
+
         repository.deleteById(id);
+
+        for (String imageUrl : imageUrlsToDelete) {
+            projectImageStorageService.delete(imageUrl);
+        }
+    }
+
+    private LinkedHashSet<String> collectProjectImageUrls(Project project) {
+        LinkedHashSet<String> imageUrls = new LinkedHashSet<>();
+
+        addIfPresent(imageUrls, project.getImage());
+        addIfPresent(imageUrls, project.getCover());
+
+        if (project.getImages() != null) {
+            for (String imageUrl : project.getImages()) {
+                addIfPresent(imageUrls, imageUrl);
+            }
+        }
+
+        return imageUrls;
+    }
+
+    private void addIfPresent(LinkedHashSet<String> values, String value) {
+        if (value != null && !value.isBlank()) {
+            values.add(value);
+        }
     }
 }
