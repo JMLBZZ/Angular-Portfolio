@@ -23,9 +23,20 @@
     Chargement du projet...
   </div>
 
-  <p *ngIf="errorMessage" class="text-sm text-red-500" aria-live="assertive">
-    {{ errorMessage }}
-  </p>
+  <div
+    *ngIf="errorMessage"
+    id="admin-project-form-global-error"
+    tabindex="-1"
+    class="rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-2 focus:outline-none"
+    aria-live="assertive"
+  >
+    <p class="font-semibold text-red-600">
+      L’action n’a pas pu être finalisée.
+    </p>
+    <p class="text-sm text-red-600">
+      {{ errorMessage }}
+    </p>
+  </div>
 
   <p *ngIf="uploadErrorMessage" class="text-sm text-red-500" aria-live="assertive">
     {{ uploadErrorMessage }}
@@ -118,64 +129,12 @@
       <div class="grid gap-6 lg:grid-cols-2">
         <div class="space-y-4 rounded-3xl border border-border/70 bg-card/40 p-4">
           <div class="flex items-center justify-between gap-3 flex-wrap">
-            <p class="text-sm font-semibold">Image de couverture</p>
-
-            <div class="flex gap-2 flex-wrap">
-              <label
-                class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition"
-              >
-                {{ isUploadingCover ? 'Upload...' : 'Uploader une cover' }}
-                <input
-                  type="file"
-                  class="hidden"
-                  [accept]="acceptedImageTypes"
-                  [disabled]="isUploadingCover"
-                  (change)="onCoverFileSelected($event)"
-                />
-              </label>
-
-              <button
-                type="button"
-                class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
-                (click)="removeCoverImage()"
-              >
-                Retirer
-              </button>
+            <div>
+              <p class="text-sm font-semibold">Image de remplacement</p>
+              <p class="text-xs opacity-70">
+                Utilisée comme image de secours si aucune image de couverture ou de galerie n’est disponible.
+              </p>
             </div>
-          </div>
-
-          <app-text-field
-            id="project-cover"
-            label="Image de couverture (URL ou /uploads/...)"
-            placeholder="https://... ou /uploads/projects/..."
-            [control]="coverControl"
-            [showError]="coverControl.invalid && coverControl.touched"
-            [errorText]="getUrlErrorMessage(coverControl)">
-          </app-text-field>
-
-          <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
-            <p class="text-sm font-semibold">Aperçu de l'image de couverture</p>
-
-            <img
-              *ngIf="hasCoverPreview; else noCoverImage"
-              [src]="coverPreviewUrl"
-              appFallbackImage
-              alt="Aperçu cover du projet"
-              class="w-full h-44 object-cover rounded-2xl border border-border/50"
-            />
-
-            <ng-template #noCoverImage>
-              <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
-                Aucune image de couverture renseignée
-              </div>
-            </ng-template>
-          </div>
-        </div>
-
-        <div class="space-y-4 rounded-3xl border border-border/70 bg-card/40 p-4">
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <p class="text-sm font-semibold">Image de remplacement</p>
-            <p class="text-xs opacity-70">Utilisée comme image de secours si aucune image de couverture ou de galerie n’est disponible.</p>
 
             <div class="flex gap-2 flex-wrap">
               <label
@@ -224,6 +183,67 @@
             <ng-template #noMainImage>
               <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
                 Aucune image de remplacement renseignée
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="space-y-4 rounded-3xl border border-border/70 bg-card/40 p-4">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-sm font-semibold">Image de couverture</p>
+              <p class="text-xs opacity-70">
+                Image affichée sur la carte du projet et en en-tête de la page détail.
+              </p>
+            </div>
+
+            <div class="flex gap-2 flex-wrap">
+              <label
+                class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition"
+              >
+                {{ isUploadingCover ? 'Upload...' : 'Uploader une image' }}
+                <input
+                  type="file"
+                  class="hidden"
+                  [accept]="acceptedImageTypes"
+                  [disabled]="isUploadingCover"
+                  (change)="onCoverFileSelected($event)"
+                />
+              </label>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+                (click)="removeCoverImage()"
+              >
+                Retirer
+              </button>
+            </div>
+          </div>
+
+          <app-text-field
+            id="project-cover"
+            label="Image de couverture (URL ou /uploads/...)"
+            placeholder="https://... ou /uploads/projects/..."
+            [control]="coverControl"
+            [showError]="coverControl.invalid && coverControl.touched"
+            [errorText]="getUrlErrorMessage(coverControl)">
+          </app-text-field>
+
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
+            <p class="text-sm font-semibold">Aperçu image de couverture</p>
+
+            <img
+              *ngIf="hasCoverPreview; else noCoverImage"
+              [src]="coverPreviewUrl"
+              appFallbackImage
+              alt="Aperçu image de couverture du projet"
+              class="w-full h-44 object-cover rounded-2xl border border-border/50"
+            />
+
+            <ng-template #noCoverImage>
+              <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
+                Aucune image de couverture renseignée
               </div>
             </ng-template>
           </div>

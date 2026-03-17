@@ -1,6 +1,7 @@
 package com.portfolio.portfolio_backend.application.service;
 
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
+import com.portfolio.portfolio_backend.domain.exception.SlugAlreadyUsedException;
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.domain.port.out.ProjectRepositoryPort;
 
@@ -29,12 +30,15 @@ public class ProjectService {
     }
 
     public Project create(Project project) {
+        ensureSlugAvailable(project.getSlug(), null);
         return repository.save(project);
     }
 
     public Project update(UUID id, Project updatedProject) {
         Project existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        ensureSlugAvailable(updatedProject.getSlug(), existing.getId());
 
         LinkedHashSet<String> existingImageUrls = collectProjectImageUrls(existing);
         LinkedHashSet<String> updatedImageUrls = collectProjectImageUrls(updatedProject);
@@ -112,6 +116,21 @@ public class ProjectService {
         for (String imageUrl : imageUrlsToDelete) {
             projectImageStorageService.delete(imageUrl);
         }
+    }
+
+    private void ensureSlugAvailable(String slug, UUID currentProjectId) {
+        if (slug == null || slug.isBlank()) {
+            return;
+        }
+
+        repository.findBySlug(slug.trim())
+                .ifPresent(project -> {
+                    boolean sameProject = currentProjectId != null && currentProjectId.equals(project.getId());
+
+                    if (!sameProject) {
+                        throw new SlugAlreadyUsedException("Ce slug est déjà utilisé par un autre projet.");
+                    }
+                });
     }
 
     private LinkedHashSet<String> collectProjectImageUrls(Project project) {

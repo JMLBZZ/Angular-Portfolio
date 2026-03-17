@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ElementRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,7 +10,11 @@ import { TextAreaComponent } from '../../shared/components/text-area/text-area.c
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminProject, AdminProjectPayload } from '../../core/auth/auth.models';
-import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import {
+  extractApiErrorMessage,
+  getApiFieldError,
+  hasApiErrorCode,
+} from '../../core/api/api-error.utils';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 import { ToastService } from '../../shared/services/toast.service';
 import {
@@ -55,14 +59,7 @@ export class AdminProjectFormComponent
 
   readonly acceptedImageTypes = 'image/png,image/jpeg,image/jpg,image/webp';
 
-  /**
-   * Permet de ne plus écraser automatiquement le slug si l'utilisateur l'a modifié à la main.
-   */
   private slugManuallyEdited = false;
-
-  /**
-   * Utilisé pour nettoyer les subscriptions.
-   */
   private subscriptions = new Subscription();
 
   readonly categoryOptions = [
@@ -195,6 +192,8 @@ export class AdminProjectFormComponent
     this.isEditMode = !!this.projectId;
 
     this.setupSlugAutofill();
+    this.setupSlugConflictCleanup();
+    this.setupGlobalErrorCleanup();
 
     if (this.projectId) {
       this.loadProject(this.projectId);
@@ -205,6 +204,16 @@ export class AdminProjectFormComponent
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  handleBeforeUnload(event: BeforeUnloadEvent): void {
+    if (!this.hasUnsavedChanges) {
+      return;
+    }
+
+    event.preventDefault();
+    event.returnValue = '';
   }
 
   loadProject(id: string): void {
@@ -224,12 +233,16 @@ export class AdminProjectFormComponent
           'Impossible de charger le projet à modifier.'
         );
         this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
         this.isLoading = false;
       },
     });
   }
 
   submit(): void {
+    this.clearSlugAlreadyUsedError();
+    this.errorMessage = '';
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.toastService.warning('Veuillez corriger les champs du formulaire.');
@@ -238,7 +251,6 @@ export class AdminProjectFormComponent
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
 
     const payload = this.buildPayload();
 
@@ -250,6 +262,7 @@ export class AdminProjectFormComponent
     request$.subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.errorMessage = '';
         this.form.markAsPristine();
 
         this.toastService.success(
@@ -262,11 +275,25 @@ export class AdminProjectFormComponent
       },
       error: (error) => {
         this.isSubmitting = false;
+
+        if (hasApiErrorCode(error, 'SLUG_ALREADY_USED')) {
+          const slugMessage =
+            getApiFieldError(error, 'slug') ||
+            'Ce slug est déjà utilisé par un autre projet.';
+
+          this.setSlugAlreadyUsedError(slugMessage);
+          this.errorMessage = slugMessage;
+          this.toastService.error(slugMessage);
+          this.focusSlugField();
+          return;
+        }
+
         this.errorMessage = extractApiErrorMessage(
           error,
           'L’enregistrement du projet a échoué.'
         );
         this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       },
     });
   }
@@ -425,7 +452,7 @@ export class AdminProjectFormComponent
   }
 
   canDeactivate(): boolean {
-    if (this.isSubmitting || !this.form.dirty) {
+    if (!this.hasUnsavedChanges) {
       return true;
     }
 
@@ -457,6 +484,24 @@ export class AdminProjectFormComponent
 
     this.subscriptions.add(slugSubscription);
     this.subscriptions.add(titleSubscription);
+  }
+
+  private setupSlugConflictCleanup(): void {
+    const slugConflictCleanupSubscription = this.slugControl.valueChanges.subscribe(() => {
+      this.clearSlugAlreadyUsedError();
+    });
+
+    this.subscriptions.add(slugConflictCleanupSubscription);
+  }
+
+  private setupGlobalErrorCleanup(): void {
+    const globalErrorCleanupSubscription = this.form.valueChanges.subscribe(() => {
+      if (this.errorMessage) {
+        this.errorMessage = '';
+      }
+    });
+
+    this.subscriptions.add(globalErrorCleanupSubscription);
   }
 
   private patchForm(project: AdminProject): void {
@@ -605,6 +650,74 @@ export class AdminProjectFormComponent
     });
   }
 
+  private focusSlugField(): void {
+    setTimeout(() => {
+      const slugField = this.elementRef.nativeElement.querySelector(
+        '#project-slug'
+      ) as HTMLElement | null;
+
+      if (!slugField) {
+        this.focusFirstInvalidField();
+        return;
+      }
+
+      slugField.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      slugField.focus();
+    });
+  }
+
+  private scrollToGlobalError(): void {
+    setTimeout(() => {
+      const errorBlock = this.elementRef.nativeElement.querySelector(
+        '#admin-project-form-global-error'
+      ) as HTMLElement | null;
+
+      if (!errorBlock) {
+        return;
+      }
+
+      errorBlock.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      errorBlock.focus();
+    });
+  }
+
+  private setSlugAlreadyUsedError(message: string): void {
+    const currentErrors = this.slugControl.errors ?? {};
+
+    this.slugControl.setErrors({
+      ...currentErrors,
+      slugAlreadyUsed: message,
+    });
+
+    this.slugControl.markAsTouched();
+  }
+
+  private clearSlugAlreadyUsedError(): void {
+    const currentErrors = this.slugControl.errors;
+
+    if (!currentErrors || !currentErrors['slugAlreadyUsed']) {
+      return;
+    }
+
+    const { slugAlreadyUsed, ...remainingErrors } = currentErrors;
+
+    this.slugControl.setErrors(
+      Object.keys(remainingErrors).length > 0 ? remainingErrors : null
+    );
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return !this.isSubmitting && this.form.dirty;
+  }
+
   get galleryPreviewUrls(): string[] {
     return this.toArray(this.imagesInputControl.value);
   }
@@ -746,6 +859,10 @@ export class AdminProjectFormComponent
 
     if (control.hasError('slugFormat')) {
       return 'Le slug doit contenir uniquement des lettres minuscules, chiffres et tirets.';
+    }
+
+    if (control.hasError('slugAlreadyUsed')) {
+      return String(control.getError('slugAlreadyUsed'));
     }
 
     return '';

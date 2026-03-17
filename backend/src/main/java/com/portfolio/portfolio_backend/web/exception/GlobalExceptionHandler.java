@@ -5,6 +5,7 @@ import com.portfolio.portfolio_backend.application.exception.RateLimitException;
 import com.portfolio.portfolio_backend.application.exception.SpamDetectedException;
 import com.portfolio.portfolio_backend.domain.exception.EmailAlreadyUsedException;
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
+import com.portfolio.portfolio_backend.domain.exception.SlugAlreadyUsedException;
 import com.portfolio.portfolio_backend.web.response.ApiError;
 import com.portfolio.portfolio_backend.web.response.ApiResult;
 
@@ -73,6 +74,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Gestion de conflit des slugs déjà utilisés (409)
+     */
+    @ExceptionHandler(SlugAlreadyUsedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResult<?> handleSlugAlreadyUsed(SlugAlreadyUsedException ex) {
+        logger.warn("Slug already used: {}", ex.getMessage());
+
+        Map<String, String> details = new HashMap<>();
+        details.put("slug", ex.getMessage());
+
+        return new ApiResult<>(
+                new ApiError(ex.getMessage(), "SLUG_ALREADY_USED", details)
+        );
+    }
+
+    /**
      * Gestion du spam détecté (400)
      */
     @ExceptionHandler(SpamDetectedException.class)
@@ -112,19 +129,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Gestion générique des erreurs backend (500)
-     */
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiResult<?> handleGenericException(Exception ex) {
-        logger.error("Unexpected backend error", ex);
-
-        return new ApiResult<>(
-                new ApiError("Internal server error", "INTERNAL_ERROR")
-        );
-    }
-
-/**
      * Gestion générique des erreurs upload
      */
     @ExceptionHandler(FileStorageException.class)
@@ -134,6 +138,19 @@ public class GlobalExceptionHandler {
 
         return new ApiResult<>(
                 new ApiError(ex.getMessage(), "FILE_STORAGE_ERROR")
+        );
+    }
+
+    /**
+     * Gestion générique des erreurs backend (500)
+     */
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiResult<?> handleGenericException(Exception ex) {
+        logger.error("Unexpected backend error", ex);
+
+        return new ApiResult<>(
+                new ApiError("Internal server error", "INTERNAL_ERROR")
         );
     }
 }

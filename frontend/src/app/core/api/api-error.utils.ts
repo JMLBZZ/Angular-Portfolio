@@ -1,33 +1,73 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-type BackendApiError = {
+type ApiResultErrorPayload = {
+  success?: boolean;
+  error?: {
+    message?: string;
+    code?: string;
+    details?: Record<string, string>;
+  };
   message?: string;
   code?: string;
-  errors?: Record<string, string | string[]>;
+  details?: Record<string, string>;
 };
 
-function normalizeMessage(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function extractValidationMessages(errorBody: BackendApiError): string[] {
-  if (!errorBody.errors || typeof errorBody.errors !== 'object') {
-    return [];
+function getErrorPayload(error: HttpErrorResponse): ApiResultErrorPayload | null {
+  if (!error.error || typeof error.error !== 'object') {
+    return null;
   }
 
-  return Object.entries(errorBody.errors)
-    .flatMap(([field, value]) => {
-      if (Array.isArray(value)) {
-        return value
-          .map((item) => normalizeMessage(item))
-          .filter(Boolean)
-          .map((message) => `${field} : ${message}`);
-      }
+  return error.error as ApiResultErrorPayload;
+}
 
-      const message = normalizeMessage(value);
-      return message ? [`${field} : ${message}`] : [];
-    })
-    .filter(Boolean);
+function getErrorMessageFromPayload(payload: ApiResultErrorPayload | null): string {
+  if (!payload) {
+    return '';
+  }
+
+  if (typeof payload.error?.message === 'string' && payload.error.message.trim()) {
+    return payload.error.message.trim();
+  }
+
+  if (typeof payload.message === 'string' && payload.message.trim()) {
+    return payload.message.trim();
+  }
+
+  return '';
+}
+
+function getErrorCodeFromPayload(payload: ApiResultErrorPayload | null): string {
+  if (!payload) {
+    return '';
+  }
+
+  if (typeof payload.error?.code === 'string' && payload.error.code.trim()) {
+    return payload.error.code.trim();
+  }
+
+  if (typeof payload.code === 'string' && payload.code.trim()) {
+    return payload.code.trim();
+  }
+
+  return '';
+}
+
+function getErrorDetailsFromPayload(
+  payload: ApiResultErrorPayload | null
+): Record<string, string> | null {
+  if (!payload) {
+    return null;
+  }
+
+  if (payload.error?.details && typeof payload.error.details === 'object') {
+    return payload.error.details;
+  }
+
+  if (payload.details && typeof payload.details === 'object') {
+    return payload.details;
+  }
+
+  return null;
 }
 
 export function extractApiErrorMessage(
@@ -42,62 +82,61 @@ export function extractApiErrorMessage(
     return error.error.trim();
   }
 
-  const errorBody =
-    error.error && typeof error.error === 'object'
-      ? (error.error as BackendApiError)
-      : null;
+  const payload = getErrorPayload(error);
+  const payloadMessage = getErrorMessageFromPayload(payload);
 
-  if (errorBody) {
-    const directMessage = normalizeMessage(errorBody.message);
-    if (directMessage) {
-      return directMessage;
-    }
-
-    const validationMessages = extractValidationMessages(errorBody);
-    if (validationMessages.length > 0) {
-      return validationMessages.join(' • ');
-    }
+  if (payloadMessage) {
+    return payloadMessage;
   }
 
-  if (error.status === 0) {
-    return 'Impossible de joindre le serveur. Vérifie que le backend Spring Boot est bien démarré.';
+  switch (error.status) {
+    case 0:
+      return 'Impossible de joindre le serveur. Vérifie que le backend Spring Boot est bien démarré.';
+    case 400:
+      return 'La requête envoyée est invalide.';
+    case 401:
+      return 'Votre session a expiré. Veuillez vous reconnecter.';
+    case 403:
+      return 'Vous n’avez pas les droits nécessaires.';
+    case 404:
+      return 'La ressource demandée est introuvable.';
+    case 409:
+      return 'Une ressource avec ces informations existe déjà.';
+    case 500:
+      return 'Une erreur serveur est survenue.';
+    default:
+      return fallbackMessage;
   }
-
-  if (error.status === 400) {
-    return 'La requête est invalide. Vérifie les champs saisis puis réessaie.';
-  }
-
-  if (error.status === 401) {
-    return 'Votre session a expiré. Veuillez vous reconnecter.';
-  }
-
-  if (error.status === 403) {
-    return 'Vous n’avez pas les droits nécessaires pour effectuer cette action.';
-  }
-
-  if (error.status === 404) {
-    return 'La ressource demandée est introuvable.';
-  }
-
-  if (error.status === 409) {
-    return 'Une ressource avec ces informations existe déjà.';
-  }
-
-  if (error.status >= 500) {
-    return 'Le serveur a rencontré une erreur. Réessaie dans quelques instants.';
-  }
-
-  return fallbackMessage;
 }
 
-export function isUnauthorizedError(error: unknown): boolean {
-  return error instanceof HttpErrorResponse && error.status === 401;
+export function hasApiErrorCode(error: unknown, expectedCode: string): boolean {
+  if (!(error instanceof HttpErrorResponse)) {
+    return false;
+  }
+
+  const payload = getErrorPayload(error);
+  const code = getErrorCodeFromPayload(payload);
+
+  return code === expectedCode;
 }
 
-export function isForbiddenError(error: unknown): boolean {
-  return error instanceof HttpErrorResponse && error.status === 403;
-}
+export function getApiFieldError(
+  error: unknown,
+  fieldName: string
+): string | null {
+  if (!(error instanceof HttpErrorResponse)) {
+    return null;
+  }
 
-export function isNetworkError(error: unknown): boolean {
-  return error instanceof HttpErrorResponse && error.status === 0;
+  const payload = getErrorPayload(error);
+  const details = getErrorDetailsFromPayload(payload);
+
+  if (!details) {
+    return null;
+  }
+
+  const fieldError = details[fieldName];
+  return typeof fieldError === 'string' && fieldError.trim()
+    ? fieldError.trim()
+    : null;
 }
