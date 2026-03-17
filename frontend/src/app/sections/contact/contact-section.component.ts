@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
@@ -8,6 +8,7 @@ import {
   AbstractControl,
   FormControl,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
@@ -18,6 +19,9 @@ import { SecondaryButtonComponent } from '../../shared/components/secondary-butt
 
 import { ToastService } from '../../shared/services/toast.service';
 import { ContactApiService } from '../../core/api/contact-api.service';
+import { ContactContentApiService } from '../../core/api/contact-content-api.service';
+import { Contact } from '../../shared/models/contact.model';
+import { LanguageService } from '../../core/i18n/language.service';
 
 @Component({
   selector: 'app-contact-section',
@@ -35,7 +39,10 @@ import { ContactApiService } from '../../core/api/contact-api.service';
   ],
   templateUrl: './contact-section.component.html',
 })
-export class ContactSectionComponent {
+export class ContactSectionComponent implements OnInit, OnDestroy {
+  title = 'Contact';
+  subtitle = 'Discutons de votre prochain projet';
+
   email = 'contact@alexandredumont.dev';
   phone = '+33 6 12 34 56 78';
   location = 'Paris, France';
@@ -46,6 +53,9 @@ export class ContactSectionComponent {
   isSubmitting = false;
   emailCopied = false;
   hasSubmitted = false;
+
+  private contactContent: Contact | null = null;
+  private subscriptions = new Subscription();
 
   form = this.fb.group({
     name: this.fb.control('', [Validators.required, Validators.minLength(2)]),
@@ -59,9 +69,25 @@ export class ContactSectionComponent {
   constructor(
     private fb: FormBuilder,
     private contactApi: ContactApiService,
+    private contactContentApi: ContactContentApiService,
     private toastService: ToastService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private languageService: LanguageService
   ) {}
+
+  ngOnInit(): void {
+    this.loadContactContent();
+
+    this.subscriptions.add(
+      this.translate.onLangChange.subscribe(() => {
+        this.applyLocalizedContent();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 
   get nameCtrl(): FormControl<string> {
     return this.form.get('name') as FormControl<string>;
@@ -170,6 +196,41 @@ export class ContactSectionComponent {
         this.showErrorToastByCode(errorCode);
       },
     });
+  }
+
+  private loadContactContent(): void {
+    this.contactContentApi.get().subscribe({
+      next: (contact) => {
+        this.contactContent = contact;
+        this.email = contact.email;
+        this.phone = contact.phone;
+        this.location = contact.location;
+        this.linkedinUrl = contact.linkedinUrl;
+        this.githubUrl = contact.githubUrl;
+        this.applyLocalizedContent();
+      },
+      error: () => {
+        this.applyLocalizedContent();
+      },
+    });
+  }
+
+  private applyLocalizedContent(): void {
+    if (!this.contactContent) {
+      return;
+    }
+
+    const currentLanguage = this.languageService.current;
+
+    this.title =
+      currentLanguage === 'fr'
+        ? this.contactContent.title.fr
+        : this.contactContent.title.en;
+
+    this.subtitle =
+      currentLanguage === 'fr'
+        ? this.contactContent.subtitle.fr
+        : this.contactContent.subtitle.en;
   }
 
   private showErrorToastByCode(code: string): void {

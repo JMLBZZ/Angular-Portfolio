@@ -2,6 +2,7 @@ package com.portfolio.portfolio_backend.application.service;
 
 import com.portfolio.portfolio_backend.application.exception.RateLimitException;
 import com.portfolio.portfolio_backend.application.exception.SpamDetectedException;
+import com.portfolio.portfolio_backend.domain.port.out.ContactRepositoryPort;
 import com.portfolio.portfolio_backend.web.dto.ContactRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ public class ContactService {
     private static final Duration COOLDOWN = Duration.ofSeconds(30);
 
     private final JavaMailSender mailSender;
+    private final ContactRepositoryPort contactRepositoryPort;
 
     @Value("${app.contact.to}")
     private String to;
@@ -32,8 +34,12 @@ public class ContactService {
 
     private final Map<String, Instant> lastSentByIp = new ConcurrentHashMap<>();
 
-    public ContactService(JavaMailSender mailSender) {
+    public ContactService(
+            JavaMailSender mailSender,
+            ContactRepositoryPort contactRepositoryPort
+    ) {
         this.mailSender = mailSender;
+        this.contactRepositoryPort = contactRepositoryPort;
     }
 
     public void send(ContactRequestDTO dto, String clientIp) {
@@ -66,7 +72,7 @@ public class ContactService {
                 """.formatted(name, email, safeIp, message);
 
         SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo(to);
+        mail.setTo(resolveDestinationEmail());
         mail.setFrom(safeFrom);
         mail.setReplyTo(safeReplyTo);
         mail.setSubject(fullSubject);
@@ -119,6 +125,18 @@ public class ContactService {
             return fallback;
         }
         return email.trim();
+    }
+
+    private String resolveDestinationEmail() {
+        return contactRepositoryPort.find()
+                .map(contact -> sanitize(contact.getEmail(), 160))
+                .filter(email -> !email.isBlank())
+                .orElseGet(() -> {
+                    if (to == null || to.isBlank()) {
+                        return "contact@localhost.localdomain";
+                    }
+                    return to.trim();
+                });
     }
 
     private String sanitize(String input, int maxLength) {

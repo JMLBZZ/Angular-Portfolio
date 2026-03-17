@@ -9,6 +9,7 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.compone
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { AdminProjectFormComponent } from './pages/admin-project-form/admin-project-form.component';
 import { ProjectDetailPageComponent } from './pages/project-detail/project-detail-page.component';
+import { AdminContactComponent } from './pages/admin-contact/admin-contact.component';
 
 export const routes: Routes = [
   {
@@ -42,6 +43,10 @@ export const routes: Routes = [
         path: '',
         pathMatch: 'full',
         redirectTo: 'dashboard',
+      },
+      {
+        path: 'contact',
+        component: AdminContactComponent,
       },
     ],
   },
