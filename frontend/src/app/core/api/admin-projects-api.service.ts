@@ -45,6 +45,14 @@ export class AdminProjectsApiService {
       .pipe(map((project) => normalizeProject(project)));
   }
 
+  reorder(projectIds: string[]): Observable<AdminProject[]> {
+    return this.http
+      .put<AdminProject[]>(`${this.baseUrl}/api/admin/projects/reorder`, {
+        projectIds,
+      })
+      .pipe(map((projects) => projects.map((project) => normalizeProject(project))));
+  }
+
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/api/admin/projects/${id}`);
   }

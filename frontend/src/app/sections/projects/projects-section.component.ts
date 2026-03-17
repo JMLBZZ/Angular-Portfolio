@@ -25,8 +25,10 @@ type Filter = 'all' | ProjectCategory;
   styleUrls: ['./projects-section.component.css'],
 })
 export class ProjectsSectionComponent implements OnInit {
-
   @Output() projectClick = new EventEmitter<Project>();
+
+  private readonly initialVisibleCount = 6;
+  private readonly visibleStep = 6;
 
   constructor(
     private lang: LanguageService,
@@ -50,6 +52,8 @@ export class ProjectsSectionComponent implements OnInit {
   isLoading = true;
   hasError = false;
 
+  visibleCount = this.initialVisibleCount;
+
   private imageLoadedState: Record<string, boolean> = {};
   private imageErrorState: Record<string, boolean> = {};
 
@@ -58,12 +62,36 @@ export class ProjectsSectionComponent implements OnInit {
   }
 
   get filteredProjects(): Project[] {
-    if (this.activeFilter === 'all') return this.projects;
-    return this.projects.filter((p) => p.category === this.activeFilter);
+    if (this.activeFilter === 'all') {
+      return this.projects;
+    }
+
+    return this.projects.filter((project) => project.category === this.activeFilter);
+  }
+
+  get visibleProjects(): Project[] {
+    return this.filteredProjects.slice(0, this.visibleCount);
+  }
+
+  get displayedProjectsCount(): number {
+    return this.visibleProjects.length;
+  }
+
+  get hiddenProjectsCount(): number {
+    return Math.max(0, this.filteredProjects.length - this.displayedProjectsCount);
+  }
+
+  get canShowMore(): boolean {
+    return this.hiddenProjectsCount > 0;
   }
 
   setFilter(filter: Filter): void {
     this.activeFilter = filter;
+    this.resetVisibleProjects();
+  }
+
+  showMoreProjects(): void {
+    this.visibleCount += this.visibleStep;
   }
 
   openProject(project: Project): void {
@@ -71,7 +99,10 @@ export class ProjectsSectionComponent implements OnInit {
   }
 
   loc(text: LocalizedText | undefined): string {
-    if (!text) return '';
+    if (!text) {
+      return '';
+    }
+
     const currentLang = this.lang.current;
     return text[currentLang] ?? text.fr;
   }
@@ -94,6 +125,10 @@ export class ProjectsSectionComponent implements OnInit {
     return !!this.imageErrorState[project.slug];
   }
 
+  private resetVisibleProjects(): void {
+    this.visibleCount = this.initialVisibleCount;
+  }
+
   private loadProjects(): void {
     this.isLoading = true;
     this.hasError = false;
@@ -101,6 +136,7 @@ export class ProjectsSectionComponent implements OnInit {
     this.projectsApi.getPublishedProjects().subscribe({
       next: (projects) => {
         this.projects = projects;
+        this.resetVisibleProjects();
         this.isLoading = false;
       },
       error: (error) => {
@@ -108,7 +144,7 @@ export class ProjectsSectionComponent implements OnInit {
         this.projects = [];
         this.hasError = true;
         this.isLoading = false;
-      }
+      },
     });
   }
 }

@@ -13,6 +13,8 @@ public interface ProjectRepositoryPort {
 
     Project save(Project project);
 
+    List<Project> saveAll(List<Project> projects);
+
     Optional<Project> findById(UUID id);
 
     Optional<Project> findBySlug(String slug);
@@ -28,6 +30,10 @@ public interface ProjectRepositoryPort {
             LocalDate afterDate,
             Pageable pageable
     );
+
+    List<Project> findAllOrdered();
+
+    Optional<Integer> findMaxDisplayOrder();
 
     List<Project> findPublishedOrdered();
 

@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
-import { AdminProject } from '../../core/auth/auth.models';
+import { AdminProject, AdminProjectPayload } from '../../core/auth/auth.models';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { ToastService } from '../../shared/services/toast.service';
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
@@ -21,6 +22,7 @@ type ProjectFeaturedFilter = 'all' | 'featured' | 'not-featured';
     ReactiveFormsModule,
     RouterLink,
     TextFieldComponent,
+    DragDropModule,
   ],
   templateUrl: './admin-dashboard.component.html',
 })
@@ -38,6 +40,13 @@ export class AdminDashboardComponent implements OnInit {
   isDeletingSelectedProjects = false;
   isConfirmDeleteSelectionOpen = false;
 
+  isDuplicatingProjectId: string | null = null;
+
+  isReordering = false;
+
+  readonly pageSize = 10;
+  currentPage = 1;
+
   readonly selectedProjectIds = new Set<string>();
   readonly searchControl = new FormControl('', { nonNullable: true });
 
@@ -51,6 +60,11 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProjects();
+
+    this.searchControl.valueChanges.subscribe(() => {
+      this.currentPage = 1;
+      this.closeBulkConfirmations();
+    });
   }
 
   loadProjects(): void {
@@ -59,13 +73,15 @@ export class AdminDashboardComponent implements OnInit {
 
     this.adminProjectsApi.getAll().subscribe({
       next: (response) => {
-        this.projects = response.data;
+        this.projects = this.sortProjects(response.data);
         this.pruneSelection();
+        this.ensureCurrentPageIsValid();
         this.isLoading = false;
       },
       error: (error) => {
         this.projects = [];
         this.selectedProjectIds.clear();
+        this.currentPage = 1;
         this.errorMessage = extractApiErrorMessage(
           error,
           'Impossible de charger la liste des projets.'
@@ -76,8 +92,88 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  onProjectDrop(event: CdkDragDrop<AdminProject[]>): void {
+    if (!this.canReorderProjects || event.previousIndex === event.currentIndex) {
+      return;
+    }
+
+    const reorderedPageProjects = [...this.paginatedProjects];
+    moveItemInArray(reorderedPageProjects, event.previousIndex, event.currentIndex);
+
+    const reorderedFullList = [...this.filteredProjects];
+    const pageStartIndex = this.startIndex;
+
+    reorderedFullList.splice(
+      pageStartIndex,
+      reorderedPageProjects.length,
+      ...reorderedPageProjects
+    );
+
+    const displayOrderStart = reorderedFullList.length - 1;
+
+    const optimisticProjects = reorderedFullList.map((project, index) => ({
+      ...project,
+      displayOrder: displayOrderStart - index,
+    }));
+
+    const previousProjects = [...this.projects];
+    this.projects = optimisticProjects;
+    this.isReordering = true;
+    this.errorMessage = '';
+
+    const projectIds = optimisticProjects
+      .map((project) => project.id)
+      .filter((id): id is string => !!id);
+
+    this.adminProjectsApi.reorder(projectIds).subscribe({
+      next: (projects) => {
+        this.projects = this.sortProjects(projects);
+        this.ensureCurrentPageIsValid();
+        this.isReordering = false;
+        this.toastService.success('Ordre des projets mis à jour.');
+      },
+      error: (error) => {
+        this.projects = previousProjects;
+        this.isReordering = false;
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'La réorganisation des projets a échoué.'
+        );
+        this.toastService.error(this.errorMessage);
+      },
+    });
+  }
+
+  duplicateProject(project: AdminProject): void {
+    if (!project.id || this.isActionLocked) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.isDuplicatingProjectId = project.id;
+
+    const payload = this.buildDuplicatePayload(project);
+
+    this.adminProjectsApi.create(payload).subscribe({
+      next: (createdProject) => {
+        this.projects = this.sortProjects([createdProject, ...this.projects]);
+        this.ensureCurrentPageIsValid();
+        this.isDuplicatingProjectId = null;
+        this.toastService.success(`Projet "${project.title}" dupliqué.`);
+      },
+      error: (error) => {
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'La duplication du projet a échoué.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.isDuplicatingProjectId = null;
+      },
+    });
+  }
+
   requestDelete(project: AdminProject): void {
-    if (!project.id || this.isDeleteActionLocked) {
+    if (!project.id || this.isActionLocked) {
       return;
     }
 
@@ -88,7 +184,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   cancelDelete(): void {
-    if (this.isDeleteActionLocked) {
+    if (this.isActionLocked) {
       return;
     }
 
@@ -96,7 +192,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   confirmDelete(project: AdminProject): void {
-    if (!project.id || this.isDeleteActionLocked) {
+    if (!project.id || this.isActionLocked) {
       return;
     }
 
@@ -109,6 +205,7 @@ export class AdminDashboardComponent implements OnInit {
         this.selectedProjectIds.delete(project.id);
         this.deletingProjectId = null;
         this.confirmDeleteProjectId = null;
+        this.ensureCurrentPageIsValid();
         this.toastService.success(`Projet "${project.title}" supprimé.`);
       },
       error: (error) => {
@@ -123,7 +220,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   requestDeleteAll(): void {
-    if (this.isDeleteActionLocked || this.filteredProjects.length === 0) {
+    if (this.isActionLocked || this.filteredProjects.length === 0) {
       return;
     }
 
@@ -134,7 +231,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   cancelDeleteAll(): void {
-    if (this.isDeleteActionLocked) {
+    if (this.isActionLocked) {
       return;
     }
 
@@ -146,18 +243,14 @@ export class AdminDashboardComponent implements OnInit {
       (project): project is AdminProject & { id: string } => !!project.id
     );
 
-    if (this.isDeleteActionLocked || projectsToDelete.length === 0) {
+    if (this.isActionLocked || projectsToDelete.length === 0) {
       return;
     }
 
     this.isDeletingAllProjects = true;
     this.errorMessage = '';
 
-    forkJoin(
-      projectsToDelete.map((project) =>
-        this.adminProjectsApi.delete(project.id)
-      )
-    ).subscribe({
+    forkJoin(projectsToDelete.map((project) => this.adminProjectsApi.delete(project.id))).subscribe({
       next: () => {
         const idsToDelete = new Set(projectsToDelete.map((project) => project.id));
         this.projects = this.projects.filter(
@@ -168,6 +261,7 @@ export class AdminDashboardComponent implements OnInit {
 
         this.isDeletingAllProjects = false;
         this.isConfirmDeleteAllOpen = false;
+        this.ensureCurrentPageIsValid();
 
         const count = projectsToDelete.length;
         this.toastService.success(
@@ -188,7 +282,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   requestDeleteSelection(): void {
-    if (this.isDeleteActionLocked || this.selectedFilteredProjects.length === 0) {
+    if (this.isActionLocked || this.selectedFilteredProjects.length === 0) {
       return;
     }
 
@@ -199,7 +293,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   cancelDeleteSelection(): void {
-    if (this.isDeleteActionLocked) {
+    if (this.isActionLocked) {
       return;
     }
 
@@ -211,18 +305,14 @@ export class AdminDashboardComponent implements OnInit {
       (project): project is AdminProject & { id: string } => !!project.id
     );
 
-    if (this.isDeleteActionLocked || projectsToDelete.length === 0) {
+    if (this.isActionLocked || projectsToDelete.length === 0) {
       return;
     }
 
     this.isDeletingSelectedProjects = true;
     this.errorMessage = '';
 
-    forkJoin(
-      projectsToDelete.map((project) =>
-        this.adminProjectsApi.delete(project.id)
-      )
-    ).subscribe({
+    forkJoin(projectsToDelete.map((project) => this.adminProjectsApi.delete(project.id))).subscribe({
       next: () => {
         const idsToDelete = new Set(projectsToDelete.map((project) => project.id));
         this.projects = this.projects.filter(
@@ -233,6 +323,7 @@ export class AdminDashboardComponent implements OnInit {
 
         this.isDeletingSelectedProjects = false;
         this.isConfirmDeleteSelectionOpen = false;
+        this.ensureCurrentPageIsValid();
 
         const count = projectsToDelete.length;
         this.toastService.success(
@@ -253,7 +344,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   toggleProjectSelection(project: AdminProject, checked: boolean): void {
-    if (!project.id || this.isDeleteActionLocked) {
+    if (!project.id || this.isActionLocked) {
       return;
     }
 
@@ -265,11 +356,11 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   toggleSelectAllFiltered(checked: boolean): void {
-    if (this.isDeleteActionLocked) {
+    if (this.isActionLocked) {
       return;
     }
 
-    const selectableIds = this.filteredProjects
+    const selectableIds = this.paginatedProjects
       .map((project) => project.id)
       .filter((id): id is string => !!id);
 
@@ -285,13 +376,19 @@ export class AdminDashboardComponent implements OnInit {
     return !!project.id && this.selectedProjectIds.has(project.id);
   }
 
+  isDuplicatingProject(project: AdminProject): boolean {
+    return !!project.id && this.isDuplicatingProjectId === project.id;
+  }
+
   setStatusFilter(value: ProjectStatusFilter): void {
     this.statusFilter = value;
+    this.currentPage = 1;
     this.closeBulkConfirmations();
   }
 
   setFeaturedFilter(value: ProjectFeaturedFilter): void {
     this.featuredFilter = value;
+    this.currentPage = 1;
     this.closeBulkConfirmations();
   }
 
@@ -299,11 +396,39 @@ export class AdminDashboardComponent implements OnInit {
     this.searchControl.setValue('');
     this.statusFilter = 'all';
     this.featuredFilter = 'all';
+    this.currentPage = 1;
     this.closeBulkConfirmations();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.closeBulkConfirmations();
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.closeBulkConfirmations();
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.closeBulkConfirmations();
+    }
   }
 
   trackByProjectId(_: number, project: AdminProject): string {
     return project.id;
+  }
+
+  trackByPageNumber(_: number, page: number): number {
+    return page;
   }
 
   isDeleteConfirmationOpen(project: AdminProject): boolean {
@@ -322,8 +447,25 @@ export class AdminDashboardComponent implements OnInit {
     return (
       this.isDeletingAnyProject ||
       this.isDeletingAllProjects ||
-      this.isDeletingSelectedProjects
+      this.isDeletingSelectedProjects ||
+      this.isDuplicatingProjectId !== null
     );
+  }
+
+  get isActionLocked(): boolean {
+    return this.isDeleteActionLocked || this.isReordering;
+  }
+
+  get hasActiveFilters(): boolean {
+    return (
+      this.searchControl.value.trim().length > 0 ||
+      this.statusFilter !== 'all' ||
+      this.featuredFilter !== 'all'
+    );
+  }
+
+  get canReorderProjects(): boolean {
+    return !this.isLoading && !this.isActionLocked && !this.hasActiveFilters;
   }
 
   get filteredProjects(): AdminProject[] {
@@ -371,20 +513,31 @@ export class AdminDashboardComponent implements OnInit {
 
         return searchableContent.includes(search);
       })
-      .sort((a, b) => {
-        const orderA = a.displayOrder ?? 0;
-        const orderB = b.displayOrder ?? 0;
+      .sort((a, b) => this.compareProjects(a, b));
+  }
 
-        if (orderA !== orderB) {
-          return orderA - orderB;
-        }
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredProjects.length / this.pageSize));
+  }
 
-        return a.title.localeCompare(b.title);
-      });
+  get startIndex(): number {
+    return (this.currentPage - 1) * this.pageSize;
+  }
+
+  get endIndex(): number {
+    return this.startIndex + this.pageSize;
+  }
+
+  get paginatedProjects(): AdminProject[] {
+    return this.filteredProjects.slice(this.startIndex, this.endIndex);
+  }
+
+  get visiblePageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
 
   get selectedFilteredProjects(): AdminProject[] {
-    return this.filteredProjects.filter((project) =>
+    return this.paginatedProjects.filter((project) =>
       project.id ? this.selectedProjectIds.has(project.id) : false
     );
   }
@@ -394,16 +547,12 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get areAllFilteredProjectsSelected(): boolean {
-    const selectableIds = this.filteredProjects
+    const selectableIds = this.paginatedProjects
       .map((project) => project.id)
       .filter((id): id is string => !!id);
 
     return selectableIds.length > 0 &&
       selectableIds.every((id) => this.selectedProjectIds.has(id));
-  }
-
-  get areSomeFilteredProjectsSelected(): boolean {
-    return this.selectedCount > 0 && !this.areAllFilteredProjectsSelected;
   }
 
   get publishedCount(): number {
@@ -430,6 +579,18 @@ export class AdminDashboardComponent implements OnInit {
     return !this.isLoading && this.selectedFilteredProjects.length > 0;
   }
 
+  private ensureCurrentPageIsValid(): void {
+    const totalPages = this.totalPages;
+
+    if (this.currentPage > totalPages) {
+      this.currentPage = totalPages;
+    }
+
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
+  }
+
   private pruneSelection(): void {
     const existingIds = new Set(
       this.projects.map((project) => project.id).filter((id): id is string => !!id)
@@ -443,11 +604,91 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   private closeBulkConfirmations(): void {
-    if (this.isDeleteActionLocked) {
+    if (this.isActionLocked) {
       return;
     }
 
     this.isConfirmDeleteAllOpen = false;
     this.isConfirmDeleteSelectionOpen = false;
+  }
+
+  private sortProjects(projects: AdminProject[]): AdminProject[] {
+    return [...projects].sort((a, b) => this.compareProjects(a, b));
+  }
+
+  private compareProjects(a: AdminProject, b: AdminProject): number {
+    const orderA = a.displayOrder ?? 0;
+    const orderB = b.displayOrder ?? 0;
+
+    if (orderA !== orderB) {
+      return orderB - orderA;
+    }
+
+    return a.title.localeCompare(b.title);
+  }
+
+  private buildDuplicatePayload(project: AdminProject): AdminProjectPayload {
+    const duplicatedTitle = this.buildDuplicateTitle(project.title);
+    const duplicatedSlug = this.buildDuplicateSlug(project.slug);
+
+    return {
+      slug: duplicatedSlug,
+      title: duplicatedTitle,
+      category: project.category,
+      image: project.image,
+      cover: project.cover,
+      images: [...(project.images ?? [])],
+      description: project.description,
+      longDescription: project.longDescription,
+      stack: [...(project.stack ?? [])],
+      type: project.type,
+      featured: project.featured,
+      role: project.role,
+      problem: project.problem,
+      solution: project.solution,
+      demoUrl: project.demoUrl,
+      tags: [...(project.tags ?? [])],
+      githubUrl: project.githubUrl,
+      showGithub: project.showGithub,
+      published: project.published,
+    };
+  }
+
+  private buildDuplicateTitle(originalTitle: string): string {
+    const baseTitle = originalTitle?.trim() || 'Projet sans titre';
+    const copySuffix = ' (copie)';
+
+    if (!this.projects.some((project) => project.title === `${baseTitle}${copySuffix}`)) {
+      return `${baseTitle}${copySuffix}`;
+    }
+
+    let index = 2;
+    let candidate = `${baseTitle}${copySuffix} ${index}`;
+
+    while (this.projects.some((project) => project.title === candidate)) {
+      index++;
+      candidate = `${baseTitle}${copySuffix} ${index}`;
+    }
+
+    return candidate;
+  }
+
+  private buildDuplicateSlug(originalSlug: string): string {
+    const baseSlug = (originalSlug?.trim() || 'projet').replace(/-copie(?:-\d+)?$/, '');
+    let candidate = `${baseSlug}-copie`;
+
+    if (!this.projects.some((project) => project.slug === candidate)) {
+      return candidate;
+    }
+
+    let index = 2;
+    candidate = `${baseSlug}-copie-${index}`;
+
+    while (this.projects.some((project) => project.slug === candidate)) {
+      index++;
+      candidate = `${baseSlug}-copie-${index}`;
+    }
+
+    return candidate;
   }
 }

@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,6 +16,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(
+    name = "project_entity",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_project_entity_display_order", columnNames = "display_order")
+    }
+)
 public class ProjectEntity {
 
     @Id

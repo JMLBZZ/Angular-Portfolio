@@ -5,6 +5,7 @@ import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundExceptio
 import com.portfolio.portfolio_backend.domain.model.LocalizedText;
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.web.dto.LocalizedTextDTO;
+import com.portfolio.portfolio_backend.web.dto.ProjectReorderRequestDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectRequestDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectResponseDTO;
 import com.portfolio.portfolio_backend.web.response.ApiResult;
@@ -48,7 +49,7 @@ public class AdminProjectController {
             @RequestParam(required = false) Boolean hasLive,
             @RequestParam(required = false) LocalDate afterDate,
             @ParameterObject
-            @PageableDefault(page = 0, size = 20, sort = "displayOrder", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(page = 0, size = 20, sort = "displayOrder", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<ProjectResponseDTO> pageResult = service
                 .getAll(search, hasGithub, hasLive, afterDate, pageable)
@@ -94,6 +95,15 @@ public class AdminProjectController {
         return toResponse(service.update(id, project));
     }
 
+    @Operation(summary = "Réordonner tous les projets")
+    @PutMapping("/reorder")
+    public List<ProjectResponseDTO> reorder(@Valid @RequestBody ProjectReorderRequestDTO dto) {
+        return service.reorderProjects(dto.getProjectIds())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @Operation(summary = "Supprimer un projet")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
@@ -122,7 +132,7 @@ public class AdminProjectController {
                 dto.getGithubUrl(),
                 Boolean.TRUE.equals(dto.getShowGithub()),
                 dto.getPublished() == null || dto.getPublished(),
-                dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 0,
+                0,
                 createdAt
         );
     }

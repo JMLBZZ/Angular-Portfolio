@@ -39,6 +39,18 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    public List<Project> saveAll(List<Project> projects) {
+        List<ProjectEntity> entities = projects.stream()
+                .map(mapper::toEntity)
+                .toList();
+
+        return repository.saveAll(entities)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Project> findById(UUID id) {
         return repository.findById(id).map(mapper::toDomain);
     }
@@ -85,8 +97,21 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    public List<Project> findAllOrdered() {
+        return repository.findAllByOrderByDisplayOrderDescCreatedAtDesc()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<Integer> findMaxDisplayOrder() {
+        return repository.findMaxDisplayOrder();
+    }
+
+    @Override
     public List<Project> findPublishedOrdered() {
-        return repository.findByPublishedTrueOrderByDisplayOrderAscCreatedAtDesc()
+        return repository.findByPublishedTrueOrderByDisplayOrderDescCreatedAtDesc()
                 .stream()
                 .map(mapper::toDomain)
                 .toList();

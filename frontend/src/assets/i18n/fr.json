@@ -53,6 +53,13 @@
       "view": "Voir",
       "code": "Code"
     },
+    "actions": {
+      "showMore": "Voir plus"
+    },
+    "results": {
+      "displayed": "affichés",
+      "remaining": "restants"
+    },
     "seo": {
       "pageTitleSuffix": "Projet | JMLBZZ",
       "notFoundTitle": "Projet introuvable | JMLBZZ",

@@ -8,12 +8,14 @@ import com.portfolio.portfolio_backend.domain.port.out.ProjectRepositoryPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -29,11 +31,43 @@ public class ProjectService {
         this.projectImageStorageService = projectImageStorageService;
     }
 
+    @Transactional
     public Project create(Project project) {
         ensureSlugAvailable(project.getSlug(), null);
-        return repository.save(project);
+
+        int nextDisplayOrder = repository.findMaxDisplayOrder()
+                .map(max -> max + 1)
+                .orElse(0);
+
+        Project projectToSave = new Project(
+                project.getId(),
+                project.getSlug(),
+                project.getTitle(),
+                project.getCategory(),
+                project.getImage(),
+                project.getCover(),
+                project.getImages(),
+                project.getDescription(),
+                project.getLongDescription(),
+                project.getStack(),
+                project.getType(),
+                project.isFeatured(),
+                project.getRole(),
+                project.getProblem(),
+                project.getSolution(),
+                project.getDemoUrl(),
+                project.getTags(),
+                project.getGithubUrl(),
+                project.isShowGithub(),
+                project.isPublished(),
+                nextDisplayOrder,
+                project.getCreatedAt()
+        );
+
+        return repository.save(projectToSave);
     }
 
+    @Transactional
     public Project update(UUID id, Project updatedProject) {
         Project existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
@@ -64,7 +98,7 @@ public class ProjectService {
                 updatedProject.getGithubUrl(),
                 updatedProject.isShowGithub(),
                 updatedProject.isPublished(),
-                updatedProject.getDisplayOrder(),
+                existing.getDisplayOrder(),
                 existing.getCreatedAt()
         );
 
@@ -105,6 +139,7 @@ public class ProjectService {
         return repository.findPublishedBySlug(slug);
     }
 
+    @Transactional
     public void delete(UUID id) {
         Project existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
@@ -116,6 +151,85 @@ public class ProjectService {
         for (String imageUrl : imageUrlsToDelete) {
             projectImageStorageService.delete(imageUrl);
         }
+    }
+
+    @Transactional
+    public List<Project> reorderProjects(List<UUID> orderedProjectIds) {
+        List<Project> existingProjects = repository.findAllOrdered();
+
+        if (orderedProjectIds.size() != existingProjects.size()) {
+            throw new IllegalArgumentException("La liste reçue doit contenir tous les projets.");
+        }
+
+        LinkedHashSet<UUID> distinctIds = new LinkedHashSet<>(orderedProjectIds);
+
+        if (distinctIds.size() != orderedProjectIds.size()) {
+            throw new IllegalArgumentException("La liste reçue contient des doublons.");
+        }
+
+        LinkedHashSet<UUID> existingIds = existingProjects.stream()
+                .map(Project::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (!existingIds.equals(distinctIds)) {
+            throw new IllegalArgumentException("La liste reçue ne correspond pas exactement aux projets existants.");
+        }
+
+        List<Project> reorderedProjects = orderedProjectIds.stream()
+                .map(projectId -> existingProjects.stream()
+                        .filter(project -> project.getId().equals(projectId))
+                        .findFirst()
+                        .orElseThrow(() -> new ResourceNotFoundException("Project not found")))
+                .toList();
+
+        int highestDisplayOrder = reorderedProjects.size() - 1;
+
+        List<Project> projectsToSave = reorderedProjects.stream()
+                .map(project -> {
+                    int index = reorderedProjects.indexOf(project);
+                    int newDisplayOrder = highestDisplayOrder - index;
+
+                    return new Project(
+                            project.getId(),
+                            project.getSlug(),
+                            project.getTitle(),
+                            project.getCategory(),
+                            project.getImage(),
+                            project.getCover(),
+                            project.getImages(),
+                            project.getDescription(),
+                            project.getLongDescription(),
+                            project.getStack(),
+                            project.getType(),
+                            project.isFeatured(),
+                            project.getRole(),
+                            project.getProblem(),
+                            project.getSolution(),
+                            project.getDemoUrl(),
+                            project.getTags(),
+                            project.getGithubUrl(),
+                            project.isShowGithub(),
+                            project.isPublished(),
+                            newDisplayOrder,
+                            project.getCreatedAt()
+                    );
+                })
+                .toList();
+
+        return repository.saveAll(projectsToSave).stream()
+                .sorted((a, b) -> {
+                    int compareOrder = Integer.compare(
+                            b.getDisplayOrder() != null ? b.getDisplayOrder() : 0,
+                            a.getDisplayOrder() != null ? a.getDisplayOrder() : 0
+                    );
+
+                    if (compareOrder != 0) {
+                        return compareOrder;
+                    }
+
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                })
+                .toList();
     }
 
     private void ensureSlugAvailable(String slug, UUID currentProjectId) {

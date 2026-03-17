@@ -286,7 +286,7 @@
         <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
           <p class="text-sm font-semibold">Aperçu galerie</p>
           <p class="text-xs opacity-70">
-            Fais glisser les images pour définir leur ordre d’affichage sur le site.
+            Fais glisser les images pour définir leur ordre d'affichage sur le site.
           </p>
 
           <div
@@ -378,35 +378,13 @@
         </app-text-field>
       </div>
 
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="space-y-2">
-          <label class="text-sm font-semibold" for="project-order">Ordre d’affichage</label>
-          <input
-            id="project-order"
-            type="number"
-            min="0"
-            formControlName="displayOrder"
-            class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
-            aria-describedby="project-order-help"
-          />
+      <div class="grid gap-4">
 
-          <p id="project-order-help" class="text-xs opacity-70">
-            Plus la valeur est petite, plus le projet remonte dans la liste.
-          </p>
-
-          <p
-            *ngIf="displayOrderControl.invalid && displayOrderControl.touched"
-            class="text-sm text-red-500"
-            aria-live="assertive"
-          >
-            {{ getDisplayOrderErrorMessage() }}
-          </p>
-        </div>
 
         <div class="grid grid-cols-2 gap-4 items-end">
           <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" formControlName="featured" />
-            Mis en avant
+            Favoris
           </label>
 
           <label class="flex items-center gap-2 text-sm">

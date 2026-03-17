@@ -78,5 +78,4 @@ export interface AdminProjectPayload {
   showGithub?: boolean;
 
   published?: boolean;
-  displayOrder?: number;
 }

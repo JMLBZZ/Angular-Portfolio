@@ -1,7 +1,6 @@
 package com.portfolio.portfolio_backend.web.dto;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -55,9 +54,6 @@ public class ProjectRequestDTO {
     private String githubUrl;
     private Boolean showGithub;
     private Boolean published;
-
-    @Min(value = 0, message = "displayOrder doit être supérieur ou égal à 0")
-    private Integer displayOrder;
 
     public ProjectRequestDTO() {
     }
@@ -136,9 +132,5 @@ public class ProjectRequestDTO {
 
     public Boolean getPublished() {
         return published;
-    }
-
-    public Integer getDisplayOrder() {
-        return displayOrder;
     }
 }

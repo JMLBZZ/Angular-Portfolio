@@ -172,10 +172,6 @@ export class AdminProjectFormComponent
     featured: new FormControl(false, { nonNullable: true }),
     showGithub: new FormControl(false, { nonNullable: true }),
     published: new FormControl(true, { nonNullable: true }),
-    displayOrder: new FormControl(0, {
-      nonNullable: true,
-      validators: [Validators.min(0), Validators.max(9999)],
-    }),
   });
 
   constructor(
@@ -537,7 +533,6 @@ export class AdminProjectFormComponent
       featured: !!project.featured,
       showGithub: !!project.showGithub,
       published: project.published ?? true,
-      displayOrder: project.displayOrder ?? 0,
     });
   }
 
@@ -576,7 +571,6 @@ export class AdminProjectFormComponent
       githubUrl: this.cleanString(raw.githubUrl),
       showGithub: raw.showGithub,
       published: raw.published,
-      displayOrder: Number(raw.displayOrder ?? 0),
     };
   }
 
@@ -842,10 +836,6 @@ export class AdminProjectFormComponent
     return this.form.controls.githubUrl;
   }
 
-  get displayOrderControl(): FormControl<number> {
-    return this.form.controls.displayOrder;
-  }
-
   trackByImageUrl(index: number, imageUrl: string): string {
     return `${index}-${imageUrl}`;
   }
@@ -900,19 +890,5 @@ export class AdminProjectFormComponent
     }
 
     return `${label} dépasse la longueur maximale autorisée (${error.requiredLength} caractères).`;
-  }
-
-  getDisplayOrderErrorMessage(): string {
-    const control = this.displayOrderControl;
-
-    if (control.hasError('min')) {
-      return 'L’ordre d’affichage ne peut pas être négatif.';
-    }
-
-    if (control.hasError('max')) {
-      return 'L’ordre d’affichage ne peut pas dépasser 9999.';
-    }
-
-    return '';
   }
 }

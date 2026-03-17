@@ -27,6 +27,9 @@ class ProjectServiceTest {
     @Mock
     private ProjectRepositoryPort repository;
 
+    @Mock
+    private ProjectImageStorageService projectImageStorageService;
+
     @InjectMocks
     private ProjectService service;
 
@@ -77,9 +80,17 @@ class ProjectServiceTest {
 
     @Test
     void shouldDeleteProject() {
+        when(repository.findById(projectId))
+                .thenReturn(Optional.of(project));
+
         service.delete(projectId);
 
+        verify(repository, times(1)).findById(projectId);
         verify(repository, times(1)).deleteById(projectId);
+        verify(projectImageStorageService, times(1)).delete("/assets/projects/test.jpg");
+        verify(projectImageStorageService, times(1)).delete("/assets/projects/test-cover.jpg");
+        verify(projectImageStorageService, times(1)).delete("/assets/projects/test-1.jpg");
+        verify(projectImageStorageService, times(1)).delete("/assets/projects/test-2.jpg");
     }
 
     private Project buildProject(UUID id) {
