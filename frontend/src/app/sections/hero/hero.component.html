@@ -66,11 +66,40 @@
         </div>
 
         <div class="flex flex-wrap gap-2 pt-2" data-reveal>
-          <span class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70">Angular</span>
-          <span class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70">Spring Boot</span>
-          <span class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70">PostgreSQL</span>
-          <span class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70">Tailwind</span>
-          <span class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70">Docker</span>
+          <span
+            *ngIf="techBadge1"
+            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
+          >
+            {{ techBadge1 }}
+          </span>
+
+          <span
+            *ngIf="techBadge2"
+            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
+          >
+            {{ techBadge2 }}
+          </span>
+
+          <span
+            *ngIf="techBadge3"
+            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
+          >
+            {{ techBadge3 }}
+          </span>
+
+          <span
+            *ngIf="techBadge4"
+            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
+          >
+            {{ techBadge4 }}
+          </span>
+
+          <span
+            *ngIf="techBadge5"
+            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
+          >
+            {{ techBadge5 }}
+          </span>
         </div>
       </div>
 

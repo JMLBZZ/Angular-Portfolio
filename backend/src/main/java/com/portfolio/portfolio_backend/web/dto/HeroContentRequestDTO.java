@@ -2,6 +2,8 @@ package com.portfolio.portfolio_backend.web.dto;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 public class HeroContentRequestDTO {
 
     @Valid
@@ -11,6 +13,9 @@ public class HeroContentRequestDTO {
     private LocalizedTextDTO subtitle;
 
     private boolean available;
+
+    @Valid
+    private List<HeroTechBadgeDTO> techBadges;
 
     public HeroContentRequestDTO() {
     }
@@ -25,5 +30,9 @@ public class HeroContentRequestDTO {
 
     public boolean isAvailable() {
         return available;
+    }
+
+    public List<HeroTechBadgeDTO> getTechBadges() {
+        return techBadges;
     }
 }

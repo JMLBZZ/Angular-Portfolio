@@ -33,6 +33,12 @@ export class HeroComponent implements OnInit, OnDestroy {
   available = true;
   availabilityLabelKey = 'hero.availabilityAvailable';
 
+  techBadge1 = '';
+  techBadge2 = '';
+  techBadge3 = '';
+  techBadge4 = '';
+  techBadge5 = '';
+
   cardTitle = '';
   cardSubtitle = '';
   cardBadge = '';
@@ -111,6 +117,11 @@ export class HeroComponent implements OnInit, OnDestroy {
       this.subtitle = '';
       this.available = true;
       this.availabilityLabelKey = 'hero.availabilityAvailable';
+      this.techBadge1 = '';
+      this.techBadge2 = '';
+      this.techBadge3 = '';
+      this.techBadge4 = '';
+      this.techBadge5 = '';
       return;
     }
 
@@ -130,6 +141,12 @@ export class HeroComponent implements OnInit, OnDestroy {
     this.availabilityLabelKey = this.available
       ? 'hero.availabilityAvailable'
       : 'hero.availabilityUnavailable';
+
+    this.techBadge1 = this.heroContent.techBadge1;
+    this.techBadge2 = this.heroContent.techBadge2;
+    this.techBadge3 = this.heroContent.techBadge3;
+    this.techBadge4 = this.heroContent.techBadge4;
+    this.techBadge5 = this.heroContent.techBadge5;
   }
 
   private applyLocalizedHeroCardContent(): void {

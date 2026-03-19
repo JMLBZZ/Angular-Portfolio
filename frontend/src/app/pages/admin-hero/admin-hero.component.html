@@ -22,7 +22,7 @@
     <div>
       <h3 class="text-xl font-semibold">Contenu principal du hero</h3>
       <p class="text-sm opacity-75 mt-1">
-        Ce formulaire gère le titre, le sous-titre et le statut de disponibilité.
+        Ce formulaire gère le titre, le sous-titre, le statut de disponibilité et les badges technos.
       </p>
     </div>
 
@@ -120,6 +120,51 @@
           <span *ngIf="!heroForm.controls.available.value" class="text-red-600">
             Indisponible
           </span>
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <h4 class="text-lg font-semibold">Badges technos</h4>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="hero-tech-badge-1"
+            label="Badge 1"
+            placeholder="Angular"
+            [control]="heroForm.controls.techBadge1"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-tech-badge-2"
+            label="Badge 2"
+            placeholder="Spring Boot"
+            [control]="heroForm.controls.techBadge2"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-tech-badge-3"
+            label="Badge 3"
+            placeholder="PostgreSQL"
+            [control]="heroForm.controls.techBadge3"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-tech-badge-4"
+            label="Badge 4"
+            placeholder="Tailwind"
+            [control]="heroForm.controls.techBadge4"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-tech-badge-5"
+            label="Badge 5"
+            placeholder="Docker"
+            [control]="heroForm.controls.techBadge5"
+          ></app-text-field>
+        </div>
+
+        <p class="text-sm opacity-75">
+          Ces badges sont affichés dans la partie gauche de la section hero.
         </p>
       </div>
 

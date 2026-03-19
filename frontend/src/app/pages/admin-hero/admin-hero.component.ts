@@ -52,6 +52,26 @@ export class AdminHeroComponent implements OnInit {
     available: new FormControl(true, {
       nonNullable: true,
     }),
+    techBadge1: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(40)],
+    }),
+    techBadge2: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(40)],
+    }),
+    techBadge3: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(40)],
+    }),
+    techBadge4: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(40)],
+    }),
+    techBadge5: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(40)],
+    }),
   });
 
   readonly heroCardForm = new FormGroup({
@@ -165,6 +185,11 @@ export class AdminHeroComponent implements OnInit {
           subtitleFr: hero.subtitle.fr,
           subtitleEn: hero.subtitle.en,
           available: hero.available,
+          techBadge1: hero.techBadge1,
+          techBadge2: hero.techBadge2,
+          techBadge3: hero.techBadge3,
+          techBadge4: hero.techBadge4,
+          techBadge5: hero.techBadge5,
         });
         this.heroForm.markAsPristine();
       },
@@ -194,6 +219,11 @@ export class AdminHeroComponent implements OnInit {
         en: this.heroForm.controls.subtitleEn.value,
       },
       available: this.heroForm.controls.available.value,
+      techBadge1: this.heroForm.controls.techBadge1.value,
+      techBadge2: this.heroForm.controls.techBadge2.value,
+      techBadge3: this.heroForm.controls.techBadge3.value,
+      techBadge4: this.heroForm.controls.techBadge4.value,
+      techBadge5: this.heroForm.controls.techBadge5.value,
     };
 
     this.adminHeroApi.update(payload).subscribe({
@@ -205,6 +235,11 @@ export class AdminHeroComponent implements OnInit {
           subtitleFr: hero.subtitle.fr,
           subtitleEn: hero.subtitle.en,
           available: hero.available,
+          techBadge1: hero.techBadge1,
+          techBadge2: hero.techBadge2,
+          techBadge3: hero.techBadge3,
+          techBadge4: hero.techBadge4,
+          techBadge5: hero.techBadge5,
         });
         this.heroForm.markAsPristine();
         this.toastService.success('Hero enregistré avec succès.');
