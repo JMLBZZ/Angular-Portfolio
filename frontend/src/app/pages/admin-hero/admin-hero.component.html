@@ -1,0 +1,359 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-sm uppercase tracking-[0.2em] text-primary font-semibold">
+        Administration
+      </p>
+      <h2 class="text-3xl font-bold tracking-tight">Hero</h2>
+      <p class="text-sm opacity-75 mt-2">
+        Ici, tu gères séparément le contenu principal du hero et la carte affichée à droite.
+      </p>
+    </div>
+
+    <a
+      routerLink="/admin/dashboard"
+      class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
+    >
+      Retour au dashboard
+    </a>
+  </div>
+
+  <div class="space-y-4">
+    <div>
+      <h3 class="text-xl font-semibold">Contenu principal du hero</h3>
+      <p class="text-sm opacity-75 mt-1">
+        Ce formulaire gère le titre, le sous-titre et le statut de disponibilité.
+      </p>
+    </div>
+
+    <div
+      class="rounded-3xl border border-border/70 bg-card/60 p-6"
+      *ngIf="isLoadingHero"
+    >
+      Chargement...
+    </div>
+
+    <div
+      class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
+      *ngIf="heroErrorMessage"
+    >
+      {{ heroErrorMessage }}
+    </div>
+
+    <form
+      *ngIf="!isLoadingHero"
+      [formGroup]="heroForm"
+      (ngSubmit)="saveHero()"
+      class="space-y-6"
+    >
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <h4 class="text-lg font-semibold">Textes</h4>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="hero-title-fr"
+            label="Titre principal (FR)"
+            placeholder="Développeur<br><span class='text-primary'>Full-Stack</span>"
+            [control]="heroForm.controls.titleFr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-title-en"
+            label="Titre principal (EN)"
+            placeholder="Full-Stack<br><span class='text-primary'>Developer</span>"
+            [control]="heroForm.controls.titleEn"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-subtitle-fr"
+            label="Sous-titre (FR)"
+            placeholder="Je construis des applications web modernes et performantes."
+            [control]="heroForm.controls.subtitleFr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-subtitle-en"
+            label="Sous-titre (EN)"
+            placeholder="I build modern and performant web applications."
+            [control]="heroForm.controls.subtitleEn"
+          ></app-text-field>
+        </div>
+
+        <p class="text-sm opacity-75">
+          Tu peux utiliser un HTML simple dans le titre, par exemple :
+          <code>&lt;br&gt;</code> et
+          <code>&lt;span class="text-primary"&gt;...&lt;/span&gt;</code>
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
+        <h4 class="text-lg font-semibold">Disponibilité</h4>
+
+        <label class="flex items-center justify-between gap-4 cursor-pointer">
+          <div>
+            <p class="font-medium">Disponible pour une opportunité</p>
+            <p class="text-sm opacity-75">
+              Active ce switch pour afficher un point vert dans le badge du hero.
+            </p>
+          </div>
+
+          <div class="relative inline-flex items-center">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              [formControl]="heroForm.controls.available"
+            />
+            <div
+              class="w-14 h-8 rounded-full bg-gray-300 transition peer-checked:bg-green-500"
+            ></div>
+            <div
+              class="absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition peer-checked:translate-x-6"
+            ></div>
+          </div>
+        </label>
+
+        <p class="text-sm font-medium">
+          Statut actuel :
+          <span *ngIf="heroForm.controls.available.value" class="text-green-600">
+            Disponible
+          </span>
+          <span *ngIf="!heroForm.controls.available.value" class="text-red-600">
+            Indisponible
+          </span>
+        </p>
+      </div>
+
+      <div class="flex justify-end">
+        <app-primary-button
+          type="submit"
+          [loading]="isSubmittingHero"
+          [disabled]="isSubmittingHero"
+        >
+          <span *ngIf="!isSubmittingHero">Enregistrer le hero</span>
+          <span *ngIf="isSubmittingHero">Enregistrement...</span>
+        </app-primary-button>
+      </div>
+    </form>
+  </div>
+
+  <div class="space-y-4 pt-4">
+    <div>
+      <h3 class="text-xl font-semibold">Carte du hero</h3>
+      <p class="text-sm opacity-75 mt-1">
+        Ce formulaire gère indépendamment la carte affichée à droite dans la section hero.
+      </p>
+    </div>
+
+    <div
+      class="rounded-3xl border border-border/70 bg-card/60 p-6"
+      *ngIf="isLoadingHeroCard"
+    >
+      Chargement...
+    </div>
+
+    <div
+      class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
+      *ngIf="heroCardErrorMessage"
+    >
+      {{ heroCardErrorMessage }}
+    </div>
+
+    <form
+      *ngIf="!isLoadingHeroCard"
+      [formGroup]="heroCardForm"
+      (ngSubmit)="saveHeroCard()"
+      class="space-y-6"
+    >
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <h4 class="text-lg font-semibold">En-tête de la carte</h4>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="hero-card-title-fr"
+            label="Titre carte (FR)"
+            placeholder="Présentation"
+            [control]="heroCardForm.controls.titleFr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-title-en"
+            label="Titre carte (EN)"
+            placeholder="Overview"
+            [control]="heroCardForm.controls.titleEn"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-subtitle-fr"
+            label="Sous-titre carte (FR)"
+            placeholder="Développement web moderne"
+            [control]="heroCardForm.controls.subtitleFr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-subtitle-en"
+            label="Sous-titre carte (EN)"
+            placeholder="Modern web development"
+            [control]="heroCardForm.controls.subtitleEn"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-badge-fr"
+            label="Badge carte (FR)"
+            placeholder="Portfolio"
+            [control]="heroCardForm.controls.badgeFr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-badge-en"
+            label="Badge carte (EN)"
+            placeholder="Portfolio"
+            [control]="heroCardForm.controls.badgeEn"
+          ></app-text-field>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <h4 class="text-lg font-semibold">Lignes de mise en valeur</h4>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="hero-card-highlight1-fr"
+            label="Ligne 1 (FR)"
+            placeholder="Applications web modernes"
+            [control]="heroCardForm.controls.highlight1Fr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-highlight1-en"
+            label="Ligne 1 (EN)"
+            placeholder="Modern web applications"
+            [control]="heroCardForm.controls.highlight1En"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-highlight2-fr"
+            label="Ligne 2 (FR)"
+            placeholder="Architecture clean & scalable"
+            [control]="heroCardForm.controls.highlight2Fr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-highlight2-en"
+            label="Ligne 2 (EN)"
+            placeholder="Clean & scalable architecture"
+            [control]="heroCardForm.controls.highlight2En"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-highlight3-fr"
+            label="Ligne 3 (FR)"
+            placeholder="Performance & UX optimisées"
+            [control]="heroCardForm.controls.highlight3Fr"
+          ></app-text-field>
+
+          <app-text-field
+            id="hero-card-highlight3-en"
+            label="Ligne 3 (EN)"
+            placeholder="Optimized performance & UX"
+            [control]="heroCardForm.controls.highlight3En"
+          ></app-text-field>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <h4 class="text-lg font-semibold">Statistiques</h4>
+
+        <div class="grid gap-6">
+          <div class="rounded-2xl border border-border/70 p-4 space-y-4">
+            <p class="font-medium">Statistique 1</p>
+            <div class="grid gap-4 md:grid-cols-3">
+              <app-text-field
+                id="hero-card-stat1-label-fr"
+                label="Label 1 (FR)"
+                placeholder="Expérience"
+                [control]="heroCardForm.controls.stat1LabelFr"
+              ></app-text-field>
+
+              <app-text-field
+                id="hero-card-stat1-label-en"
+                label="Label 1 (EN)"
+                placeholder="Experience"
+                [control]="heroCardForm.controls.stat1LabelEn"
+              ></app-text-field>
+
+              <app-text-field
+                id="hero-card-stat1-value"
+                label="Valeur 1"
+                placeholder="3+ ans"
+                [control]="heroCardForm.controls.stat1Value"
+              ></app-text-field>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 p-4 space-y-4">
+            <p class="font-medium">Statistique 2</p>
+            <div class="grid gap-4 md:grid-cols-3">
+              <app-text-field
+                id="hero-card-stat2-label-fr"
+                label="Label 2 (FR)"
+                placeholder="Projets"
+                [control]="heroCardForm.controls.stat2LabelFr"
+              ></app-text-field>
+
+              <app-text-field
+                id="hero-card-stat2-label-en"
+                label="Label 2 (EN)"
+                placeholder="Projects"
+                [control]="heroCardForm.controls.stat2LabelEn"
+              ></app-text-field>
+
+              <app-text-field
+                id="hero-card-stat2-value"
+                label="Valeur 2"
+                placeholder="15+"
+                [control]="heroCardForm.controls.stat2Value"
+              ></app-text-field>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 p-4 space-y-4">
+            <p class="font-medium">Statistique 3</p>
+            <div class="grid gap-4 md:grid-cols-3">
+              <app-text-field
+                id="hero-card-stat3-label-fr"
+                label="Label 3 (FR)"
+                placeholder="Stack"
+                [control]="heroCardForm.controls.stat3LabelFr"
+              ></app-text-field>
+
+              <app-text-field
+                id="hero-card-stat3-label-en"
+                label="Label 3 (EN)"
+                placeholder="Stack"
+                [control]="heroCardForm.controls.stat3LabelEn"
+              ></app-text-field>
+
+              <app-text-field
+                id="hero-card-stat3-value"
+                label="Valeur 3"
+                placeholder="Angular / Spring"
+                [control]="heroCardForm.controls.stat3Value"
+              ></app-text-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <app-primary-button
+          type="submit"
+          [loading]="isSubmittingHeroCard"
+          [disabled]="isSubmittingHeroCard"
+        >
+          <span *ngIf="!isSubmittingHeroCard">Enregistrer la carte</span>
+          <span *ngIf="isSubmittingHeroCard">Enregistrement...</span>
+        </app-primary-button>
+      </div>
+    </form>
+  </div>
+</section>

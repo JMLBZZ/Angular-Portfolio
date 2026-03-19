@@ -11,6 +11,8 @@
   },
   "hero": {
     "available": "Disponible pour une opportunité",
+    "availabilityAvailable": "Disponible pour une opportunité",
+    "availabilityUnavailable": "Actuellement indisponible",
     "titleLine1": "Développeur",
     "titleLine2": "Full-Stack",
     "subtitle": "Je conçois des interfaces modernes et des APIs sécurisées. J’aime les projets propres, performants et maintenables.",

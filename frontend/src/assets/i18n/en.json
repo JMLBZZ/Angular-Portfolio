@@ -11,6 +11,8 @@
   },
   "hero": {
     "available": "Available for an opportunity",
+    "availabilityAvailable": "Available for opportunities",
+    "availabilityUnavailable": "Currently unavailable",
     "titleLine1": "Full-Stack",
     "titleLine2": "Developer",
     "subtitle": "I design modern interfaces and secure APIs. I enjoy clean, performant and maintainable projects.",

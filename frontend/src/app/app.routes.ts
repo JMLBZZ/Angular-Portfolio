@@ -10,6 +10,7 @@ import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard
 import { AdminProjectFormComponent } from './pages/admin-project-form/admin-project-form.component';
 import { ProjectDetailPageComponent } from './pages/project-detail/project-detail-page.component';
 import { AdminContactComponent } from './pages/admin-contact/admin-contact.component';
+import { AdminHeroComponent } from './pages/admin-hero/admin-hero.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +48,10 @@ export const routes: Routes = [
       {
         path: 'contact',
         component: AdminContactComponent,
+      },
+      {
+        path: 'hero',
+        component: AdminHeroComponent,
       },
     ],
   },
