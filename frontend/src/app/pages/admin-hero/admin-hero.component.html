@@ -124,47 +124,67 @@
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">Badges technos</h4>
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h4 class="text-lg font-semibold">Badges technos</h4>
+            <p class="text-sm opacity-75 mt-1">
+              Tu peux ajouter, supprimer et réordonner les badges affichés à gauche du hero.
+            </p>
+          </div>
 
-        <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="hero-tech-badge-1"
-            label="Badge 1"
-            placeholder="Angular"
-            [control]="heroForm.controls.techBadge1"
-          ></app-text-field>
-
-          <app-text-field
-            id="hero-tech-badge-2"
-            label="Badge 2"
-            placeholder="Spring Boot"
-            [control]="heroForm.controls.techBadge2"
-          ></app-text-field>
-
-          <app-text-field
-            id="hero-tech-badge-3"
-            label="Badge 3"
-            placeholder="PostgreSQL"
-            [control]="heroForm.controls.techBadge3"
-          ></app-text-field>
-
-          <app-text-field
-            id="hero-tech-badge-4"
-            label="Badge 4"
-            placeholder="Tailwind"
-            [control]="heroForm.controls.techBadge4"
-          ></app-text-field>
-
-          <app-text-field
-            id="hero-tech-badge-5"
-            label="Badge 5"
-            placeholder="Docker"
-            [control]="heroForm.controls.techBadge5"
-          ></app-text-field>
+          <button
+            type="button"
+            (click)="addTechBadge()"
+            class="inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-card transition"
+          >
+            Ajouter un badge
+          </button>
         </div>
 
-        <p class="text-sm opacity-75">
-          Ces badges sont affichés dans la partie gauche de la section hero.
+        <div
+          cdkDropList
+          class="space-y-3"
+          (cdkDropListDropped)="dropTechBadge($event)"
+        >
+          <div
+            *ngFor="let badgeGroup of techBadgesFormArray.controls; let i = index; trackBy: trackByTechBadgeIndex"
+            [formGroup]="badgeGroup"
+            cdkDrag
+            class="rounded-2xl border border-border/70 bg-background/40 p-4"
+          >
+            <div class="flex items-start gap-4">
+              <button
+                type="button"
+                cdkDragHandle
+                class="mt-9 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-lg"
+                aria-label="Déplacer le badge"
+                title="Déplacer le badge"
+              >
+                ↕
+              </button>
+
+              <div class="flex-1">
+                <app-text-field
+                  [id]="'hero-tech-badge-' + i"
+                  [label]="'Badge ' + (i + 1)"
+                  placeholder="Angular"
+                  [control]="badgeGroup.controls.label"
+                ></app-text-field>
+              </div>
+
+              <button
+                type="button"
+                (click)="removeTechBadge(i)"
+                class="mt-9 inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-red-300 px-4 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-sm opacity-75" *ngIf="techBadgesFormArray.length === 0">
+          Aucun badge pour le moment. Ajoute-en un pour commencer.
         </p>
       </div>
 

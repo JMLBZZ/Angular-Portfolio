@@ -67,38 +67,10 @@
 
         <div class="flex flex-wrap gap-2 pt-2" data-reveal>
           <span
-            *ngIf="techBadge1"
+            *ngFor="let badge of techBadges; trackBy: trackByTechBadge"
             class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
           >
-            {{ techBadge1 }}
-          </span>
-
-          <span
-            *ngIf="techBadge2"
-            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
-          >
-            {{ techBadge2 }}
-          </span>
-
-          <span
-            *ngIf="techBadge3"
-            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
-          >
-            {{ techBadge3 }}
-          </span>
-
-          <span
-            *ngIf="techBadge4"
-            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
-          >
-            {{ techBadge4 }}
-          </span>
-
-          <span
-            *ngIf="techBadge5"
-            class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
-          >
-            {{ techBadge5 }}
+            {{ badge.label }}
           </span>
         </div>
       </div>

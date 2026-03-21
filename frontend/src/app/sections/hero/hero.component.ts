@@ -8,7 +8,7 @@ import { SecondaryButtonComponent } from '../../shared/components/secondary-butt
 import { HeroContentApiService } from '../../core/api/hero-content-api.service';
 import { HeroCardContentApiService } from '../../core/api/hero-card-content-api.service';
 import { LanguageService } from '../../core/i18n/language.service';
-import { Hero } from '../../shared/models/hero.model';
+import { Hero, HeroTechBadge } from '../../shared/models/hero.model';
 import { HeroCard } from '../../shared/models/hero-card.model';
 
 @Component({
@@ -32,12 +32,7 @@ export class HeroComponent implements OnInit, OnDestroy {
   subtitle = '';
   available = true;
   availabilityLabelKey = 'hero.availabilityAvailable';
-
-  techBadge1 = '';
-  techBadge2 = '';
-  techBadge3 = '';
-  techBadge4 = '';
-  techBadge5 = '';
+  techBadges: HeroTechBadge[] = [];
 
   cardTitle = '';
   cardSubtitle = '';
@@ -87,6 +82,10 @@ export class HeroComponent implements OnInit, OnDestroy {
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
 
+  trackByTechBadge(index: number, badge: HeroTechBadge): number | string {
+    return badge.id ?? `${badge.label}-${index}`;
+  }
+
   private loadHeroContent(): void {
     this.heroContentApi.get().subscribe({
       next: (hero) => {
@@ -117,11 +116,7 @@ export class HeroComponent implements OnInit, OnDestroy {
       this.subtitle = '';
       this.available = true;
       this.availabilityLabelKey = 'hero.availabilityAvailable';
-      this.techBadge1 = '';
-      this.techBadge2 = '';
-      this.techBadge3 = '';
-      this.techBadge4 = '';
-      this.techBadge5 = '';
+      this.techBadges = [];
       return;
     }
 
@@ -142,11 +137,9 @@ export class HeroComponent implements OnInit, OnDestroy {
       ? 'hero.availabilityAvailable'
       : 'hero.availabilityUnavailable';
 
-    this.techBadge1 = this.heroContent.techBadge1;
-    this.techBadge2 = this.heroContent.techBadge2;
-    this.techBadge3 = this.heroContent.techBadge3;
-    this.techBadge4 = this.heroContent.techBadge4;
-    this.techBadge5 = this.heroContent.techBadge5;
+    this.techBadges = [...(this.heroContent.techBadges ?? [])].sort(
+      (a, b) => a.displayOrder - b.displayOrder
+    );
   }
 
   private applyLocalizedHeroCardContent(): void {

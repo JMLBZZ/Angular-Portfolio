@@ -1,15 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { AdminHeroApiService } from '../../core/api/admin-hero-api.service';
 import { AdminHeroCardApiService } from '../../core/api/admin-hero-card-api.service';
-import { Hero } from '../../shared/models/hero.model';
+import { Hero, HeroTechBadge } from '../../shared/models/hero.model';
 import { HeroCard } from '../../shared/models/hero-card.model';
+
+type HeroTechBadgeFormGroup = FormGroup<{
+  id: FormControl<number | null>;
+  label: FormControl<string>;
+  displayOrder: FormControl<number>;
+}>;
 
 @Component({
   selector: 'app-admin-hero',
@@ -18,6 +31,7 @@ import { HeroCard } from '../../shared/models/hero-card.model';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    DragDropModule,
     TextFieldComponent,
     PrimaryButtonComponent,
   ],
@@ -52,26 +66,7 @@ export class AdminHeroComponent implements OnInit {
     available: new FormControl(true, {
       nonNullable: true,
     }),
-    techBadge1: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(40)],
-    }),
-    techBadge2: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(40)],
-    }),
-    techBadge3: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(40)],
-    }),
-    techBadge4: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(40)],
-    }),
-    techBadge5: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(40)],
-    }),
+    techBadges: new FormArray<HeroTechBadgeFormGroup>([]),
   });
 
   readonly heroCardForm = new FormGroup({
@@ -172,6 +167,10 @@ export class AdminHeroComponent implements OnInit {
     this.loadHeroCard();
   }
 
+  get techBadgesFormArray(): FormArray<HeroTechBadgeFormGroup> {
+    return this.heroForm.controls.techBadges;
+  }
+
   loadHero(): void {
     this.isLoadingHero = true;
     this.heroErrorMessage = '';
@@ -179,18 +178,16 @@ export class AdminHeroComponent implements OnInit {
     this.adminHeroApi.get().subscribe({
       next: (hero) => {
         this.isLoadingHero = false;
-        this.heroForm.setValue({
+
+        this.heroForm.patchValue({
           titleFr: hero.title.fr,
           titleEn: hero.title.en,
           subtitleFr: hero.subtitle.fr,
           subtitleEn: hero.subtitle.en,
           available: hero.available,
-          techBadge1: hero.techBadge1,
-          techBadge2: hero.techBadge2,
-          techBadge3: hero.techBadge3,
-          techBadge4: hero.techBadge4,
-          techBadge5: hero.techBadge5,
         });
+
+        this.setTechBadges(hero.techBadges);
         this.heroForm.markAsPristine();
       },
       error: () => {
@@ -201,6 +198,8 @@ export class AdminHeroComponent implements OnInit {
   }
 
   saveHero(): void {
+    this.updateTechBadgeDisplayOrders();
+
     if (this.heroForm.invalid) {
       this.heroForm.markAllAsTouched();
       return;
@@ -219,28 +218,26 @@ export class AdminHeroComponent implements OnInit {
         en: this.heroForm.controls.subtitleEn.value,
       },
       available: this.heroForm.controls.available.value,
-      techBadge1: this.heroForm.controls.techBadge1.value,
-      techBadge2: this.heroForm.controls.techBadge2.value,
-      techBadge3: this.heroForm.controls.techBadge3.value,
-      techBadge4: this.heroForm.controls.techBadge4.value,
-      techBadge5: this.heroForm.controls.techBadge5.value,
+      techBadges: this.techBadgesFormArray.controls.map((group) => ({
+        id: group.controls.id.value,
+        label: group.controls.label.value,
+        displayOrder: group.controls.displayOrder.value,
+      })),
     };
 
     this.adminHeroApi.update(payload).subscribe({
       next: (hero) => {
         this.isSubmittingHero = false;
-        this.heroForm.setValue({
+
+        this.heroForm.patchValue({
           titleFr: hero.title.fr,
           titleEn: hero.title.en,
           subtitleFr: hero.subtitle.fr,
           subtitleEn: hero.subtitle.en,
           available: hero.available,
-          techBadge1: hero.techBadge1,
-          techBadge2: hero.techBadge2,
-          techBadge3: hero.techBadge3,
-          techBadge4: hero.techBadge4,
-          techBadge5: hero.techBadge5,
         });
+
+        this.setTechBadges(hero.techBadges);
         this.heroForm.markAsPristine();
         this.toastService.success('Hero enregistré avec succès.');
       },
@@ -248,6 +245,70 @@ export class AdminHeroComponent implements OnInit {
         this.isSubmittingHero = false;
         this.toastService.error('Impossible d’enregistrer le hero.');
       },
+    });
+  }
+
+  addTechBadge(): void {
+    this.techBadgesFormArray.push(this.createTechBadgeFormGroup({
+      id: null,
+      label: '',
+      displayOrder: this.techBadgesFormArray.length,
+    }));
+    this.heroForm.markAsDirty();
+  }
+
+  removeTechBadge(index: number): void {
+    this.techBadgesFormArray.removeAt(index);
+    this.updateTechBadgeDisplayOrders();
+    this.heroForm.markAsDirty();
+  }
+
+  dropTechBadge(event: CdkDragDrop<HeroTechBadgeFormGroup[]>): void {
+    moveItemInArray(
+      this.techBadgesFormArray.controls,
+      event.previousIndex,
+      event.currentIndex
+    );
+
+    this.updateTechBadgeDisplayOrders();
+    this.techBadgesFormArray.updateValueAndValidity();
+    this.heroForm.markAsDirty();
+  }
+
+  trackByTechBadgeIndex(index: number): number {
+    return index;
+  }
+
+  private setTechBadges(badges: HeroTechBadge[]): void {
+    this.techBadgesFormArray.clear();
+
+    (badges ?? []).forEach((badge, index) => {
+      this.techBadgesFormArray.push(this.createTechBadgeFormGroup({
+        id: badge.id ?? null,
+        label: badge.label ?? '',
+        displayOrder: badge.displayOrder ?? index,
+      }));
+    });
+
+    this.updateTechBadgeDisplayOrders();
+  }
+
+  private createTechBadgeFormGroup(badge: HeroTechBadge): HeroTechBadgeFormGroup {
+    return new FormGroup({
+      id: new FormControl<number | null>(badge.id),
+      label: new FormControl(badge.label, {
+        nonNullable: true,
+        validators: [Validators.required, Validators.maxLength(40)],
+      }),
+      displayOrder: new FormControl(badge.displayOrder, {
+        nonNullable: true,
+      }),
+    });
+  }
+
+  private updateTechBadgeDisplayOrders(): void {
+    this.techBadgesFormArray.controls.forEach((group, index) => {
+      group.controls.displayOrder.setValue(index, { emitEvent: false });
     });
   }
 
