@@ -1,0 +1,81 @@
+<section class="space-y-6">
+  <div>
+    <h2 class="text-2xl font-bold">CV</h2>
+    <p class="text-sm opacity-75 mt-1">
+      Gère ici le CV global utilisé dans le Hero et dans la section About.
+    </p>
+  </div>
+
+  <div
+    class="rounded-3xl border border-border/70 bg-card/60 p-6"
+    *ngIf="isLoading"
+  >
+    Chargement...
+  </div>
+
+  <div
+    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
+    *ngIf="errorMessage"
+  >
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="!isLoading"
+    class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-6"
+  >
+    <div class="space-y-2">
+      <h3 class="text-lg font-semibold">Fichier actuel</h3>
+
+      <div *ngIf="hasResume; else noResume" class="space-y-2">
+        <p class="text-sm">
+          <span class="font-medium">Nom :</span>
+          {{ resume?.originalFileName || 'CV.pdf' }}
+        </p>
+
+        <a
+          *ngIf="resumeUrl"
+          [href]="resumeUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-card transition"
+        >
+          Ouvrir le CV actuel
+        </a>
+      </div>
+
+      <ng-template #noResume>
+        <p class="text-sm opacity-75">
+          Aucun CV n’est encore configuré.
+        </p>
+      </ng-template>
+    </div>
+
+    <div class="space-y-3">
+      <h3 class="text-lg font-semibold">Remplacer le CV</h3>
+
+      <input
+        type="file"
+        accept="application/pdf,.pdf"
+        (change)="onFileSelected($event)"
+        class="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white hover:file:opacity-90"
+      />
+
+      <p class="text-sm opacity-75" *ngIf="selectedFile">
+        Fichier sélectionné : <span class="font-medium">{{ selectedFile.name }}</span>
+      </p>
+    </div>
+
+    <div class="flex justify-end">
+      <app-primary-button
+        type="button"
+        [loading]="isSubmitting"
+        [disabled]="isSubmitting || !selectedFile"
+        (pressed)="upload()"
+      >
+        <span *ngIf="!isSubmitting">Enregistrer le CV</span>
+        <span *ngIf="isSubmitting">Enregistrement...</span>
+      </app-primary-button>
+    </div>
+  </div>
+</section>

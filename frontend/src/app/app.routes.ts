@@ -11,6 +11,7 @@ import { AdminProjectFormComponent } from './pages/admin-project-form/admin-proj
 import { ProjectDetailPageComponent } from './pages/project-detail/project-detail-page.component';
 import { AdminContactComponent } from './pages/admin-contact/admin-contact.component';
 import { AdminHeroComponent } from './pages/admin-hero/admin-hero.component';
+import { AdminResumeComponent } from './pages/admin-resume/admin-resume.component';
 
 export const routes: Routes = [
   {
@@ -52,6 +53,10 @@ export const routes: Routes = [
       {
         path: 'hero',
         component: AdminHeroComponent,
+      },
+      {
+        path: 'resume',
+        component: AdminResumeComponent,
       },
     ],
   },

@@ -6,12 +6,14 @@
     ></div>
   </div>
 
-  <div class="relative max-w-6xl mx-auto px-4 pt-28 pb-16 md:pt-32 md:pb-24" @reveal>
+  <div
+    appRevealOnScroll
+    class="relative max-w-6xl mx-auto px-4 pt-28 pb-16 md:pt-32 md:pb-24"
+  >
     <div class="grid items-center gap-10 md:gap-12 md:grid-cols-2">
       <div class="space-y-6">
         <div
           class="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-sm shadow-soft"
-          data-reveal
         >
           <span class="relative flex h-2 w-2">
             <span
@@ -26,7 +28,7 @@
           <span class="text-foreground/80">{{ availabilityLabelKey | translate }}</span>
         </div>
 
-        <div class="space-y-3" data-reveal>
+        <div class="space-y-3">
           <h1
             class="text-4xl font-extrabold tracking-tight md:text-6xl"
             [innerHTML]="title || ('hero.titleLine1' | translate)"
@@ -37,7 +39,7 @@
           </p>
         </div>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center" data-reveal>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
           <app-primary-button
             fullWidthMode="always"
             size="lg"
@@ -55,6 +57,7 @@
           </app-secondary-button>
 
           <app-secondary-button
+            *ngIf="cvUrl"
             fullWidthMode="mobile"
             [href]="cvUrl"
             target="_blank"
@@ -65,7 +68,7 @@
           </app-secondary-button>
         </div>
 
-        <div class="flex flex-wrap gap-2 pt-2" data-reveal>
+        <div class="flex flex-wrap gap-2 pt-2">
           <span
             *ngFor="let badge of techBadges; trackBy: trackByTechBadge"
             class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
@@ -75,7 +78,7 @@
         </div>
       </div>
 
-      <div class="relative md:ml-auto max-w-md" data-reveal>
+      <div class="relative md:ml-auto max-w-md">
         <div class="rounded-2xl border border-border bg-card/70 p-6 shadow-soft backdrop-blur">
           <div class="flex items-center justify-between">
             <div class="space-y-1">
@@ -130,6 +133,7 @@
             </div>
           </div>
         </div>
+
         <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-2xl bg-primary/20 blur-xl"></div>
       </div>
     </div>

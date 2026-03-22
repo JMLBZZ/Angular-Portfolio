@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
@@ -12,6 +12,8 @@ import {
   SkillGroup,
   TimelineItem,
 } from './about.data';
+import { ResumeContentApiService } from '../../core/api/resume-content-api.service';
+import { resolveMediaUrl } from '../../core/api/media-url.utils';
 
 @Component({
   selector: 'app-about-section',
@@ -24,24 +26,45 @@ import {
     PrimaryButtonComponent,
   ],
   templateUrl: './about-section.component.html',
-  styleUrls: ['./about-section.component.css'],
 })
-export class AboutSectionComponent {
+export class AboutSectionComponent implements OnInit {
   avatarUrl = '/assets/about/avatar.png';
 
-  cvUrl = '/assets/cv/CV-DSR_02P_JAMEL_BOUAZZA.pdf';
-  cvFileName = 'CV-DSR_02P_JAMEL_BOUAZZA.pdf';
+  cvUrl?: string;
 
   timeline: TimelineItem[] = ABOUT_TIMELINE;
   skillGroups: SkillGroup[] = ABOUT_SKILL_GROUPS;
   softSkillsKeys: string[] = ABOUT_SOFT_SKILLS_KEYS;
 
+  constructor(
+    private resumeContentApi: ResumeContentApiService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadResume();
+  }
+
   trackByIndex(index: number): number {
     return index;
   }
 
-  /** Action du bouton Primary : ouvre le CV dans un nouvel onglet */
+  /** Ouvre le CV dans un nouvel onglet */
   downloadCv(): void {
+    if (!this.cvUrl) {
+      return;
+    }
+
     window.open(this.cvUrl, '_blank', 'noopener');
+  }
+
+  private loadResume(): void {
+    this.resumeContentApi.get().subscribe({
+      next: (resume) => {
+        this.cvUrl = resolveMediaUrl(resume.fileUrl);
+      },
+      error: () => {
+        this.cvUrl = undefined;
+      },
+    });
   }
 }

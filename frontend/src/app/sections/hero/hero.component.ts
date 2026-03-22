@@ -5,8 +5,11 @@ import { Subscription } from 'rxjs';
 
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { SecondaryButtonComponent } from '../../shared/components/secondary-button/secondary-button.component';
+import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import { HeroContentApiService } from '../../core/api/hero-content-api.service';
 import { HeroCardContentApiService } from '../../core/api/hero-card-content-api.service';
+import { ResumeContentApiService } from '../../core/api/resume-content-api.service';
+import { resolveMediaUrl } from '../../core/api/media-url.utils';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Hero, HeroTechBadge } from '../../shared/models/hero.model';
 import { HeroCard } from '../../shared/models/hero-card.model';
@@ -19,11 +22,12 @@ import { HeroCard } from '../../shared/models/hero-card.model';
     TranslateModule,
     PrimaryButtonComponent,
     SecondaryButtonComponent,
+    RevealOnScrollDirective,
   ],
   templateUrl: './hero.component.html',
 })
 export class HeroComponent implements OnInit, OnDestroy {
-  cvUrl: string = '/assets/cv/CV-DSR_02P_JAMEL_BOUAZZA.pdf';
+  cvUrl?: string;
 
   heroContent: Hero | null = null;
   heroCardContent: HeroCard | null = null;
@@ -52,6 +56,7 @@ export class HeroComponent implements OnInit, OnDestroy {
   constructor(
     private heroContentApi: HeroContentApiService,
     private heroCardContentApi: HeroCardContentApiService,
+    private resumeContentApi: ResumeContentApiService,
     private languageService: LanguageService,
     private translate: TranslateService
   ) {}
@@ -59,6 +64,7 @@ export class HeroComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadHeroContent();
     this.loadHeroCardContent();
+    this.loadResume();
 
     this.subscription.add(
       this.translate.onLangChange.subscribe(() => {
@@ -106,6 +112,17 @@ export class HeroComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.applyLocalizedHeroCardContent();
+      },
+    });
+  }
+
+  private loadResume(): void {
+    this.resumeContentApi.get().subscribe({
+      next: (resume) => {
+        this.cvUrl = resolveMediaUrl(resume.fileUrl);
+      },
+      error: () => {
+        this.cvUrl = undefined;
       },
     });
   }
