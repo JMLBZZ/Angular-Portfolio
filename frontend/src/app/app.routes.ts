@@ -12,6 +12,7 @@ import { ProjectDetailPageComponent } from './pages/project-detail/project-detai
 import { AdminContactComponent } from './pages/admin-contact/admin-contact.component';
 import { AdminHeroComponent } from './pages/admin-hero/admin-hero.component';
 import { AdminResumeComponent } from './pages/admin-resume/admin-resume.component';
+import { AdminAboutComponent } from './pages/admin-about/admin-about.component';
 
 export const routes: Routes = [
   {
@@ -53,6 +54,11 @@ export const routes: Routes = [
       {
         path: 'hero',
         component: AdminHeroComponent,
+      },
+      {
+        path: 'about',
+        component: AdminAboutComponent,
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'resume',
