@@ -1,162 +1,236 @@
 <section id="about" class="py-24 scroll-mt-24">
   <div class="max-w-6xl mx-auto px-4">
-    <!-- Titre -->
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold">
-        {{ aboutContent?.title ? (languageService.current === 'fr' ? aboutContent?.title?.fr : aboutContent?.title?.en) : '' }}
+    <div *ngIf="isLoading" class="animate-pulse">
+      <!-- Titre -->
+      <div class="text-center mb-12">
+        <div class="h-10 w-56 mx-auto rounded-full bg-card/70"></div>
+        <div class="h-4 w-80 max-w-full mx-auto mt-4 rounded-full bg-card/60"></div>
+      </div>
+
+      <!-- Layout -->
+      <div class="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start lg:items-stretch">
+        <!-- Colonne gauche -->
+        <aside class="lg:col-span-4">
+          <div class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft overflow-hidden">
+            <!-- Image + fondu -->
+            <div class="relative h-[280px] w-full overflow-hidden bg-card/70">
+              <!-- fondu vers la couleur de fond -->
+              <div
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background">
+              </div>
+            </div>
+
+            <div class="px-6 pb-6 pt-5 space-y-4">
+              <div class="h-6 w-40 rounded-full bg-card/70"></div>
+              <div class="h-4 w-32 rounded-full bg-card/60"></div>
+              <div class="h-4 w-36 rounded-full bg-card/60"></div>
+              <div class="space-y-2 pt-2">
+                <div class="h-4 w-full rounded-full bg-card/60"></div>
+                <div class="h-4 w-full rounded-full bg-card/60"></div>
+                <div class="h-4 w-3/4 rounded-full bg-card/60"></div>
+              </div>
+              <div class="h-11 w-full rounded-full bg-card/70 mt-4"></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Colonne droite -->
+        <div class="lg:col-span-8 space-y-12">
+          <div class="space-y-6">
+            <div class="h-8 w-52 rounded-full bg-card/70"></div>
+            <div class="space-y-4">
+              <div class="h-24 rounded-2xl bg-card/50"></div>
+              <div class="h-24 rounded-2xl bg-card/50"></div>
+              <div class="h-24 rounded-2xl bg-card/50"></div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="h-8 w-64 rounded-full bg-card/70"></div>
+            <div class="space-y-6">
+              <div class="h-32 rounded-2xl bg-card/50"></div>
+              <div class="h-32 rounded-2xl bg-card/50"></div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="h-8 w-48 rounded-full bg-card/70"></div>
+            <div class="flex flex-wrap gap-2">
+              <div class="h-9 w-28 rounded-full bg-card/60"></div>
+              <div class="h-9 w-32 rounded-full bg-card/60"></div>
+              <div class="h-9 w-24 rounded-full bg-card/60"></div>
+              <div class="h-9 w-36 rounded-full bg-card/60"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!isLoading && hasError"
+      class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl p-8 text-center"
+    >
+      <h2 class="text-2xl font-bold">
+        {{ 'common.sectionLoadErrorTitle' | translate:{ section: ('sections.about' | translate) } }}
       </h2>
       <p class="mt-3 text-foreground/70">
-        {{ aboutContent?.subtitle ? (languageService.current === 'fr' ? aboutContent?.subtitle?.fr : aboutContent?.subtitle?.en) : '' }}
+        {{ 'common.sectionLoadErrorText' | translate:{ section: ('sections.about' | translate) } }}
       </p>
     </div>
 
-    <!-- Layout -->
-    <div class="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start lg:items-stretch">
-      <!-- Colonne gauche -->
-      <aside class="lg:col-span-4">
-        <div appRevealOnScroll
-          class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft overflow-hidden lg:sticky lg:top-28">
-          <!-- Image + fondu -->
-          <div class="relative h-[280px] w-full overflow-hidden bg-background">
-            <img
-              [src]="avatarUrl"
-              [alt]="profileName || 'Profile'"
-              class="h-full w-full object-cover object-top"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-              width="800"
-              height="1000"
-            />
-            <!-- fondu vers la couleur de fond -->
-            <div
-              class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background">
+    <ng-container *ngIf="!isLoading && !hasError">
+      <!-- Titre -->
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold">
+          {{ sectionTitle }}
+        </h2>
+        <p class="mt-3 text-foreground/70">
+          {{ sectionSubtitle }}
+        </p>
+      </div>
+
+      <!-- Layout -->
+      <div class="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start lg:items-stretch">
+        <!-- Colonne gauche -->
+        <aside class="lg:col-span-4">
+          <div appRevealOnScroll
+            class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft overflow-hidden lg:sticky lg:top-28">
+            <!-- Image + fondu -->
+            <div class="relative h-[280px] w-full overflow-hidden bg-background">
+              <img
+                [src]="avatarUrl"
+                [alt]="profileName || 'Profile'"
+                class="h-full w-full object-cover object-top"
+                loading="lazy"
+                decoding="async"
+                fetchpriority="low"
+                width="800"
+                height="1000"
+              />
+              <!-- fondu vers la couleur de fond -->
+              <div
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background">
+              </div>
+            </div>
+
+            <div class="px-6 pb-6 pt-5">
+              <h3 class="text-xl font-bold">
+                {{ profileName }}
+              </h3>
+
+              <p class="text-sm mt-1 font-medium text-primary">
+                {{ profileRole }}
+              </p>
+
+              <div class="mt-4 flex items-center gap-2 text-sm text-foreground/70">
+                <i class="bi bi-geo-alt-fill text-primary text-sm"></i>
+                <span>{{ profileLocation }}</span>
+              </div>
+
+              <p class="mt-4 text-sm leading-relaxed text-foreground/70 whitespace-pre-line">
+                {{ profileBio }}
+              </p>
+
+              <app-primary-button
+                *ngIf="cvUrl"
+                className="mt-6"
+                (pressed)="downloadCv()"
+                fullWidthMode="always"
+              >
+                {{ 'about.downloadCv' | translate }}
+              </app-primary-button>
             </div>
           </div>
+        </aside>
 
-          <div class="px-6 pb-6 pt-5">
-            <h3 class="text-xl font-bold">
-              {{ profileName }}
+        <!-- Colonne droite -->
+        <div class="lg:col-span-8 space-y-12">
+          <!-- Timeline -->
+          <div *ngIf="hasTimeline" appRevealOnScroll class="space-y-6">
+            <h3 class="text-2xl font-bold flex items-center gap-2">
+              <i class="bi bi-briefcase-fill text-primary"></i>
+              <span>{{ timelineTitle }}</span>
             </h3>
 
-            <p class="text-sm mt-1 font-medium text-primary">
-              {{ profileRole }}
-            </p>
+            <div class="space-y-6">
+              <div *ngFor="let item of timelineItems; let i = index; trackBy: trackByIndex"
+                class="relative pl-8 pb-6 border-l-2 border-border last:border-transparent last:pb-0">
+                <div
+                  class="absolute -left-3 top-0 w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center">
+                  <i *ngIf="item.icon === 'work'" class="bi bi-briefcase-fill text-primary text-[11px]"
+                    aria-hidden="true"></i>
+                  <i *ngIf="item.icon === 'education'" class="bi bi-mortarboard-fill text-primary text-[11px]"
+                    aria-hidden="true"></i>
+                </div>
 
-            <div class="mt-4 flex items-center gap-2 text-sm text-foreground/70">
-              <i class="bi bi-geo-alt-fill text-primary text-sm"></i>
-              <span>{{ profileLocation }}</span>
-            </div>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                  <span class="text-sm font-semibold text-primary">
+                    {{ item.date }}
+                  </span>
 
-            <p class="mt-4 text-sm leading-relaxed text-foreground/70 whitespace-pre-line">
-              {{ profileBio }}
-            </p>
+                  <span class="hidden sm:block opacity-60">•</span>
 
-            <app-primary-button
-              *ngIf="cvUrl"
-              className="mt-6"
-              (pressed)="downloadCv()"
-              fullWidthMode="always"
-            >
-              {{ 'about.downloadCv' | translate }}
-            </app-primary-button>
-          </div>
-        </div>
-      </aside>
+                  <span class="text-sm text-foreground/70 flex items-center gap-1">
+                    <i class="bi bi-building text-[12px]"></i>
+                    {{ item.company }}
+                  </span>
+                </div>
 
-      <!-- Colonne droite -->
-      <div class="lg:col-span-8 space-y-12">
-        <!-- Timeline -->
-        <div appRevealOnScroll class="space-y-6">
-          <h3 class="text-2xl font-bold flex items-center gap-2">
-            <i class="bi bi-briefcase-fill text-primary"></i>
-            <span>
-              {{ aboutContent?.timelineTitle ? (languageService.current === 'fr' ? aboutContent?.timelineTitle?.fr : aboutContent?.timelineTitle?.en) : '' }}
-            </span>
-          </h3>
+                <h4 class="text-lg font-semibold mb-2">
+                  {{ item.title }}
+                </h4>
 
-          <div class="space-y-6">
-            <div *ngFor="let item of timelineItems; let i = index; trackBy: trackByIndex"
-              class="relative pl-8 pb-6 border-l-2 border-border last:border-transparent last:pb-0">
-              <div
-                class="absolute -left-3 top-0 w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center">
-                <i *ngIf="item.icon === 'work'" class="bi bi-briefcase-fill text-primary text-[11px]"
-                  aria-hidden="true"></i>
-                <i *ngIf="item.icon === 'education'" class="bi bi-mortarboard-fill text-primary text-[11px]"
-                  aria-hidden="true"></i>
+                <p class="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
+                  {{ item.description }}
+                </p>
               </div>
-
-              <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                <span class="text-sm font-semibold text-primary">
-                  {{ item.date }}
-                </span>
-
-                <span class="hidden sm:block opacity-60">•</span>
-
-                <span class="text-sm text-foreground/70 flex items-center gap-1">
-                  <i class="bi bi-building text-[12px]"></i>
-                  {{ item.company }}
-                </span>
-              </div>
-
-              <h4 class="text-lg font-semibold mb-2">
-                {{ item.title }}
-              </h4>
-
-              <p class="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
-                {{ item.description }}
-              </p>
             </div>
           </div>
-        </div>
 
-        <!-- Skills -->
-        <div appRevealOnScroll class="space-y-6">
-          <h3 class="text-2xl font-bold flex items-center gap-2">
-            <i class="bi bi-lightning-charge-fill text-primary"></i>
-            <span>
-              {{ aboutContent?.skillsTitle ? (languageService.current === 'fr' ? aboutContent?.skillsTitle?.fr : aboutContent?.skillsTitle?.en) : '' }}
-            </span>
-          </h3>
+          <!-- Skills -->
+          <div *ngIf="hasSkillGroups" appRevealOnScroll class="space-y-6">
+            <h3 class="text-2xl font-bold flex items-center gap-2">
+              <i class="bi bi-lightning-charge-fill text-primary"></i>
+              <span>{{ skillsTitle }}</span>
+            </h3>
 
-          <div class="space-y-8">
-            <div *ngFor="let group of skillGroups; let gi = index; trackBy: trackByIndex">
-              <div class="text-xs font-semibold tracking-wide opacity-70 uppercase">
-                {{ group.title }}
-              </div>
+            <div class="space-y-8">
+              <div *ngFor="let group of skillGroups; let gi = index; trackBy: trackByIndex">
+                <div class="text-xs font-semibold tracking-wide opacity-70 uppercase">
+                  {{ group.title }}
+                </div>
 
-              <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
-                <div *ngFor="let s of group.items; let si = index; trackBy: trackByIndex">
-                  <div class="flex items-baseline justify-between">
-                    <span class="text-sm font-medium">{{ s.name }}</span>
-                    <span class="text-sm font-light opacity-60 tabular-nums">{{ s.value }}%</span>
-                  </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+                  <div *ngFor="let s of group.items; let si = index; trackBy: trackByIndex">
+                    <div class="flex items-baseline justify-between">
+                      <span class="text-sm font-medium">{{ s.name }}</span>
+                      <span class="text-sm font-light opacity-60 tabular-nums">{{ s.value }}%</span>
+                    </div>
 
-                  <div class="mt-2 h-[6px] rounded-full overflow-hidden bg-border/40">
-                    <div class="h-full rounded-full bg-primary" [style.width.%]="s.value"></div>
+                    <div class="mt-2 h-[6px] rounded-full overflow-hidden bg-border/40">
+                      <div class="h-full rounded-full bg-primary" [style.width.%]="s.value"></div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Soft skills -->
-        <div appRevealOnScroll class="space-y-6">
-          <h3 class="text-2xl font-bold flex items-center gap-2">
-            <i class="bi bi-people-fill text-primary"></i>
-            <span>
-              {{ aboutContent?.softSkillsTitle ? (languageService.current === 'fr' ? aboutContent?.softSkillsTitle?.fr : aboutContent?.softSkillsTitle?.en) : '' }}
-            </span>
-          </h3>
+          <!-- Soft skills -->
+          <div *ngIf="hasSoftSkills" appRevealOnScroll class="space-y-6">
+            <h3 class="text-2xl font-bold flex items-center gap-2">
+              <i class="bi bi-people-fill text-primary"></i>
+              <span>{{ softSkillsTitle }}</span>
+            </h3>
 
-          <div class="flex flex-wrap gap-2">
-            <app-pill *ngFor="let skill of softSkills; let i = index; trackBy: trackByIndex" variant="subtle">
-              {{ skill }}
-            </app-pill>
+            <div class="flex flex-wrap gap-2">
+              <app-pill *ngFor="let skill of softSkills; let i = index; trackBy: trackByIndex" variant="subtle">
+                {{ skill }}
+              </app-pill>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
   </div>
 </section>

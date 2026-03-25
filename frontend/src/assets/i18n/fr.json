@@ -9,6 +9,16 @@
     "auto": "Auto",
     "toggle": "Thème"
   },
+  "common": {
+    "sectionLoadErrorTitle": "Section {{section}} indisponible",
+    "sectionLoadErrorText": "Le contenu de la section {{section}} n’a pas pu être chargé pour le moment."
+  },
+  "sections": {
+    "about": "À propos",
+    "hero": "Accueil",
+    "contact": "Contact",
+    "projects": "Projets"
+  },
   "hero": {
     "available": "Disponible pour une opportunité",
     "availabilityAvailable": "Disponible pour une opportunité",

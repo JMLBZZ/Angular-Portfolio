@@ -54,6 +54,9 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
   emailCopied = false;
   hasSubmitted = false;
 
+  isLoading = true;
+  hasError = false;
+
   private contactContent: Contact | null = null;
   private subscriptions = new Subscription();
 
@@ -199,6 +202,9 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
   }
 
   private loadContactContent(): void {
+    this.isLoading = true;
+    this.hasError = false;
+
     this.contactContentApi.get().subscribe({
       next: (contact) => {
         this.contactContent = contact;
@@ -208,9 +214,12 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
         this.linkedinUrl = contact.linkedinUrl;
         this.githubUrl = contact.githubUrl;
         this.applyLocalizedContent();
+        this.isLoading = false;
       },
       error: () => {
-        this.applyLocalizedContent();
+        this.contactContent = null;
+        this.isLoading = false;
+        this.hasError = true;
       },
     });
   }

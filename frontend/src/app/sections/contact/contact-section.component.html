@@ -1,167 +1,223 @@
 <section id="contact" class="py-24 md:py-32 scroll-mt-24">
   <div class="max-w-6xl mx-auto px-6 lg:px-10">
-    <!-- Header -->
-    <div class="text-center mb-16">
-      <h2 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-        {{ title }}
+    <div *ngIf="isLoading" class="animate-pulse">
+      <!-- Header -->
+      <div class="text-center mb-16">
+        <div class="h-12 w-56 mx-auto rounded-full bg-card/70"></div>
+        <div class="h-5 w-80 max-w-full mx-auto mt-4 rounded-full bg-card/60"></div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        <!-- LEFT (Coordonées)-->
+        <div class="space-y-8">
+          <!-- Contact Details -->
+          <div class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
+            <div class="p-6 space-y-4">
+              <div class="h-20 rounded-2xl bg-card/60"></div>
+              <div class="h-20 rounded-2xl bg-card/60"></div>
+              <div class="h-20 rounded-2xl bg-card/60"></div>
+            </div>
+          </div>
+
+          <!-- Social -->
+          <div>
+            <div class="h-4 w-40 rounded-full bg-card/60 mb-4"></div>
+            <div class="flex gap-3">
+              <div class="h-12 flex-1 rounded-full bg-card/70"></div>
+              <div class="h-12 flex-1 rounded-full bg-card/70"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT (Form) -->
+        <div class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
+          <div class="p-6 space-y-5">
+            <div class="h-16 rounded-2xl bg-card/60"></div>
+            <div class="h-16 rounded-2xl bg-card/60"></div>
+            <div class="h-16 rounded-2xl bg-card/60"></div>
+            <div class="h-36 rounded-2xl bg-card/60"></div>
+            <div class="h-12 rounded-full bg-card/70"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!isLoading && hasError"
+      class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl p-8 text-center"
+    >
+      <h2 class="text-2xl font-bold">
+        {{ 'common.sectionLoadErrorTitle' | translate:{ section: ('sections.contact' | translate) } }}
       </h2>
-      <p class="text-base md:text-lg text-foreground/70 max-w-2xl mx-auto">
-        {{ subtitle }}
+      <p class="mt-3 text-foreground/70">
+        {{ 'common.sectionLoadErrorText' | translate:{ section: ('sections.contact' | translate) } }}
       </p>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
-      <!-- LEFT (Coordonées)-->
-      <div class="space-y-8">
-        <!-- Contact Details -->
+    <ng-container *ngIf="!isLoading && !hasError">
+      <!-- Header -->
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+          {{ title }}
+        </h2>
+        <p class="text-base md:text-lg text-foreground/70 max-w-2xl mx-auto">
+          {{ subtitle }}
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        <!-- LEFT (Coordonées)-->
+        <div class="space-y-8">
+          <!-- Contact Details -->
+          <div appRevealOnScroll class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
+            <div class="p-6 space-y-4">
+              <!-- Email -->
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <i class="bi bi-envelope-fill text-primary text-[18px]" aria-hidden="true"></i>
+                </div>
+
+                <div class="flex-1">
+                  <p class="text-sm text-foreground/70">
+                    {{ 'contact.info.emailLabel' | translate }}
+                  </p>
+                  <p class="font-medium">{{ email }}</p>
+                </div>
+
+                <app-icon-button
+                  [ariaLabel]="'contact.info.copyEmail' | translate"
+                  [iconClass]="emailCopied ? 'bi bi-check2' : 'bi bi-copy'"
+                  [iconSizeClass]="emailCopied ? 'text-[18px]' : 'text-[16px]'"
+                  [iconExtraClass]="emailCopied ? 'text-green-500' : ''"
+                  (pressed)="copyEmail()"
+                ></app-icon-button>
+              </div>
+
+              <!-- Phone -->
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <i class="bi bi-telephone-fill text-primary text-[18px]" aria-hidden="true"></i>
+                </div>
+
+                <div>
+                  <p class="text-sm text-foreground/70">
+                    {{ 'contact.info.phoneLabel' | translate }}
+                  </p>
+                  <p class="font-medium">{{ phone }}</p>
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <i class="bi bi-geo-alt-fill text-primary text-[18px]" aria-hidden="true"></i>
+                </div>
+
+                <div>
+                  <p class="text-sm text-foreground/70">
+                    {{ 'contact.info.locationLabel' | translate }}
+                  </p>
+                  <p class="font-medium">{{ location }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social -->
+          <div appRevealOnScroll>
+            <p class="text-sm text-foreground/70 mb-4">
+              {{ 'contact.followMe' | translate }}
+            </p>
+
+            <div class="flex gap-3">
+              <app-secondary-button
+                class="flex-1"
+                fullWidthMode="always"
+                [href]="linkedinUrl"
+                iconClass="bi bi-linkedin"
+                label="LinkedIn"
+                ariaLabel="LinkedIn"
+              ></app-secondary-button>
+
+              <app-secondary-button
+                class="flex-1"
+                fullWidthMode="always"
+                [href]="githubUrl"
+                iconClass="bi bi-github"
+                label="GitHub"
+                ariaLabel="GitHub"
+              ></app-secondary-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT (Form) -->
         <div appRevealOnScroll class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
-          <div class="p-6 space-y-4">
-            <!-- Email -->
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-envelope-fill text-primary text-[18px]" aria-hidden="true"></i>
+          <div class="p-6">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+              <!-- Nom -->
+              <app-text-field
+                id="contact-name"
+                [label]="'contact.form.name' | translate"
+                [placeholder]="'contact.form.placeholders.name' | translate"
+                [control]="nameCtrl"
+                [showError]="showError('name')"
+                [errorText]="(errorKey('name') | translate)"
+              ></app-text-field>
+
+              <!-- Email -->
+              <app-text-field
+                id="contact-email"
+                type="email"
+                [label]="'contact.form.email' | translate"
+                [placeholder]="'contact.form.placeholders.email' | translate"
+                [control]="emailCtrl"
+                [showError]="showError('email')"
+                [errorText]="(errorKey('email') | translate)"
+              ></app-text-field>
+
+              <!-- Sujet -->
+              <app-text-field
+                id="contact-subject"
+                [label]="'contact.form.subject' | translate"
+                [placeholder]="'contact.form.placeholders.subject' | translate"
+                [control]="subjectCtrl"
+                [showError]="showError('subject')"
+                [errorText]="(errorKey('subject') | translate)"
+              ></app-text-field>
+
+              <!-- Message -->
+              <app-text-area
+                id="contact-message"
+                [label]="'contact.form.message' | translate"
+                [placeholder]="'contact.form.placeholders.message' | translate"
+                [control]="messageCtrl"
+                [rows]="6"
+                [showError]="showError('message')"
+                [errorText]="(errorKey('message') | translate)"
+              ></app-text-area>
+
+              <!-- Honeypot anti-spam (champ caché) -->
+              <div class="sr-only" aria-hidden="true">
+                <label for="website">Website</label>
+                <input id="website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
               </div>
 
-              <div class="flex-1">
-                <p class="text-sm text-foreground/70">
-                  {{ 'contact.info.emailLabel' | translate }}
-                </p>
-                <p class="font-medium">{{ email }}</p>
-              </div>
-
-              <app-icon-button
-                [ariaLabel]="'contact.info.copyEmail' | translate"
-                [iconClass]="emailCopied ? 'bi bi-check2' : 'bi bi-copy'"
-                [iconSizeClass]="emailCopied ? 'text-[18px]' : 'text-[16px]'"
-                [iconExtraClass]="emailCopied ? 'text-green-500' : ''"
-                (pressed)="copyEmail()"
-              ></app-icon-button>
-            </div>
-
-            <!-- Phone -->
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-telephone-fill text-primary text-[18px]" aria-hidden="true"></i>
-              </div>
-
-              <div>
-                <p class="text-sm text-foreground/70">
-                  {{ 'contact.info.phoneLabel' | translate }}
-                </p>
-                <p class="font-medium">{{ phone }}</p>
-              </div>
-            </div>
-
-            <!-- Location -->
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="bi bi-geo-alt-fill text-primary text-[18px]" aria-hidden="true"></i>
-              </div>
-
-              <div>
-                <p class="text-sm text-foreground/70">
-                  {{ 'contact.info.locationLabel' | translate }}
-                </p>
-                <p class="font-medium">{{ location }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Social -->
-        <div appRevealOnScroll>
-          <p class="text-sm text-foreground/70 mb-4">
-            {{ 'contact.followMe' | translate }}
-          </p>
-
-          <div class="flex gap-3">
-            <app-secondary-button
-              class="flex-1"
-              fullWidthMode="always"
-              [href]="linkedinUrl"
-              iconClass="bi bi-linkedin"
-              label="LinkedIn"
-              ariaLabel="LinkedIn"
-            ></app-secondary-button>
-
-            <app-secondary-button
-              class="flex-1"
-              fullWidthMode="always"
-              [href]="githubUrl"
-              iconClass="bi bi-github"
-              label="GitHub"
-              ariaLabel="GitHub"
-            ></app-secondary-button>
+              <!-- Submit -->
+              <app-primary-button
+                type="submit"
+                [loading]="isSubmitting"
+                [disabled]="isSubmitting"
+                iconClass="bi bi-send-fill"
+                fullWidthMode="always"
+              >
+                <span *ngIf="!isSubmitting">{{ 'contact.form.send' | translate }}</span>
+                <span *ngIf="isSubmitting">{{ 'contact.form.sending' | translate }}</span>
+              </app-primary-button>
+            </form>
           </div>
         </div>
       </div>
-
-      <!-- RIGHT (Form) -->
-      <div appRevealOnScroll class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
-        <div class="p-6">
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
-            <!-- Nom -->
-            <app-text-field
-              id="contact-name"
-              [label]="'contact.form.name' | translate"
-              [placeholder]="'contact.form.placeholders.name' | translate"
-              [control]="nameCtrl"
-              [showError]="showError('name')"
-              [errorText]="(errorKey('name') | translate)"
-            ></app-text-field>
-
-            <!-- Email -->
-            <app-text-field
-              id="contact-email"
-              type="email"
-              [label]="'contact.form.email' | translate"
-              [placeholder]="'contact.form.placeholders.email' | translate"
-              [control]="emailCtrl"
-              [showError]="showError('email')"
-              [errorText]="(errorKey('email') | translate)"
-            ></app-text-field>
-
-            <!-- Sujet -->
-            <app-text-field
-              id="contact-subject"
-              [label]="'contact.form.subject' | translate"
-              [placeholder]="'contact.form.placeholders.subject' | translate"
-              [control]="subjectCtrl"
-              [showError]="showError('subject')"
-              [errorText]="(errorKey('subject') | translate)"
-            ></app-text-field>
-
-            <!-- Message -->
-            <app-text-area
-              id="contact-message"
-              [label]="'contact.form.message' | translate"
-              [placeholder]="'contact.form.placeholders.message' | translate"
-              [control]="messageCtrl"
-              [rows]="6"
-              [showError]="showError('message')"
-              [errorText]="(errorKey('message') | translate)"
-            ></app-text-area>
-
-            <!-- Honeypot anti-spam (champ caché) -->
-            <div class="sr-only" aria-hidden="true">
-              <label for="website">Website</label>
-              <input id="website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
-            </div>
-
-            <!-- Submit -->
-            <app-primary-button
-              type="submit"
-              [loading]="isSubmitting"
-              [disabled]="isSubmitting"
-              iconClass="bi bi-send-fill"
-              fullWidthMode="always"
-            >
-              <span *ngIf="!isSubmitting">{{ 'contact.form.send' | translate }}</span>
-              <span *ngIf="isSubmitting">{{ 'contact.form.sending' | translate }}</span>
-            </app-primary-button>
-          </form>
-        </div>
-      </div>
-    </div>
+    </ng-container>
   </div>
 </section>

@@ -51,6 +51,12 @@ export class HeroComponent implements OnInit, OnDestroy {
   cardStat3Label = '';
   cardStat3Value = '';
 
+  isLoading = true;
+  hasError = false;
+
+  private heroRequestDone = false;
+  private heroCardRequestDone = false;
+
   private readonly subscription = new Subscription();
 
   constructor(
@@ -93,25 +99,43 @@ export class HeroComponent implements OnInit, OnDestroy {
   }
 
   private loadHeroContent(): void {
+    this.heroRequestDone = false;
+    this.updateLoadingState();
+
     this.heroContentApi.get().subscribe({
       next: (hero) => {
         this.heroContent = hero;
         this.applyLocalizedHeroContent();
+        this.heroRequestDone = true;
+        this.updateLoadingState();
       },
       error: () => {
+        this.heroContent = null;
         this.applyLocalizedHeroContent();
+        this.hasError = true;
+        this.heroRequestDone = true;
+        this.updateLoadingState();
       },
     });
   }
 
   private loadHeroCardContent(): void {
+    this.heroCardRequestDone = false;
+    this.updateLoadingState();
+
     this.heroCardContentApi.get().subscribe({
       next: (heroCard) => {
         this.heroCardContent = heroCard;
         this.applyLocalizedHeroCardContent();
+        this.heroCardRequestDone = true;
+        this.updateLoadingState();
       },
       error: () => {
+        this.heroCardContent = null;
         this.applyLocalizedHeroCardContent();
+        this.hasError = true;
+        this.heroCardRequestDone = true;
+        this.updateLoadingState();
       },
     });
   }
@@ -228,5 +252,9 @@ export class HeroComponent implements OnInit, OnDestroy {
         : this.heroCardContent.stat3Label.en;
 
     this.cardStat3Value = this.heroCardContent.stat3Value;
+  }
+
+  private updateLoadingState(): void {
+    this.isLoading = !(this.heroRequestDone && this.heroCardRequestDone);
   }
 }

@@ -9,6 +9,16 @@
     "auto": "Auto",
     "toggle": "Theme"
   },
+  "common": {
+    "sectionLoadErrorTitle": "{{section}} section unavailable",
+    "sectionLoadErrorText": "The content of the {{section}} section could not be loaded at the moment."
+  },
+  "sections": {
+    "about": "About",
+    "hero": "Home",
+    "contact": "Contact",
+    "projects": "Projects"
+  },
   "hero": {
     "available": "Available for an opportunity",
     "availabilityAvailable": "Available for opportunities",

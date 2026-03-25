@@ -31,10 +31,19 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
   cvUrl?: string;
   aboutContent: AboutContent | null = null;
 
+  isLoading = true;
+  hasError = false;
+
+  sectionTitle = '';
+  sectionSubtitle = '';
   profileName = '';
   profileRole = '';
   profileLocation = '';
   profileBio = '';
+
+  timelineTitle = '';
+  skillsTitle = '';
+  softSkillsTitle = '';
 
   timelineItems: Array<{
     date: string;
@@ -82,6 +91,18 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
     return index;
   }
 
+  get hasTimeline(): boolean {
+    return this.timelineItems.length > 0;
+  }
+
+  get hasSkillGroups(): boolean {
+    return this.skillGroups.length > 0;
+  }
+
+  get hasSoftSkills(): boolean {
+    return this.softSkills.length > 0;
+  }
+
   /** Ouvre le CV dans un nouvel onglet */
   downloadCv(): void {
     if (!this.cvUrl) {
@@ -103,17 +124,30 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
   }
 
   private loadAboutContent(): void {
+    this.isLoading = true;
+    this.hasError = false;
+
     this.aboutContentApi.get().subscribe({
       next: (aboutContent) => {
         this.aboutContent = aboutContent;
+        this.isLoading = false;
+        this.hasError = false;
         this.applyLocalizedContent();
       },
       error: () => {
         this.aboutContent = null;
+        this.isLoading = false;
+        this.hasError = true;
+
+        this.sectionTitle = '';
+        this.sectionSubtitle = '';
         this.profileName = '';
         this.profileRole = '';
         this.profileLocation = '';
         this.profileBio = '';
+        this.timelineTitle = '';
+        this.skillsTitle = '';
+        this.softSkillsTitle = '';
         this.timelineItems = [];
         this.skillGroups = [];
         this.softSkills = [];
@@ -126,10 +160,15 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.sectionTitle = this.localize(this.aboutContent.title);
+    this.sectionSubtitle = this.localize(this.aboutContent.subtitle);
     this.profileName = this.aboutContent.profileName;
     this.profileRole = this.localize(this.aboutContent.profileRole);
     this.profileLocation = this.localize(this.aboutContent.location);
     this.profileBio = this.localize(this.aboutContent.bio);
+    this.timelineTitle = this.localize(this.aboutContent.timelineTitle);
+    this.skillsTitle = this.localize(this.aboutContent.skillsTitle);
+    this.softSkillsTitle = this.localize(this.aboutContent.softSkillsTitle);
 
     this.timelineItems = (this.aboutContent.timelineItems ?? []).map((item) => ({
       date: this.localize(item.date),
