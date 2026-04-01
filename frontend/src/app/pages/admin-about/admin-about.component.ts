@@ -135,6 +135,18 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     return this.form.controls.softSkills;
   }
 
+  get hasTimelineItems(): boolean {
+    return this.timelineItems.length > 0;
+  }
+
+  get hasSkillGroups(): boolean {
+    return this.skillGroups.length > 0;
+  }
+
+  get hasSoftSkills(): boolean {
+    return this.softSkills.length > 0;
+  }
+
   loadAbout(): void {
     this.isLoading = true;
     this.errorMessage = '';
@@ -166,9 +178,16 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     this.form.markAsDirty();
   }
 
+  moveTimelineItemUp(index: number): void {
+    this.moveFormArrayItem(this.timelineItems, index, index - 1);
+  }
+
+  moveTimelineItemDown(index: number): void {
+    this.moveFormArrayItem(this.timelineItems, index, index + 1);
+  }
+
   addSkillGroup(): void {
     const group = this.createSkillGroupGroup();
-    this.getSkillItemsFromGroup(group).push(this.createSkillItemGroup());
     this.skillGroups.push(group);
     this.form.markAsDirty();
   }
@@ -176,6 +195,14 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
   removeSkillGroup(index: number): void {
     this.skillGroups.removeAt(index);
     this.form.markAsDirty();
+  }
+
+  moveSkillGroupUp(index: number): void {
+    this.moveFormArrayItem(this.skillGroups, index, index - 1);
+  }
+
+  moveSkillGroupDown(index: number): void {
+    this.moveFormArrayItem(this.skillGroups, index, index + 1);
   }
 
   addSkillItem(groupIndex: number): void {
@@ -188,6 +215,22 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     this.form.markAsDirty();
   }
 
+  moveSkillItemUp(groupIndex: number, itemIndex: number): void {
+    this.moveFormArrayItem(
+      this.getSkillItems(groupIndex),
+      itemIndex,
+      itemIndex - 1
+    );
+  }
+
+  moveSkillItemDown(groupIndex: number, itemIndex: number): void {
+    this.moveFormArrayItem(
+      this.getSkillItems(groupIndex),
+      itemIndex,
+      itemIndex + 1
+    );
+  }
+
   addSoftSkill(): void {
     this.softSkills.push(this.createSoftSkillGroup());
     this.form.markAsDirty();
@@ -198,13 +241,34 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     this.form.markAsDirty();
   }
 
+  moveSoftSkillUp(index: number): void {
+    this.moveFormArrayItem(this.softSkills, index, index - 1);
+  }
+
+  moveSoftSkillDown(index: number): void {
+    this.moveFormArrayItem(this.softSkills, index, index + 1);
+  }
+
   getSkillItems(groupIndex: number): FormArray<FormGroup> {
     return this.getSkillItemsFromGroup(this.skillGroups.at(groupIndex));
+  }
+
+  hasSkillItems(groupIndex: number): boolean {
+    return this.getSkillItems(groupIndex).length > 0;
+  }
+
+  canMoveUp(index: number): boolean {
+    return index > 0;
+  }
+
+  canMoveDown(index: number, length: number): boolean {
+    return index < length - 1;
   }
 
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toastService.error('Le formulaire contient des champs invalides.');
       return;
     }
 
@@ -355,10 +419,6 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
         );
       });
 
-      if (itemsArray.length === 0) {
-        itemsArray.push(this.createSkillItemGroup());
-      }
-
       this.skillGroups.push(skillGroup);
     });
 
@@ -474,5 +534,26 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
 
   private getSkillItemsFromGroup(group: FormGroup): FormArray<FormGroup> {
     return group.get('items') as FormArray<FormGroup>;
+  }
+
+  private moveFormArrayItem(
+    formArray: FormArray<FormGroup>,
+    fromIndex: number,
+    toIndex: number
+  ): void {
+    if (
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= formArray.length ||
+      toIndex >= formArray.length ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
+
+    const control = formArray.at(fromIndex);
+    formArray.removeAt(fromIndex);
+    formArray.insert(toIndex, control);
+    this.form.markAsDirty();
   }
 }
