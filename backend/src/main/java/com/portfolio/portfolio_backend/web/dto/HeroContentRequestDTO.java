@@ -1,15 +1,18 @@
 package com.portfolio.portfolio_backend.web.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
 public class HeroContentRequestDTO {
 
     @Valid
+    @NotNull(message = "Le titre est obligatoire")
     private LocalizedTextDTO title;
 
     @Valid
+    @NotNull(message = "Le sous-titre est obligatoire")
     private LocalizedTextDTO subtitle;
 
     private boolean available;

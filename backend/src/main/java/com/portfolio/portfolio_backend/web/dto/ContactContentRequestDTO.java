@@ -3,15 +3,18 @@ package com.portfolio.portfolio_backend.web.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class ContactContentRequestDTO {
 
     @Valid
+    @NotNull(message = "Le titre est obligatoire")
     private LocalizedTextDTO title;
 
     @Valid
+    @NotNull(message = "Le sous-titre est obligatoire")
     private LocalizedTextDTO subtitle;
 
     @NotBlank(message = "L'email est obligatoire")
@@ -25,12 +28,14 @@ public class ContactContentRequestDTO {
     @Size(max = 160, message = "La localisation est trop longue")
     private String location;
 
+    @Size(max = 255, message = "Le lien LinkedIn est trop long")
     @Pattern(
             regexp = "^(|https?://.+)$",
             message = "Le lien LinkedIn doit commencer par http:// ou https://"
     )
     private String linkedinUrl;
 
+    @Size(max = 255, message = "Le lien GitHub est trop long")
     @Pattern(
             regexp = "^(|https?://.+)$",
             message = "Le lien GitHub doit commencer par http:// ou https://"

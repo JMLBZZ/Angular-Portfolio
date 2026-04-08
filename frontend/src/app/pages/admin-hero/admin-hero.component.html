@@ -29,25 +29,48 @@
     <div
       class="rounded-3xl border border-border/70 bg-card/60 p-6"
       *ngIf="isLoadingHero"
+      aria-live="polite"
     >
-      Chargement...
+      Chargement du formulaire...
     </div>
 
     <div
-      class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
       *ngIf="heroErrorMessage"
+      id="admin-hero-main-global-error"
+      tabindex="-1"
+      class="rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-2 focus:outline-none"
+      aria-live="assertive"
     >
-      {{ heroErrorMessage }}
+      <p class="font-semibold text-red-600">
+        L’action n’a pas pu être finalisée.
+      </p>
+      <p class="text-sm text-red-600">
+        {{ heroErrorMessage }}
+      </p>
     </div>
 
     <form
       *ngIf="!isLoadingHero"
+      id="admin-hero-main-form"
       [formGroup]="heroForm"
       (ngSubmit)="saveHero()"
       class="space-y-6"
+      novalidate
     >
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">Textes</h4>
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h4 class="text-lg font-semibold">Textes</h4>
+          </div>
+
+          <span
+            *ngIf="heroForm.dirty && !isSubmittingHero"
+            class="text-sm opacity-70"
+            aria-live="polite"
+          >
+            Modifications non enregistrées
+          </span>
+        </div>
 
         <div class="grid gap-5 md:grid-cols-2">
           <app-text-field
@@ -74,118 +97,102 @@
           <app-text-field
             id="hero-subtitle-en"
             label="Sous-titre (EN)"
-            placeholder="I build modern and performant web applications."
+            placeholder="I build modern and high-performance web applications."
             [control]="heroForm.controls.subtitleEn"
           ></app-text-field>
         </div>
-
-        <p class="text-sm opacity-75">
-          Tu peux utiliser un HTML simple dans le titre, par exemple :
-          <code>&lt;br&gt;</code> et
-          <code>&lt;span class="text-primary"&gt;...&lt;/span&gt;</code>
-        </p>
-      </div>
-
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
-        <h4 class="text-lg font-semibold">Disponibilité</h4>
-
-        <label class="flex items-center justify-between gap-4 cursor-pointer">
-          <div>
-            <p class="font-medium">Disponible pour une opportunité</p>
-            <p class="text-sm opacity-75">
-              Active ce switch pour afficher un point vert dans le badge du hero.
-            </p>
-          </div>
-
-          <div class="relative inline-flex items-center">
-            <input
-              type="checkbox"
-              class="sr-only peer"
-              [formControl]="heroForm.controls.available"
-            />
-            <div
-              class="w-14 h-8 rounded-full bg-gray-300 transition peer-checked:bg-green-500"
-            ></div>
-            <div
-              class="absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition peer-checked:translate-x-6"
-            ></div>
-          </div>
-        </label>
-
-        <p class="text-sm font-medium">
-          Statut actuel :
-          <span *ngIf="heroForm.controls.available.value" class="text-green-600">
-            Disponible
-          </span>
-          <span *ngIf="!heroForm.controls.available.value" class="text-red-600">
-            Indisponible
-          </span>
-        </p>
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <div class="flex items-center justify-between gap-4">
+        <h4 class="text-lg font-semibold">Disponibilité</h4>
+
+        <label class="inline-flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            formControlName="available"
+            class="h-5 w-5 rounded border-border/70 text-primary focus:ring-primary/40"
+          />
+          <span class="text-sm">
+            Afficher le statut « disponible pour de nouveaux projets »
+          </span>
+        </label>
+      </div>
+
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h4 class="text-lg font-semibold">Badges technos</h4>
             <p class="text-sm opacity-75 mt-1">
-              Tu peux ajouter, supprimer et réordonner les badges affichés à gauche du hero.
+              Ces badges sont affichés sous le contenu principal du hero.
             </p>
           </div>
 
           <button
             type="button"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
             (click)="addTechBadge()"
-            class="inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-card transition"
           >
             Ajouter un badge
           </button>
         </div>
 
         <div
+          *ngIf="techBadgesFormArray.length === 0"
+          class="rounded-2xl border border-dashed border-border/70 bg-background/20 p-6 text-center"
+        >
+          <p class="font-medium">Aucun badge techno</p>
+          <p class="text-sm opacity-75 mt-1">
+            Ajoute des badges pour mettre en avant ta stack principale.
+          </p>
+          <button
+            type="button"
+            class="mt-4 inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+            (click)="addTechBadge()"
+          >
+            Ajouter le premier badge
+          </button>
+        </div>
+
+        <div
           cdkDropList
-          class="space-y-3"
           (cdkDropListDropped)="dropTechBadge($event)"
+          class="space-y-3"
+          *ngIf="techBadgesFormArray.length > 0"
         >
           <div
-            *ngFor="let badgeGroup of techBadgesFormArray.controls; let i = index; trackBy: trackByTechBadgeIndex"
-            [formGroup]="badgeGroup"
+            *ngFor="let badge of techBadgesFormArray.controls; let i = index; trackBy: trackByTechBadgeIndex"
+            [formGroup]="badge"
             cdkDrag
-            class="rounded-2xl border border-border/70 bg-background/40 p-4"
+            class="rounded-2xl border border-border/60 bg-background/30 p-4"
           >
-            <div class="flex items-start gap-4">
-              <button
-                type="button"
-                cdkDragHandle
-                class="mt-9 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-lg"
-                aria-label="Déplacer le badge"
-                title="Déplacer le badge"
-              >
-                ↕
-              </button>
+            <div class="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
+              <app-text-field
+                [id]="'hero-tech-badge-' + i"
+                label="Libellé"
+                placeholder="Angular"
+                [control]="badge.controls.label"
+              ></app-text-field>
 
-              <div class="flex-1">
-                <app-text-field
-                  [id]="'hero-tech-badge-' + i"
-                  [label]="'Badge ' + (i + 1)"
-                  placeholder="Angular"
-                  [control]="badgeGroup.controls.label"
-                ></app-text-field>
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  cdkDragHandle
+                  class="inline-flex items-center justify-center h-11 px-4 rounded-full border border-border/70 hover:bg-card transition"
+                >
+                  Déplacer
+                </button>
+
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center h-11 px-4 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition"
+                  (click)="removeTechBadge(i)"
+                >
+                  Supprimer
+                </button>
               </div>
-
-              <button
-                type="button"
-                (click)="removeTechBadge(i)"
-                class="mt-9 inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-red-300 px-4 text-sm font-medium text-red-600 hover:bg-red-50 transition"
-              >
-                Supprimer
-              </button>
             </div>
           </div>
         </div>
-
-        <p class="text-sm opacity-75" *ngIf="techBadgesFormArray.length === 0">
-          Aucun badge pour le moment. Ajoute-en un pour commencer.
-        </p>
       </div>
 
       <div class="flex justify-end">
@@ -201,125 +208,148 @@
     </form>
   </div>
 
-  <div class="space-y-4 pt-4">
+  <div class="space-y-4">
     <div>
-      <h3 class="text-xl font-semibold">Carte du hero</h3>
+      <h3 class="text-xl font-semibold">Carte à droite du hero</h3>
       <p class="text-sm opacity-75 mt-1">
-        Ce formulaire gère indépendamment la carte affichée à droite dans la section hero.
+        Ce formulaire gère la carte affichée à droite du hero public.
       </p>
     </div>
 
     <div
       class="rounded-3xl border border-border/70 bg-card/60 p-6"
       *ngIf="isLoadingHeroCard"
+      aria-live="polite"
     >
-      Chargement...
+      Chargement du formulaire...
     </div>
 
     <div
-      class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
       *ngIf="heroCardErrorMessage"
+      id="admin-hero-card-global-error"
+      tabindex="-1"
+      class="rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-2 focus:outline-none"
+      aria-live="assertive"
     >
-      {{ heroCardErrorMessage }}
+      <p class="font-semibold text-red-600">
+        L’action n’a pas pu être finalisée.
+      </p>
+      <p class="text-sm text-red-600">
+        {{ heroCardErrorMessage }}
+      </p>
     </div>
 
     <form
       *ngIf="!isLoadingHeroCard"
+      id="admin-hero-card-form"
       [formGroup]="heroCardForm"
       (ngSubmit)="saveHeroCard()"
       class="space-y-6"
+      novalidate
     >
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">En-tête de la carte</h4>
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h4 class="text-lg font-semibold">En-tête de la carte</h4>
+          </div>
+
+          <span
+            *ngIf="heroCardForm.dirty && !isSubmittingHeroCard"
+            class="text-sm opacity-70"
+            aria-live="polite"
+          >
+            Modifications non enregistrées
+          </span>
+        </div>
 
         <div class="grid gap-5 md:grid-cols-2">
           <app-text-field
             id="hero-card-title-fr"
-            label="Titre carte (FR)"
-            placeholder="Présentation"
+            label="Titre (FR)"
+            placeholder="Développeur Full-Stack"
             [control]="heroCardForm.controls.titleFr"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-title-en"
-            label="Titre carte (EN)"
-            placeholder="Overview"
+            label="Titre (EN)"
+            placeholder="Full-Stack Developer"
             [control]="heroCardForm.controls.titleEn"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-subtitle-fr"
-            label="Sous-titre carte (FR)"
-            placeholder="Développement web moderne"
+            label="Sous-titre (FR)"
+            placeholder="Disponible pour vos projets web"
             [control]="heroCardForm.controls.subtitleFr"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-subtitle-en"
-            label="Sous-titre carte (EN)"
-            placeholder="Modern web development"
+            label="Sous-titre (EN)"
+            placeholder="Available for your web projects"
             [control]="heroCardForm.controls.subtitleEn"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-badge-fr"
-            label="Badge carte (FR)"
-            placeholder="Portfolio"
+            label="Badge (FR)"
+            placeholder="Disponible"
             [control]="heroCardForm.controls.badgeFr"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-badge-en"
-            label="Badge carte (EN)"
-            placeholder="Portfolio"
+            label="Badge (EN)"
+            placeholder="Available"
             [control]="heroCardForm.controls.badgeEn"
           ></app-text-field>
         </div>
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">Lignes de mise en valeur</h4>
+        <h4 class="text-lg font-semibold">Points forts</h4>
 
         <div class="grid gap-5 md:grid-cols-2">
           <app-text-field
             id="hero-card-highlight1-fr"
-            label="Ligne 1 (FR)"
-            placeholder="Applications web modernes"
+            label="Point fort 1 (FR)"
+            placeholder="Applications modernes"
             [control]="heroCardForm.controls.highlight1Fr"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-highlight1-en"
-            label="Ligne 1 (EN)"
-            placeholder="Modern web applications"
+            label="Point fort 1 (EN)"
+            placeholder="Modern applications"
             [control]="heroCardForm.controls.highlight1En"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-highlight2-fr"
-            label="Ligne 2 (FR)"
-            placeholder="Architecture clean & scalable"
+            label="Point fort 2 (FR)"
+            placeholder="Architecture robuste"
             [control]="heroCardForm.controls.highlight2Fr"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-highlight2-en"
-            label="Ligne 2 (EN)"
-            placeholder="Clean & scalable architecture"
+            label="Point fort 2 (EN)"
+            placeholder="Robust architecture"
             [control]="heroCardForm.controls.highlight2En"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-highlight3-fr"
-            label="Ligne 3 (FR)"
-            placeholder="Performance & UX optimisées"
+            label="Point fort 3 (FR)"
+            placeholder="Expérience utilisateur soignée"
             [control]="heroCardForm.controls.highlight3Fr"
           ></app-text-field>
 
           <app-text-field
             id="hero-card-highlight3-en"
-            label="Ligne 3 (EN)"
-            placeholder="Optimized performance & UX"
+            label="Point fort 3 (EN)"
+            placeholder="Polished user experience"
             [control]="heroCardForm.controls.highlight3En"
           ></app-text-field>
         </div>
@@ -328,10 +358,11 @@
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
         <h4 class="text-lg font-semibold">Statistiques</h4>
 
-        <div class="grid gap-6">
-          <div class="rounded-2xl border border-border/70 p-4 space-y-4">
-            <p class="font-medium">Statistique 1</p>
-            <div class="grid gap-4 md:grid-cols-3">
+        <div class="space-y-5">
+          <div class="rounded-2xl border border-border/60 p-4">
+            <h5 class="font-medium mb-4">Statistique 1</h5>
+
+            <div class="grid gap-5 md:grid-cols-3">
               <app-text-field
                 id="hero-card-stat1-label-fr"
                 label="Label 1 (FR)"
@@ -355,9 +386,10 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-border/70 p-4 space-y-4">
-            <p class="font-medium">Statistique 2</p>
-            <div class="grid gap-4 md:grid-cols-3">
+          <div class="rounded-2xl border border-border/60 p-4">
+            <h5 class="font-medium mb-4">Statistique 2</h5>
+
+            <div class="grid gap-5 md:grid-cols-3">
               <app-text-field
                 id="hero-card-stat2-label-fr"
                 label="Label 2 (FR)"
@@ -375,15 +407,16 @@
               <app-text-field
                 id="hero-card-stat2-value"
                 label="Valeur 2"
-                placeholder="15+"
+                placeholder="10+"
                 [control]="heroCardForm.controls.stat2Value"
               ></app-text-field>
             </div>
           </div>
 
-          <div class="rounded-2xl border border-border/70 p-4 space-y-4">
-            <p class="font-medium">Statistique 3</p>
-            <div class="grid gap-4 md:grid-cols-3">
+          <div class="rounded-2xl border border-border/60 p-4">
+            <h5 class="font-medium mb-4">Statistique 3</h5>
+
+            <div class="grid gap-5 md:grid-cols-3">
               <app-text-field
                 id="hero-card-stat3-label-fr"
                 label="Label 3 (FR)"

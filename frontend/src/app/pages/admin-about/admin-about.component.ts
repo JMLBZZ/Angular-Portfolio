@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AbstractControl } from '@angular/forms';
 import {
   FormArray,
   FormControl,
@@ -16,7 +17,14 @@ import { ToastService } from '../../shared/services/toast.service';
 import { AdminAboutApiService } from '../../core/api/admin-about-api.service';
 import { AboutContent } from '../../shared/models/about.model';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import { applyApiErrorsToForm, clearApiErrorsFromForm } from '../../core/forms/apply-api-errors.util';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { Subscription } from 'rxjs';
+import {
+  handleInvalidAdminForm,
+  scrollToSelector,
+  setupAdminFormErrorCleanup,
+} from '../../shared/utils/admin-form.utils';
 
 @Component({
   selector: 'app-admin-about',
@@ -31,10 +39,12 @@ import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
   ],
   templateUrl: './admin-about.component.html',
 })
-export class AdminAboutComponent implements OnInit, PendingChangesComponent {
+export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesComponent {
   isLoading = false;
   isSubmitting = false;
   errorMessage = '';
+
+  private subscriptions = new Subscription();
 
   readonly form = new FormGroup({
     titleFr: new FormControl('', {
@@ -59,27 +69,27 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     }),
     profileRoleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(120)],
     }),
     profileRoleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(120)],
     }),
     bioFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(3000)],
+      validators: [Validators.required, Validators.maxLength(2000)],
     }),
     bioEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(3000)],
+      validators: [Validators.required, Validators.maxLength(2000)],
     }),
     locationFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(120)],
     }),
     locationEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(120)],
     }),
     timelineTitleFr: new FormControl('', {
       nonNullable: true,
@@ -112,11 +122,24 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
 
   constructor(
     private adminAboutApi: AdminAboutApiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit(): void {
     this.loadAbout();
+
+    this.subscriptions.add(
+      setupAdminFormErrorCleanup(this.form, () => {
+        if (this.errorMessage) {
+          this.errorMessage = '';
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   canDeactivate(): boolean {
@@ -150,10 +173,12 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
   loadAbout(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    clearApiErrorsFromForm(this.form);
 
     this.adminAboutApi.get().subscribe({
       next: (about) => {
         this.isLoading = false;
+        clearApiErrorsFromForm(this.form);
         this.patchForm(about);
         this.form.markAsPristine();
       },
@@ -164,6 +189,7 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
           'Impossible de charger les données de la section About.'
         );
         this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       },
     });
   }
@@ -187,8 +213,7 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
   }
 
   addSkillGroup(): void {
-    const group = this.createSkillGroupGroup();
-    this.skillGroups.push(group);
+    this.skillGroups.push(this.createSkillGroup());
     this.form.markAsDirty();
   }
 
@@ -205,6 +230,14 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     this.moveFormArrayItem(this.skillGroups, index, index + 1);
   }
 
+  getSkillItems(groupIndex: number): FormArray<FormGroup> {
+    return this.getSkillItemsFromGroup(this.skillGroups.at(groupIndex) as FormGroup);
+  }
+
+  hasSkillItems(groupIndex: number): boolean {
+    return this.getSkillItems(groupIndex).length > 0;
+  }
+
   addSkillItem(groupIndex: number): void {
     this.getSkillItems(groupIndex).push(this.createSkillItemGroup());
     this.form.markAsDirty();
@@ -216,19 +249,11 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
   }
 
   moveSkillItemUp(groupIndex: number, itemIndex: number): void {
-    this.moveFormArrayItem(
-      this.getSkillItems(groupIndex),
-      itemIndex,
-      itemIndex - 1
-    );
+    this.moveFormArrayItem(this.getSkillItems(groupIndex), itemIndex, itemIndex - 1);
   }
 
   moveSkillItemDown(groupIndex: number, itemIndex: number): void {
-    this.moveFormArrayItem(
-      this.getSkillItems(groupIndex),
-      itemIndex,
-      itemIndex + 1
-    );
+    this.moveFormArrayItem(this.getSkillItems(groupIndex), itemIndex, itemIndex + 1);
   }
 
   addSoftSkill(): void {
@@ -249,14 +274,6 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     this.moveFormArrayItem(this.softSkills, index, index + 1);
   }
 
-  getSkillItems(groupIndex: number): FormArray<FormGroup> {
-    return this.getSkillItemsFromGroup(this.skillGroups.at(groupIndex));
-  }
-
-  hasSkillItems(groupIndex: number): boolean {
-    return this.getSkillItems(groupIndex).length > 0;
-  }
-
   canMoveUp(index: number): boolean {
     return index > 0;
   }
@@ -266,14 +283,21 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
   }
 
   save(): void {
+    this.errorMessage = '';
+    clearApiErrorsFromForm(this.form);
+
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.toastService.error('Le formulaire contient des champs invalides.');
+      handleInvalidAdminForm({
+        form: this.form,
+        container: this.elementRef.nativeElement,
+        toastService: this.toastService,
+        message: 'Veuillez corriger les champs du formulaire.',
+        scopeSelector: '#admin-about-form',
+      });
       return;
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
 
     const payload: AboutContent = {
       title: {
@@ -326,7 +350,7 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
           fr: group.get('descriptionFr')?.value ?? '',
           en: group.get('descriptionEn')?.value ?? '',
         },
-        icon: (group.get('icon')?.value ?? 'work') as 'work' | 'education',
+        icon: group.get('icon')?.value ?? 'work',
       })),
       skillGroups: this.skillGroups.controls.map((group) => ({
         title: {
@@ -347,19 +371,82 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     this.adminAboutApi.update(payload).subscribe({
       next: (about) => {
         this.isSubmitting = false;
+        clearApiErrorsFromForm(this.form);
         this.patchForm(about);
         this.form.markAsPristine();
         this.toastService.success('Section About enregistrée avec succès.');
       },
       error: (error) => {
         this.isSubmitting = false;
+        applyApiErrorsToForm(this.form, error);
         this.errorMessage = extractApiErrorMessage(
           error,
           'Impossible d’enregistrer la section About.'
         );
         this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       },
     });
+  }
+
+  showControlError(control: AbstractControl | null): boolean {
+    return !!control && control.invalid && control.touched;
+  }
+
+  getControlErrorMessage(control: AbstractControl | null): string {
+    if (!control?.errors) {
+      return '';
+    }
+
+    const apiError = control.getError('apiError');
+
+    if (typeof apiError === 'string' && apiError.trim()) {
+      return apiError.trim();
+    }
+
+    if (control.hasError('required')) {
+      return 'Ce champ est obligatoire.';
+    }
+
+    if (control.hasError('maxlength')) {
+      const error = control.getError('maxlength');
+      return `La longueur maximale autorisée est de ${error.requiredLength} caractères.`;
+    }
+
+    if (control.hasError('minlength')) {
+      const error = control.getError('minlength');
+      return `La longueur minimale attendue est de ${error.requiredLength} caractères.`;
+    }
+
+    if (control.hasError('min')) {
+      const error = control.getError('min');
+      return `La valeur minimale autorisée est ${error.min}.`;
+    }
+
+    if (control.hasError('max')) {
+      const error = control.getError('max');
+      return `La valeur maximale autorisée est ${error.max}.`;
+    }
+
+    if (control.hasError('pattern')) {
+      return 'Le format saisi est invalide.';
+    }
+
+    return 'La valeur saisie est invalide.';
+  }
+
+  private moveItemWithinFormArray(formArray: FormArray<FormGroup>, from: number, to: number): void {
+    const control = formArray.at(from);
+    formArray.removeAt(from);
+    formArray.insert(to, control);
+    this.form.markAsDirty();
+  }
+
+  private scrollToGlobalError(): void {
+    scrollToSelector(
+      this.elementRef.nativeElement,
+      '#admin-about-global-error'
+    );
   }
 
   private patchForm(about: AboutContent): void {
@@ -385,51 +472,37 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
 
     this.timelineItems.clear();
     (about.timelineItems ?? []).forEach((item) => {
-      this.timelineItems.push(
-        this.createTimelineItemGroup({
-          dateFr: item.date.fr,
-          dateEn: item.date.en,
-          companyFr: item.company.fr,
-          companyEn: item.company.en,
-          titleFr: item.title.fr,
-          titleEn: item.title.en,
-          descriptionFr: item.description.fr,
-          descriptionEn: item.description.en,
-          icon: item.icon,
-        })
-      );
+      this.timelineItems.push(this.createTimelineItemGroup({
+        dateFr: item.date?.fr ?? '',
+        dateEn: item.date?.en ?? '',
+        companyFr: item.company?.fr ?? '',
+        companyEn: item.company?.en ?? '',
+        titleFr: item.title?.fr ?? '',
+        titleEn: item.title?.en ?? '',
+        descriptionFr: item.description?.fr ?? '',
+        descriptionEn: item.description?.en ?? '',
+        icon: item.icon ?? 'work',
+      }));
     });
 
     this.skillGroups.clear();
     (about.skillGroups ?? []).forEach((group) => {
-      const skillGroup = this.createSkillGroupGroup({
-        titleFr: group.title.fr,
-        titleEn: group.title.en,
-      });
-
-      const itemsArray = this.getSkillItemsFromGroup(skillGroup);
-      itemsArray.clear();
-
-      (group.items ?? []).forEach((item) => {
-        itemsArray.push(
-          this.createSkillItemGroup({
-            name: item.name,
-            value: item.value,
-          })
-        );
-      });
-
-      this.skillGroups.push(skillGroup);
+      this.skillGroups.push(this.createSkillGroup({
+        titleFr: group.title?.fr ?? '',
+        titleEn: group.title?.en ?? '',
+        items: (group.items ?? []).map((item) => ({
+          name: item.name ?? '',
+          value: item.value ?? 0,
+        })),
+      }));
     });
 
     this.softSkills.clear();
     (about.softSkills ?? []).forEach((skill) => {
-      this.softSkills.push(
-        this.createSoftSkillGroup({
-          fr: skill.fr,
-          en: skill.en,
-        })
-      );
+      this.softSkills.push(this.createSoftSkillGroup({
+        fr: skill.fr ?? '',
+        en: skill.en ?? '',
+      }));
     });
   }
 
@@ -442,61 +515,65 @@ export class AdminAboutComponent implements OnInit, PendingChangesComponent {
     titleEn?: string;
     descriptionFr?: string;
     descriptionEn?: string;
-    icon?: 'work' | 'education';
+    icon?: string;
   }): FormGroup {
     return new FormGroup({
       dateFr: new FormControl(value?.dateFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(80)],
       }),
       dateEn: new FormControl(value?.dateEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(80)],
       }),
       companyFr: new FormControl(value?.companyFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(120)],
       }),
       companyEn: new FormControl(value?.companyEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(120)],
       }),
       titleFr: new FormControl(value?.titleFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(120)],
       }),
       titleEn: new FormControl(value?.titleEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(120)],
       }),
       descriptionFr: new FormControl(value?.descriptionFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(2000)],
+        validators: [Validators.required, Validators.maxLength(1000)],
       }),
       descriptionEn: new FormControl(value?.descriptionEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(2000)],
+        validators: [Validators.required, Validators.maxLength(1000)],
       }),
-      icon: new FormControl<'work' | 'education'>(value?.icon ?? 'work', {
+      icon: new FormControl(value?.icon ?? 'work', {
         nonNullable: true,
+        validators: [Validators.required],
       }),
     });
   }
 
-  private createSkillGroupGroup(value?: {
+  private createSkillGroup(value?: {
     titleFr?: string;
     titleEn?: string;
+    items?: Array<{ name?: string; value?: number }>;
   }): FormGroup {
     return new FormGroup({
       titleFr: new FormControl(value?.titleFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(120)],
       }),
       titleEn: new FormControl(value?.titleEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(255)],
+        validators: [Validators.required, Validators.maxLength(120)],
       }),
-      items: new FormArray<FormGroup>([]),
+      items: new FormArray<FormGroup>(
+        (value?.items ?? []).map((item) => this.createSkillItemGroup(item))
+      ),
     });
   }
 

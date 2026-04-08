@@ -1,13 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { AdminContactApiService } from '../../core/api/admin-contact-api.service';
 import { Contact } from '../../shared/models/contact.model';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import { applyApiErrorsToForm, clearApiErrorsFromForm } from '../../core/forms/apply-api-errors.util';
+import { optionalUrlValidator } from '../../shared/validators/project-form.validators';
+import {
+  handleInvalidAdminForm,
+  scrollToSelector,
+  setupAdminFormErrorCleanup,
+} from '../../shared/utils/admin-form.utils';
 
 @Component({
   selector: 'app-admin-contact',
@@ -21,10 +30,12 @@ import { Contact } from '../../shared/models/contact.model';
   ],
   templateUrl: './admin-contact.component.html',
 })
-export class AdminContactComponent implements OnInit {
+export class AdminContactComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSubmitting = false;
   errorMessage = '';
+
+  private subscriptions = new Subscription();
 
   readonly form = new FormGroup({
     titleFr: new FormControl('', {
@@ -57,30 +68,45 @@ export class AdminContactComponent implements OnInit {
     }),
     linkedinUrl: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.pattern(/^(|https?:\/\/.+)$/), Validators.maxLength(255)],
+      validators: [optionalUrlValidator(), Validators.maxLength(255)],
     }),
     githubUrl: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.pattern(/^(|https?:\/\/.+)$/), Validators.maxLength(255)],
+      validators: [optionalUrlValidator(), Validators.maxLength(255)],
     }),
   });
 
   constructor(
     private adminContactApi: AdminContactApiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit(): void {
     this.loadContact();
+
+    this.subscriptions.add(
+      setupAdminFormErrorCleanup(this.form, () => {
+        if (this.errorMessage) {
+          this.errorMessage = '';
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   loadContact(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    clearApiErrorsFromForm(this.form);
 
     this.adminContactApi.get().subscribe({
       next: (contact) => {
         this.isLoading = false;
+        clearApiErrorsFromForm(this.form);
         this.form.setValue({
           titleFr: contact.title.fr,
           titleEn: contact.title.en,
@@ -94,21 +120,34 @@ export class AdminContactComponent implements OnInit {
         });
         this.form.markAsPristine();
       },
-      error: () => {
+      error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'Impossible de charger les données du contact.';
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger les données du contact.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       },
     });
   }
 
   save(): void {
+    this.errorMessage = '';
+    clearApiErrorsFromForm(this.form);
+
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      handleInvalidAdminForm({
+        form: this.form,
+        container: this.elementRef.nativeElement,
+        toastService: this.toastService,
+        message: 'Veuillez corriger les champs du formulaire.',
+        scopeSelector: '#admin-contact-form',
+      });
       return;
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
 
     const payload: Contact = {
       title: {
@@ -129,6 +168,9 @@ export class AdminContactComponent implements OnInit {
     this.adminContactApi.update(payload).subscribe({
       next: (contact) => {
         this.isSubmitting = false;
+        this.errorMessage = '';
+
+        clearApiErrorsFromForm(this.form);
         this.form.setValue({
           titleFr: contact.title.fr,
           titleEn: contact.title.en,
@@ -141,12 +183,26 @@ export class AdminContactComponent implements OnInit {
           githubUrl: contact.githubUrl ?? '',
         });
         this.form.markAsPristine();
+
         this.toastService.success('Contact enregistré avec succès.');
       },
-      error: () => {
+      error: (error) => {
         this.isSubmitting = false;
-        this.toastService.error('Impossible d’enregistrer le contact.');
+        applyApiErrorsToForm(this.form, error);
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible d’enregistrer le contact.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       },
     });
+  }
+
+  private scrollToGlobalError(): void {
+    scrollToSelector(
+      this.elementRef.nativeElement,
+      '#admin-contact-global-error'
+    );
   }
 }

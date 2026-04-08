@@ -21,25 +21,51 @@
   <div
     class="rounded-3xl border border-border/70 bg-card/60 p-6"
     *ngIf="isLoading"
+    aria-live="polite"
   >
-    Chargement...
+    Chargement du formulaire...
   </div>
 
   <div
-    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
     *ngIf="errorMessage"
+    id="admin-contact-global-error"
+    tabindex="-1"
+    class="rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-2 focus:outline-none"
+    aria-live="assertive"
   >
-    {{ errorMessage }}
+    <p class="font-semibold text-red-600">
+      L’action n’a pas pu être finalisée.
+    </p>
+    <p class="text-sm text-red-600">
+      {{ errorMessage }}
+    </p>
   </div>
 
   <form
     *ngIf="!isLoading"
+    id="admin-contact-form"
     [formGroup]="form"
     (ngSubmit)="save()"
     class="space-y-6"
+    novalidate
   >
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <h3 class="text-lg font-semibold">Textes</h3>
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h3 class="text-lg font-semibold">Contenu de section</h3>
+          <p class="text-sm opacity-75 mt-1">
+            Ces contenus sont affichés dans la partie gauche de la section Contact publique.
+          </p>
+        </div>
+
+        <span
+          *ngIf="form.dirty && !isSubmitting"
+          class="text-sm opacity-70"
+          aria-live="polite"
+        >
+          Modifications non enregistrées
+        </span>
+      </div>
 
       <div class="grid gap-5 md:grid-cols-2">
         <app-text-field
@@ -73,7 +99,7 @@
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <h3 class="text-lg font-semibold">Coordonnées</h3>
+      <h3 class="text-lg font-semibold">Informations de contact</h3>
 
       <div class="grid gap-5 md:grid-cols-2">
         <app-text-field
@@ -112,10 +138,6 @@
           [control]="form.controls.githubUrl"
         ></app-text-field>
       </div>
-
-      <p class="text-sm opacity-75">
-        L’email enregistré ici servira aussi de destination pour le formulaire de contact.
-      </p>
     </div>
 
     <div class="flex justify-end">

@@ -2,6 +2,7 @@ package com.portfolio.portfolio_backend.web.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -9,9 +10,11 @@ import java.util.List;
 public class AboutContentRequestDTO {
 
     @Valid
+    @NotNull(message = "Le titre est obligatoire")
     private LocalizedTextDTO title;
 
     @Valid
+    @NotNull(message = "Le sous-titre est obligatoire")
     private LocalizedTextDTO subtitle;
 
     @NotBlank(message = "Le nom du profil est obligatoire")
@@ -19,21 +22,27 @@ public class AboutContentRequestDTO {
     private String profileName;
 
     @Valid
+    @NotNull(message = "Le rôle du profil est obligatoire")
     private LocalizedTextDTO profileRole;
 
     @Valid
+    @NotNull(message = "La biographie est obligatoire")
     private LocalizedTextDTO bio;
 
     @Valid
+    @NotNull(message = "La localisation est obligatoire")
     private LocalizedTextDTO location;
 
     @Valid
+    @NotNull(message = "Le titre de la timeline est obligatoire")
     private LocalizedTextDTO timelineTitle;
 
     @Valid
+    @NotNull(message = "Le titre des compétences est obligatoire")
     private LocalizedTextDTO skillsTitle;
 
     @Valid
+    @NotNull(message = "Le titre des soft skills est obligatoire")
     private LocalizedTextDTO softSkillsTitle;
 
     @Valid

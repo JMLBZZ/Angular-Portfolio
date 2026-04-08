@@ -13,7 +13,7 @@ export class TextAreaComponent {
   @Input() placeholder = '';
   @Input() control!: FormControl;
   @Input() errorText = '';
-  @Input() showError = false;
+  @Input() showError: boolean | null = null;
   @Input() disabled = false;
   @Input() rows = 6;
   @Input() id = '';
@@ -26,8 +26,24 @@ export class TextAreaComponent {
     return this.id ? `${this.id}-error` : null;
   }
 
+  get shouldShowError(): boolean {
+    if (this.showError !== null) {
+      return this.showError;
+    }
+
+    return !!this.control && this.control.invalid && this.control.touched;
+  }
+
+  get computedErrorText(): string {
+    if (this.errorText.trim()) {
+      return this.errorText;
+    }
+
+    return this.getDefaultErrorMessage();
+  }
+
   get describedBy(): string | null {
-    return this.showError && this.errorText && this.errorId ? this.errorId : null;
+    return this.shouldShowError && this.computedErrorText && this.errorId ? this.errorId : null;
   }
 
   get textareaClasses(): string {
@@ -36,8 +52,34 @@ export class TextAreaComponent {
       'bg-card/40 backdrop-blur',
       'placeholder:text-foreground/50',
       'focus-visible:ring-2 focus-visible:ring-primary/40',
-      this.showError ? 'border-red-500' : 'border-border/70',
+      this.shouldShowError ? 'border-red-500' : 'border-border/70',
       this.disabled ? 'opacity-60 pointer-events-none' : '',
     ].join(' ');
+  }
+
+  private getDefaultErrorMessage(): string {
+    if (!this.control?.errors) {
+      return '';
+    }
+
+    if (this.control.hasError('apiError')) {
+      return this.control.getError('apiError');
+    }
+
+    if (this.control.hasError('required')) {
+      return 'Ce champ est obligatoire.';
+    }
+
+    if (this.control.hasError('maxlength')) {
+      const error = this.control.getError('maxlength');
+      return `La longueur maximale autorisée est de ${error.requiredLength} caractères.`;
+    }
+
+    if (this.control.hasError('minlength')) {
+      const error = this.control.getError('minlength');
+      return `La longueur minimale attendue est de ${error.requiredLength} caractères.`;
+    }
+
+    return 'La valeur saisie est invalide.';
   }
 }

@@ -16,6 +16,10 @@ import {
   hasApiErrorCode,
 } from '../../core/api/api-error.utils';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import {
+  applyApiErrorsToForm,
+  clearApiErrorsFromForm,
+} from '../../core/forms/apply-api-errors.util';
 import { ToastService } from '../../shared/services/toast.service';
 import {
   commaSeparatedListValidator,
@@ -215,9 +219,11 @@ export class AdminProjectFormComponent
   loadProject(id: string): void {
     this.isLoading = true;
     this.errorMessage = '';
+    clearApiErrorsFromForm(this.form);
 
     this.adminProjectsApi.getById(id).subscribe({
       next: (project) => {
+        clearApiErrorsFromForm(this.form);
         this.patchForm(project);
         this.slugManuallyEdited = true;
         this.form.markAsPristine();
@@ -238,6 +244,7 @@ export class AdminProjectFormComponent
   submit(): void {
     this.clearSlugAlreadyUsedError();
     this.errorMessage = '';
+    clearApiErrorsFromForm(this.form);
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -259,6 +266,7 @@ export class AdminProjectFormComponent
       next: () => {
         this.isSubmitting = false;
         this.errorMessage = '';
+        clearApiErrorsFromForm(this.form);
         this.form.markAsPristine();
 
         this.toastService.success(
@@ -271,6 +279,7 @@ export class AdminProjectFormComponent
       },
       error: (error) => {
         this.isSubmitting = false;
+        applyApiErrorsToForm(this.form, error);
 
         if (hasApiErrorCode(error, 'SLUG_ALREADY_USED')) {
           const slugMessage =
@@ -288,6 +297,7 @@ export class AdminProjectFormComponent
           error,
           'L’enregistrement du projet a échoué.'
         );
+
         this.toastService.error(this.errorMessage);
         this.scrollToGlobalError();
       },
@@ -855,10 +865,18 @@ export class AdminProjectFormComponent
       return String(control.getError('slugAlreadyUsed'));
     }
 
+    if (control.hasError('apiError')) {
+      return String(control.getError('apiError'));
+    }
+
     return '';
   }
 
   getUrlErrorMessage(control: FormControl<string>): string {
+    if (control.hasError('apiError')) {
+      return String(control.getError('apiError'));
+    }
+
     if (control.hasError('invalidUrl')) {
       return 'Veuillez saisir une URL valide commençant par http:// ou https://, ou un chemin /uploads/...';
     }
@@ -867,6 +885,10 @@ export class AdminProjectFormComponent
   }
 
   getListErrorMessage(control: FormControl<string>, label: string): string {
+    if (control.hasError('apiError')) {
+      return String(control.getError('apiError'));
+    }
+
     if (control.hasError('minItems')) {
       return `Le champ ${label} doit contenir au moins un élément.`;
     }
@@ -883,6 +905,10 @@ export class AdminProjectFormComponent
   }
 
   getMaxLengthErrorMessage(control: FormControl<string>, label: string): string {
+    if (control.hasError('apiError')) {
+      return String(control.getError('apiError'));
+    }
+
     const error = control.getError('maxlength');
 
     if (!error) {

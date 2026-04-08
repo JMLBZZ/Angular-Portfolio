@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -17,6 +17,14 @@ import { AdminHeroApiService } from '../../core/api/admin-hero-api.service';
 import { AdminHeroCardApiService } from '../../core/api/admin-hero-card-api.service';
 import { Hero, HeroTechBadge } from '../../shared/models/hero.model';
 import { HeroCard } from '../../shared/models/hero-card.model';
+import { Subscription } from 'rxjs';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import { applyApiErrorsToForm, clearApiErrorsFromForm } from '../../core/forms/apply-api-errors.util';
+import {
+  handleInvalidAdminForm,
+  scrollToSelector,
+  setupAdminFormErrorCleanup,
+} from '../../shared/utils/admin-form.utils';
 
 type HeroTechBadgeFormGroup = FormGroup<{
   id: FormControl<number | null>;
@@ -37,7 +45,7 @@ type HeroTechBadgeFormGroup = FormGroup<{
   ],
   templateUrl: './admin-hero.component.html',
 })
-export class AdminHeroComponent implements OnInit {
+export class AdminHeroComponent implements OnInit, OnDestroy {
   isLoadingHero = false;
   isSubmittingHero = false;
   heroErrorMessage = '';
@@ -45,6 +53,8 @@ export class AdminHeroComponent implements OnInit {
   isLoadingHeroCard = false;
   isSubmittingHeroCard = false;
   heroCardErrorMessage = '';
+
+  private subscriptions = new Subscription();
 
   readonly heroForm = new FormGroup({
     titleFr: new FormControl('', {
@@ -159,12 +169,33 @@ export class AdminHeroComponent implements OnInit {
   constructor(
     private adminHeroApi: AdminHeroApiService,
     private adminHeroCardApi: AdminHeroCardApiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit(): void {
     this.loadHero();
     this.loadHeroCard();
+
+    this.subscriptions.add(
+      setupAdminFormErrorCleanup(this.heroForm, () => {
+        if (this.heroErrorMessage) {
+          this.heroErrorMessage = '';
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      setupAdminFormErrorCleanup(this.heroCardForm, () => {
+        if (this.heroCardErrorMessage) {
+          this.heroCardErrorMessage = '';
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   get techBadgesFormArray(): FormArray<HeroTechBadgeFormGroup> {
@@ -174,11 +205,13 @@ export class AdminHeroComponent implements OnInit {
   loadHero(): void {
     this.isLoadingHero = true;
     this.heroErrorMessage = '';
+    clearApiErrorsFromForm(this.heroForm);
 
     this.adminHeroApi.get().subscribe({
       next: (hero) => {
         this.isLoadingHero = false;
 
+        clearApiErrorsFromForm(this.heroForm);
         this.heroForm.patchValue({
           titleFr: hero.title.fr,
           titleEn: hero.title.en,
@@ -190,23 +223,35 @@ export class AdminHeroComponent implements OnInit {
         this.setTechBadges(hero.techBadges);
         this.heroForm.markAsPristine();
       },
-      error: () => {
+      error: (error) => {
         this.isLoadingHero = false;
-        this.heroErrorMessage = 'Impossible de charger les données du hero.';
+        this.heroErrorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger les données du hero.'
+        );
+        this.toastService.error(this.heroErrorMessage);
+        this.scrollToHeroError();
       },
     });
   }
 
   saveHero(): void {
     this.updateTechBadgeDisplayOrders();
+    this.heroErrorMessage = '';
+    clearApiErrorsFromForm(this.heroForm);
 
     if (this.heroForm.invalid) {
-      this.heroForm.markAllAsTouched();
+      handleInvalidAdminForm({
+        form: this.heroForm,
+        container: this.elementRef.nativeElement,
+        toastService: this.toastService,
+        message: 'Veuillez corriger les champs du formulaire.',
+        scopeSelector: '#admin-hero-main-form',
+      });
       return;
     }
 
     this.isSubmittingHero = true;
-    this.heroErrorMessage = '';
 
     const payload: Hero = {
       title: {
@@ -229,6 +274,7 @@ export class AdminHeroComponent implements OnInit {
       next: (hero) => {
         this.isSubmittingHero = false;
 
+        clearApiErrorsFromForm(this.heroForm);
         this.heroForm.patchValue({
           titleFr: hero.title.fr,
           titleEn: hero.title.en,
@@ -241,9 +287,15 @@ export class AdminHeroComponent implements OnInit {
         this.heroForm.markAsPristine();
         this.toastService.success('Hero enregistré avec succès.');
       },
-      error: () => {
+      error: (error) => {
         this.isSubmittingHero = false;
-        this.toastService.error('Impossible d’enregistrer le hero.');
+        applyApiErrorsToForm(this.heroForm, error);
+        this.heroErrorMessage = extractApiErrorMessage(
+          error,
+          'Impossible d’enregistrer le hero.'
+        );
+        this.toastService.error(this.heroErrorMessage);
+        this.scrollToHeroError();
       },
     });
   }
@@ -312,13 +364,29 @@ export class AdminHeroComponent implements OnInit {
     });
   }
 
+  private scrollToHeroError(): void {
+    scrollToSelector(
+      this.elementRef.nativeElement,
+      '#admin-hero-main-global-error'
+    );
+  }
+
+  private scrollToHeroCardError(): void {
+    scrollToSelector(
+      this.elementRef.nativeElement,
+      '#admin-hero-card-global-error'
+    );
+  }
+
   loadHeroCard(): void {
     this.isLoadingHeroCard = true;
     this.heroCardErrorMessage = '';
+    clearApiErrorsFromForm(this.heroCardForm);
 
     this.adminHeroCardApi.get().subscribe({
       next: (heroCard) => {
         this.isLoadingHeroCard = false;
+        clearApiErrorsFromForm(this.heroCardForm);
         this.heroCardForm.setValue({
           titleFr: heroCard.title.fr,
           titleEn: heroCard.title.en,
@@ -344,21 +412,34 @@ export class AdminHeroComponent implements OnInit {
         });
         this.heroCardForm.markAsPristine();
       },
-      error: () => {
+      error: (error) => {
         this.isLoadingHeroCard = false;
-        this.heroCardErrorMessage = 'Impossible de charger les données de la hero card.';
+        this.heroCardErrorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger les données de la hero card.'
+        );
+        this.toastService.error(this.heroCardErrorMessage);
+        this.scrollToHeroCardError();
       },
     });
   }
 
   saveHeroCard(): void {
+    this.heroCardErrorMessage = '';
+    clearApiErrorsFromForm(this.heroCardForm);
+
     if (this.heroCardForm.invalid) {
-      this.heroCardForm.markAllAsTouched();
+      handleInvalidAdminForm({
+        form: this.heroCardForm,
+        container: this.elementRef.nativeElement,
+        toastService: this.toastService,
+        message: 'Veuillez corriger les champs du formulaire.',
+        scopeSelector: '#admin-hero-card-form',
+      });
       return;
     }
 
     this.isSubmittingHeroCard = true;
-    this.heroCardErrorMessage = '';
 
     const payload: HeroCard = {
       title: {
@@ -405,6 +486,7 @@ export class AdminHeroComponent implements OnInit {
     this.adminHeroCardApi.update(payload).subscribe({
       next: (heroCard) => {
         this.isSubmittingHeroCard = false;
+        clearApiErrorsFromForm(this.heroCardForm);
         this.heroCardForm.setValue({
           titleFr: heroCard.title.fr,
           titleEn: heroCard.title.en,
@@ -431,9 +513,15 @@ export class AdminHeroComponent implements OnInit {
         this.heroCardForm.markAsPristine();
         this.toastService.success('Hero card enregistrée avec succès.');
       },
-      error: () => {
+      error: (error) => {
         this.isSubmittingHeroCard = false;
-        this.toastService.error('Impossible d’enregistrer la hero card.');
+        applyApiErrorsToForm(this.heroCardForm, error);
+        this.heroCardErrorMessage = extractApiErrorMessage(
+          error,
+          'Impossible d’enregistrer la hero card.'
+        );
+        this.toastService.error(this.heroCardErrorMessage);
+        this.scrollToHeroCardError();
       },
     });
   }

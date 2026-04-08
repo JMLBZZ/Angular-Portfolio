@@ -14,15 +14,15 @@
     [placeholder]="placeholder"
     [disabled]="disabled"
     [class]="inputClasses"
-    [attr.aria-invalid]="showError ? 'true' : 'false'"
+    [attr.aria-invalid]="shouldShowError ? 'true' : 'false'"
     [attr.aria-describedby]="describedBy"
   />
 
   <p
-    *ngIf="showError && errorText"
+    *ngIf="shouldShowError && computedErrorText"
     class="text-xs text-red-500"
     [id]="errorId"
   >
-    {{ errorText }}
+    {{ computedErrorText }}
   </p>
 </div>

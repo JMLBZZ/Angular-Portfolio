@@ -1,12 +1,14 @@
 package com.portfolio.portfolio_backend.web.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
 public class AboutSkillGroupDTO {
 
     @Valid
+    @NotNull(message = "Le titre du groupe de compétences est obligatoire")
     private LocalizedTextDTO title;
 
     @Valid

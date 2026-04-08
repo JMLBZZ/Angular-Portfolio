@@ -33,29 +33,50 @@
   <div
     class="rounded-3xl border border-border/70 bg-card/60 p-6"
     *ngIf="isLoading"
+    aria-live="polite"
   >
-    Chargement...
+    Chargement du formulaire...
   </div>
 
   <div
-    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 text-sm text-red-600"
     *ngIf="errorMessage"
+    id="admin-about-global-error"
+    tabindex="-1"
+    class="rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-2 focus:outline-none"
+    aria-live="assertive"
   >
-    {{ errorMessage }}
+    <p class="font-semibold text-red-600">
+      L’action n’a pas pu être finalisée.
+    </p>
+    <p class="text-sm text-red-600">
+      {{ errorMessage }}
+    </p>
   </div>
 
   <form
     *ngIf="!isLoading"
+    id="admin-about-form"
     [formGroup]="form"
     (ngSubmit)="save()"
     class="space-y-6"
+    novalidate
   >
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <div>
-        <h3 class="text-lg font-semibold">Informations générales</h3>
-        <p class="text-sm opacity-75 mt-1">
-          Cette zone correspond à l’introduction de la section About affichée sur le site.
-        </p>
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h3 class="text-lg font-semibold">Informations générales</h3>
+          <p class="text-sm opacity-75 mt-1">
+            Cette zone correspond à l’introduction de la section About affichée sur le site.
+          </p>
+        </div>
+
+        <span
+          *ngIf="form.dirty && !isSubmitting"
+          class="text-sm opacity-70"
+          aria-live="polite"
+        >
+          Modifications non enregistrées
+        </span>
       </div>
 
       <div class="grid gap-5 md:grid-cols-2">
@@ -90,21 +111,19 @@
         <app-text-field
           id="about-profile-name"
           label="Nom affiché"
-          placeholder="Jamel Bouazza"
+          placeholder="John Doe"
           [control]="form.controls.profileName"
         ></app-text-field>
 
-        <div></div>
-
         <app-text-field
-          id="about-role-fr"
+          id="about-profile-role-fr"
           label="Rôle (FR)"
           placeholder="Développeur Full-Stack"
           [control]="form.controls.profileRoleFr"
         ></app-text-field>
 
         <app-text-field
-          id="about-role-en"
+          id="about-profile-role-en"
           label="Rôle (EN)"
           placeholder="Full-Stack Developer"
           [control]="form.controls.profileRoleEn"
@@ -113,14 +132,14 @@
         <app-text-field
           id="about-location-fr"
           label="Localisation (FR)"
-          placeholder="Paris, France"
+          placeholder="Basé en France"
           [control]="form.controls.locationFr"
         ></app-text-field>
 
         <app-text-field
           id="about-location-en"
           label="Localisation (EN)"
-          placeholder="Paris, France"
+          placeholder="Based in France"
           [control]="form.controls.locationEn"
         ></app-text-field>
       </div>
@@ -129,7 +148,6 @@
         <app-text-area
           id="about-bio-fr"
           label="Bio (FR)"
-          placeholder="Présente ton profil, ton approche et ta valeur ajoutée."
           [control]="form.controls.bioFr"
           [rows]="6"
         ></app-text-area>
@@ -137,7 +155,6 @@
         <app-text-area
           id="about-bio-en"
           label="Bio (EN)"
-          placeholder="Present your profile, approach and added value."
           [control]="form.controls.bioEn"
           [rows]="6"
         ></app-text-area>
@@ -297,11 +314,19 @@
             <label class="text-sm font-semibold">Icône</label>
             <select
               formControlName="icon"
-              class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+              class="w-full h-11 rounded-full border px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+              [ngClass]="showControlError(item.get('icon')) ? 'border-red-500' : 'border-border/70'"
             >
               <option value="work">work</option>
               <option value="education">education</option>
             </select>
+
+            <p
+              *ngIf="showControlError(item.get('icon'))"
+              class="text-xs text-red-500"
+            >
+              {{ getControlErrorMessage(item.get('icon')) }}
+            </p>
           </div>
         </div>
       </div>
@@ -459,8 +484,16 @@
                   min="0"
                   max="100"
                   formControlName="value"
-                  class="w-full h-11 rounded-full border border-border/70 px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+                  class="w-full h-11 rounded-full border px-4 text-sm outline-none transition bg-card/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-primary/40"
+                  [ngClass]="showControlError(item.get('value')) ? 'border-red-500' : 'border-border/70'"
                 />
+
+                <p
+                  *ngIf="showControlError(item.get('value'))"
+                  class="text-xs text-red-500"
+                >
+                  {{ getControlErrorMessage(item.get('value')) }}
+                </p>
               </div>
 
               <div class="flex flex-wrap items-center gap-2">

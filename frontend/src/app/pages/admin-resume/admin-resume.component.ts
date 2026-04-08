@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.mjs';
@@ -8,6 +8,8 @@ import { resolveMediaUrl } from '../../core/api/media-url.utils';
 import { ResumeContent } from '../../shared/models/resume.model';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { ToastService } from '../../shared/services/toast.service';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import { scrollToSelector } from '../../shared/utils/admin-form.utils';
 
 GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
@@ -45,7 +47,8 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
 
   constructor(
     private adminResumeApi: AdminResumeApiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit(): void {
@@ -86,6 +89,8 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
 
+    this.errorMessage = '';
+
     if (!file) {
       this.clearSelectedFile(input);
       await this.generateThumbnailFromCurrentResume();
@@ -93,7 +98,9 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     }
 
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      this.toastService.error('Seuls les fichiers PDF sont autorisés.');
+      this.errorMessage = 'Seuls les fichiers PDF sont autorisés.';
+      this.toastService.error(this.errorMessage);
+      this.scrollToGlobalError();
       this.clearSelectedFile(input);
       await this.generateThumbnailFromCurrentResume();
       return;
@@ -104,30 +111,41 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
   }
 
   upload(): void {
+    this.errorMessage = '';
+
     if (!this.selectedFile) {
-      this.toastService.error('Sélectionne un fichier PDF avant de continuer.');
+      this.errorMessage = 'Sélectionne un fichier PDF avant de continuer.';
+      this.toastService.error(this.errorMessage);
+      this.scrollToGlobalError();
       return;
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
 
     this.adminResumeApi.upload(this.selectedFile).subscribe({
       next: async (resume) => {
         this.resume = resume;
         this.selectedFile = null;
         this.isSubmitting = false;
+        this.errorMessage = '';
         this.toastService.success('CV mis à jour avec succès.');
         await this.generateThumbnailFromCurrentResume();
       },
-      error: () => {
+      error: async (error) => {
         this.isSubmitting = false;
-        this.toastService.error('Impossible de mettre à jour le CV.');
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de mettre à jour le CV.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
+        await this.generateThumbnailFromCurrentResume();
       },
     });
   }
 
   clearSelection(fileInput?: HTMLInputElement): void {
+    this.errorMessage = '';
     this.clearSelectedFile(fileInput);
     void this.generateThumbnailFromCurrentResume();
   }
@@ -142,9 +160,14 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         await this.generateThumbnailFromCurrentResume();
       },
-      error: () => {
+      error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'Impossible de charger les données du CV.';
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger les données du CV.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       },
     });
   }
@@ -264,7 +287,9 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     } catch {
       if (version === this.thumbnailRenderVersion) {
         this.thumbnailDataUrl = undefined;
-        this.toastService.error('Impossible de générer la miniature du PDF.');
+        this.errorMessage = 'Impossible de générer la miniature du PDF.';
+        this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
       }
     } finally {
       if (version === this.thumbnailRenderVersion) {
@@ -279,5 +304,12 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     if (fileInput) {
       fileInput.value = '';
     }
+  }
+
+  private scrollToGlobalError(): void {
+    scrollToSelector(
+      this.elementRef.nativeElement,
+      '#admin-resume-global-error'
+    );
   }
 }
