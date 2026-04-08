@@ -330,8 +330,8 @@
                   <strong>Ordre :</strong> {{ project.displayOrder ?? 0 }}
                 </p>
 
-                <p class="text-sm opacity-80" *ngIf="project.stack?.length">
-                  <strong>Stack :</strong> {{ project.stack?.join(', ') }}
+                <p class="text-sm opacity-80" *ngIf="project.stack.length">
+                  <strong>Stack :</strong> {{ project.stack.join(', ') }}
                 </p>
               </div>
 
