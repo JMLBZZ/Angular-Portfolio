@@ -9,19 +9,61 @@
   </url>
 
   <url>
-    <loc>http://localhost:4200/projects/projet-admin-test-dashboard</loc>
+    <loc>http://localhost:4200/projects/11-copie</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>http://localhost:4200/projects/test-slug-automatiquessss jhh</loc>
+    <loc>http://localhost:4200/projects/11</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>http://localhost:4200/projects/testform</loc>
+    <loc>http://localhost:4200/projects/10</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/9</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/8</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/5</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/p1</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/toto2</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/projet-error</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>http://localhost:4200/projects/toto</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -33,7 +75,7 @@
   </url>
 
   <url>
-    <loc>http://localhost:4200/projects/projet-admin-test</loc>
+    <loc>http://localhost:4200/projects/tttt</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

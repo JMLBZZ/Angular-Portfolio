@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/sitemap.xml").permitAll()
+                .requestMatchers("/robots.txt").permitAll()
 
                 .requestMatchers(
                     "/swagger-ui/**",

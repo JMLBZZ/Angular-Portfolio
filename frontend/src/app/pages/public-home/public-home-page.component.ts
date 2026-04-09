@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 
 import { LanguageService } from '../../core/i18n/language.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { SEO_CONFIG } from '../../core/seo/seo.config';
 
 import { HeaderComponent } from '../../layout/header/header.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
@@ -59,6 +60,7 @@ export class PublicHomePageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    this.seoService.removeStructuredData();
   }
 
   openProject(project: Project): void {
@@ -73,15 +75,37 @@ export class PublicHomePageComponent implements OnInit, OnDestroy {
 
   private updateSeo(): void {
     const baseUrl = window.location.origin;
+    const imageUrl = `${baseUrl}/assets/projects/project-placeholder.svg`;
+    const currentLang = this.lang.current;
+    const isFrench = currentLang === 'fr';
 
     this.seoService.updateSeo({
       title: this.translate.instant('seo.homeTitle'),
       description: this.translate.instant('seo.homeDescription'),
-      image: `${baseUrl}/assets/projects/project-placeholder.svg`,
+      image: imageUrl,
       url: baseUrl,
       type: 'website',
       robots: 'index, follow',
-      lang: this.lang.current,
+      lang: currentLang,
     });
+
+    this.seoService.setStructuredData([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: SEO_CONFIG.personName,
+        jobTitle: isFrench ? SEO_CONFIG.jobTitleFr : SEO_CONFIG.jobTitleEn,
+        url: baseUrl,
+        image: imageUrl,
+        sameAs: SEO_CONFIG.sameAs,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SEO_CONFIG.siteName,
+        url: baseUrl,
+        inLanguage: currentLang,
+      },
+    ]);
   }
 }

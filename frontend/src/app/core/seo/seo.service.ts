@@ -2,10 +2,14 @@ import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
+import { SEO_CONFIG } from './seo.config';
+
 @Injectable({
   providedIn: 'root',
 })
 export class SeoService {
+  private readonly structuredDataElementId = 'app-structured-data';
+
   constructor(
     private title: Title,
     private meta: Meta,
@@ -23,11 +27,15 @@ export class SeoService {
   }): void {
     const pageTitle = config.title;
     const description = config.description;
-    const image = config.image;
-    const url = config.url;
     const type = config.type ?? 'website';
-    const robots = config.robots ?? 'index, follow';
+    const robots = config.robots ?? SEO_CONFIG.defaultRobots;
     const lang = config.lang ?? 'fr';
+    const locale =
+      SEO_CONFIG.supportedLocales[lang as keyof typeof SEO_CONFIG.supportedLocales]
+      ?? SEO_CONFIG.defaultLocale;
+
+    const image = config.image?.trim() || this.buildAbsoluteUrl(SEO_CONFIG.defaultImagePath);
+    const url = config.url?.trim() || this.document.location.href;
 
     this.title.setTitle(pageTitle);
     this.document.documentElement.lang = lang;
@@ -58,6 +66,31 @@ export class SeoService {
     });
 
     this.meta.updateTag({
+      property: 'og:url',
+      content: url,
+    });
+
+    this.meta.updateTag({
+      property: 'og:site_name',
+      content: SEO_CONFIG.siteName,
+    });
+
+    this.meta.updateTag({
+      property: 'og:locale',
+      content: locale,
+    });
+
+    this.meta.updateTag({
+      property: 'og:image',
+      content: image,
+    });
+
+    this.meta.updateTag({
+      name: 'twitter:card',
+      content: image ? 'summary_large_image' : 'summary',
+    });
+
+    this.meta.updateTag({
       name: 'twitter:title',
       content: pageTitle,
     });
@@ -68,30 +101,27 @@ export class SeoService {
     });
 
     this.meta.updateTag({
-      name: 'twitter:card',
-      content: image ? 'summary_large_image' : 'summary',
+      name: 'twitter:image',
+      content: image,
     });
 
-    if (image) {
-      this.meta.updateTag({
-        property: 'og:image',
-        content: image,
-      });
+    this.setCanonicalUrl(url);
+  }
 
-      this.meta.updateTag({
-        name: 'twitter:image',
-        content: image,
-      });
-    }
+  setStructuredData(data: Record<string, unknown> | Record<string, unknown>[]): void {
+    this.removeStructuredData();
 
-    if (url) {
-      this.meta.updateTag({
-        property: 'og:url',
-        content: url,
-      });
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = this.structuredDataElementId;
+    script.text = JSON.stringify(data);
 
-      this.setCanonicalUrl(url);
-    }
+    this.document.head.appendChild(script);
+  }
+
+  removeStructuredData(): void {
+    const existingScript = this.document.getElementById(this.structuredDataElementId);
+    existingScript?.remove();
   }
 
   private setCanonicalUrl(url: string): void {
@@ -105,5 +135,14 @@ export class SeoService {
     }
 
     link.setAttribute('href', url);
+  }
+
+  private buildAbsoluteUrl(path: string): string {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${this.document.location.origin}${normalizedPath}`;
   }
 }

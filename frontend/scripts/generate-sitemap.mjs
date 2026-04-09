@@ -6,57 +6,101 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
-const SITE_URL = process.env.SITE_URL || 'http://localhost:4200';
+const SITE_URL = normalizeSiteUrl(
+  process.env.SITE_URL || 'http://localhost:4200'
+);
+
 const PROJECTS_API_URL =
   process.env.PROJECTS_API_URL || 'http://localhost:8080/api/public/projects';
 
-async function generateSitemap() {
+async function generateSeoFiles() {
   try {
     console.log(`SITE_URL = ${SITE_URL}`);
     console.log(`PROJECTS_API_URL = ${PROJECTS_API_URL}`);
 
-    const response = await fetch(PROJECTS_API_URL);
-
-    if (!response.ok) {
-      throw new Error(`Erreur API ${response.status} ${response.statusText}`);
-    }
-
-    const projects = await response.json();
+    const projects = await fetchProjects();
 
     const staticUrls = [
       {
-        loc: `${stripTrailingSlash(SITE_URL)}/`,
+        loc: `${SITE_URL}/`,
         changefreq: 'weekly',
         priority: '1.0',
       },
     ];
 
     const projectUrls = Array.isArray(projects)
-      ? projects
-          .filter((project) => !!project?.slug)
-          .map((project) => ({
-            loc: `${stripTrailingSlash(SITE_URL)}/projects/${project.slug}`,
-            changefreq: 'monthly',
-            priority: '0.8',
-          }))
+      ? deduplicateUrls(
+          projects
+            .map((project) => buildProjectUrlEntry(project))
+            .filter(Boolean)
+        )
       : [];
 
     const allUrls = [...staticUrls, ...projectUrls];
 
-    const xml = buildSitemapXml(allUrls);
+    const sitemapXml = buildSitemapXml(allUrls);
+    const robotsTxt = buildRobotsTxt(SITE_URL);
 
-    const outputPath = path.join(projectRoot, 'src', 'sitemap.xml');
+    const sitemapOutputPath = path.join(projectRoot, 'src', 'sitemap.xml');
+    const robotsOutputPath = path.join(projectRoot, 'src', 'robots.txt');
 
-    await mkdir(path.dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, xml, 'utf-8');
+    await mkdir(path.dirname(sitemapOutputPath), { recursive: true });
 
-    console.log(`Sitemap généré avec succès : ${outputPath}`);
-    console.log(`Nombre d'URLs : ${allUrls.length}`);
+    await writeFile(sitemapOutputPath, sitemapXml, 'utf-8');
+    await writeFile(robotsOutputPath, robotsTxt, 'utf-8');
+
+    console.log(`Sitemap généré avec succès : ${sitemapOutputPath}`);
+    console.log(`Robots généré avec succès : ${robotsOutputPath}`);
+    console.log(`Nombre d'URLs dans le sitemap : ${allUrls.length}`);
   } catch (error) {
-    console.error('Échec de génération du sitemap.');
+    console.error('Échec de génération des fichiers SEO.');
     console.error(error);
     process.exit(1);
   }
+}
+
+async function fetchProjects() {
+  const response = await fetch(PROJECTS_API_URL);
+
+  if (!response.ok) {
+    throw new Error(`Erreur API ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+function buildProjectUrlEntry(project) {
+  const rawSlug = typeof project?.slug === 'string' ? project.slug.trim() : '';
+
+  if (!rawSlug) {
+    return null;
+  }
+
+  return {
+    loc: `${SITE_URL}/projects/${encodeSlug(rawSlug)}`,
+    changefreq: 'monthly',
+    priority: '0.8',
+  };
+}
+
+function encodeSlug(slug) {
+  return slug
+    .split('/')
+    .map((segment) => encodeURIComponent(segment.trim()))
+    .join('/');
+}
+
+function deduplicateUrls(urls) {
+  const seen = new Set();
+
+  return urls.filter((url) => {
+    if (seen.has(url.loc)) {
+      return false;
+    }
+
+    seen.add(url.loc);
+    return true;
+  });
 }
 
 function buildSitemapXml(urls) {
@@ -80,6 +124,17 @@ ${entries}
 `;
 }
 
+function buildRobotsTxt(siteUrl) {
+  return `User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/login
+
+Sitemap: ${siteUrl}/sitemap.xml
+`;
+}
+
 function escapeXml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -89,8 +144,8 @@ function escapeXml(value) {
     .replaceAll("'", '&apos;');
 }
 
-function stripTrailingSlash(value) {
-  return String(value).replace(/\/+$/, '');
+function normalizeSiteUrl(value) {
+  return String(value).trim().replace(/\/+$/, '');
 }
 
-generateSitemap();
+generateSeoFiles();

@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 
 import { ProjectsApiService } from '../../core/api/projects-api.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { SEO_CONFIG } from '../../core/seo/seo.config';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Project } from '../../shared/models/project.model';
 import { FallbackImageDirective } from '../../shared/directives/fallback-image.directive';
@@ -81,6 +82,7 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    this.seoService.removeStructuredData();
   }
 
   loc(value?: { fr?: string; en?: string } | null): string {
@@ -109,14 +111,34 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
       this.loc(project.longDescription || project.description) ||
       project.title;
 
+    const pageUrl = `${window.location.origin}/projects/${project.slug}`;
+
     this.seoService.updateSeo({
       title: `${project.title} — ${this.translate.instant('projects.seo.pageTitleSuffix')}`,
       description,
       image: this.heroImage,
-      url: `${window.location.origin}/projects/${project.slug}`,
+      url: pageUrl,
       type: 'article',
       robots: 'index, follow',
       lang: this.lang.current,
+    });
+
+    this.seoService.setStructuredData({
+      '@context': 'https://schema.org',
+      '@type': 'CreativeWork',
+      name: project.title,
+      description,
+      url: pageUrl,
+      image: this.heroImage,
+      inLanguage: this.lang.current,
+      author: {
+        '@type': 'Person',
+        name: SEO_CONFIG.personName,
+      },
+      creator: {
+        '@type': 'Person',
+        name: SEO_CONFIG.personName,
+      },
     });
   }
 
@@ -130,5 +152,7 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
       robots: 'noindex, follow',
       lang: this.lang.current,
     });
+
+    this.seoService.removeStructuredData();
   }
 }

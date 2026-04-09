@@ -8,6 +8,7 @@ import { PrimaryButtonComponent } from '../../shared/components/primary-button/p
 import { AuthService } from '../../core/auth/auth.service';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { ToastService } from '../../shared/services/toast.service';
+import { SeoService } from '../../core/seo/seo.service';
 
 @Component({
   selector: 'app-admin-login',
@@ -39,10 +40,13 @@ export class AdminLoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private seoService: SeoService
   ) {}
 
   ngOnInit(): void {
+    this.updateSeo();
+
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/admin/dashboard']);
     }
@@ -80,5 +84,16 @@ export class AdminLoginComponent implements OnInit {
 
   get passwordControl(): FormControl<string> {
     return this.form.controls.password;
+  }
+
+  private updateSeo(): void {
+    this.seoService.updateSeo({
+      title: 'Connexion administration — JMLBZZ',
+      description: 'Page de connexion à l’interface d’administration du portfolio.',
+      url: window.location.href,
+      type: 'website',
+      robots: 'noindex, nofollow',
+      lang: 'fr',
+    });
   }
 }
