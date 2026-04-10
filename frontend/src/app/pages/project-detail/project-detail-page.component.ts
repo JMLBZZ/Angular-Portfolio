@@ -1,12 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { ProjectsApiService } from '../../core/api/projects-api.service';
 import { SeoService } from '../../core/seo/seo.service';
-import { SEO_CONFIG } from '../../core/seo/seo.config';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Project } from '../../shared/models/project.model';
 import { FallbackImageDirective } from '../../shared/directives/fallback-image.directive';
@@ -36,7 +35,8 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
     private projectsApi: ProjectsApiService,
     private seoService: SeoService,
     private lang: LanguageService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
@@ -82,7 +82,6 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-    this.seoService.removeStructuredData();
   }
 
   loc(value?: { fr?: string; en?: string } | null): string {
@@ -103,7 +102,8 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
       return imagePath;
     }
 
-    return `${window.location.origin}${imagePath.startsWith('/') ? imagePath : '/' + imagePath}`;
+    const origin = this.document.location?.origin || 'http://localhost:4200';
+    return `${origin}${imagePath.startsWith('/') ? imagePath : '/' + imagePath}`;
   }
 
   private updateSeo(project: Project): void {
@@ -111,48 +111,31 @@ export class ProjectDetailPageComponent implements OnInit, OnDestroy {
       this.loc(project.longDescription || project.description) ||
       project.title;
 
-    const pageUrl = `${window.location.origin}/projects/${project.slug}`;
+    const origin = this.document.location?.origin || 'http://localhost:4200';
 
     this.seoService.updateSeo({
       title: `${project.title} — ${this.translate.instant('projects.seo.pageTitleSuffix')}`,
       description,
       image: this.heroImage,
-      url: pageUrl,
+      url: `${origin}/projects/${project.slug}`,
       type: 'article',
       robots: 'index, follow',
       lang: this.lang.current,
     });
-
-    this.seoService.setStructuredData({
-      '@context': 'https://schema.org',
-      '@type': 'CreativeWork',
-      name: project.title,
-      description,
-      url: pageUrl,
-      image: this.heroImage,
-      inLanguage: this.lang.current,
-      author: {
-        '@type': 'Person',
-        name: SEO_CONFIG.personName,
-      },
-      creator: {
-        '@type': 'Person',
-        name: SEO_CONFIG.personName,
-      },
-    });
   }
 
   private setErrorSeo(): void {
+    const origin = this.document.location?.origin || 'http://localhost:4200';
+    const currentUrl = this.document.location?.href || origin;
+
     this.seoService.updateSeo({
       title: this.translate.instant('projects.seo.notFoundTitle'),
       description: this.translate.instant('projects.seo.notFoundDescription'),
-      image: `${window.location.origin}/assets/projects/project-placeholder.svg`,
-      url: window.location.href,
+      image: `${origin}/assets/projects/project-placeholder.svg`,
+      url: currentUrl,
       type: 'website',
       robots: 'noindex, follow',
       lang: this.lang.current,
     });
-
-    this.seoService.removeStructuredData();
   }
 }

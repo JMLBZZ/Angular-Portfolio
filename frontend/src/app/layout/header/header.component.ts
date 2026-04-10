@@ -1,6 +1,6 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { isPlatformBrowser, UpperCasePipe } from '@angular/common';
+import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { UpperCasePipe } from '@angular/common';
 import { ThemeService } from '../../core/theme/theme.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
@@ -18,18 +18,34 @@ export class HeaderComponent implements OnInit {
 
   private readonly offset = 90;
 
-  constructor(public theme: ThemeService, public lang: LanguageService) {}
+  constructor(
+    public theme: ThemeService,
+    public lang: LanguageService,
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     setTimeout(() => this.updateActiveSection(), 0);
   }
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     this.updateActiveSection();
   }
 
   private updateActiveSection(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     const ids: SectionId[] = ['home', 'projects', 'about', 'contact'];
     let current: SectionId = 'home';
 
@@ -51,6 +67,10 @@ export class HeaderComponent implements OnInit {
   }
 
   scrollTo(id: SectionId): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     if (id === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -68,6 +88,10 @@ export class HeaderComponent implements OnInit {
   }
 
   goToAdminLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     window.location.href = '/admin/login';
   }
 

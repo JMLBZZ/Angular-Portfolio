@@ -1,11 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthResponse, StoredAuthSession } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStorageService {
   private readonly storageKey = 'portfolio_admin_auth';
 
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {}
+
   saveSession(response: AuthResponse): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     const session: StoredAuthSession = {
       accessToken: response.accessToken,
       tokenType: response.tokenType,
@@ -18,6 +27,10 @@ export class AuthStorageService {
   }
 
   getSession(): StoredAuthSession | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
     const raw = localStorage.getItem(this.storageKey);
     if (!raw) return null;
 
@@ -54,6 +67,10 @@ export class AuthStorageService {
   }
 
   clearSession(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     localStorage.removeItem(this.storageKey);
   }
 }

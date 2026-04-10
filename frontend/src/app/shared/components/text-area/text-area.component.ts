@@ -46,6 +46,10 @@ export class TextAreaComponent {
     return this.shouldShowError && this.computedErrorText && this.errorId ? this.errorId : null;
   }
 
+  get isActuallyDisabled(): boolean {
+    return !!this.control?.disabled || this.disabled;
+  }
+
   get textareaClasses(): string {
     return [
       'w-full min-h-[160px] rounded-3xl border px-4 py-3 text-sm outline-none transition resize-none',
@@ -53,7 +57,7 @@ export class TextAreaComponent {
       'placeholder:text-foreground/50',
       'focus-visible:ring-2 focus-visible:ring-primary/40',
       this.shouldShowError ? 'border-red-500' : 'border-border/70',
-      this.disabled ? 'opacity-60 pointer-events-none' : '',
+      this.isActuallyDisabled ? 'opacity-60 pointer-events-none' : '',
     ].join(' ');
   }
 

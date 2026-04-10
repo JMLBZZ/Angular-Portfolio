@@ -3,43 +3,50 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { pendingChangesGuard } from './core/auth/pending-changes.guard';
 
-import { PublicHomePageComponent } from './pages/public-home/public-home-page.component';
-import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
-import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
-import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
-import { AdminProjectFormComponent } from './pages/admin-project-form/admin-project-form.component';
-import { ProjectDetailPageComponent } from './pages/project-detail/project-detail-page.component';
-import { AdminContactComponent } from './pages/admin-contact/admin-contact.component';
-import { AdminHeroComponent } from './pages/admin-hero/admin-hero.component';
-import { AdminResumeComponent } from './pages/admin-resume/admin-resume.component';
-import { AdminAboutComponent } from './pages/admin-about/admin-about.component';
-
 export const routes: Routes = [
   {
     path: '',
-    component: PublicHomePageComponent,
+    loadComponent: () =>
+      import('./pages/public-home/public-home-page.component').then(
+        (m) => m.PublicHomePageComponent
+      ),
   },
   {
     path: 'admin/login',
-    component: AdminLoginComponent,
+    loadComponent: () =>
+      import('./pages/admin-login/admin-login.component').then(
+        (m) => m.AdminLoginComponent
+      ),
   },
   {
     path: 'admin',
-    component: AdminLayoutComponent,
+    loadComponent: () =>
+      import('./layout/admin-layout/admin-layout.component').then(
+        (m) => m.AdminLayoutComponent
+      ),
     canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
-        component: AdminDashboardComponent,
+        loadComponent: () =>
+          import('./pages/admin-dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent
+          ),
       },
       {
         path: 'projects/new',
-        component: AdminProjectFormComponent,
+        loadComponent: () =>
+          import('./pages/admin-project-form/admin-project-form.component').then(
+            (m) => m.AdminProjectFormComponent
+          ),
         canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'projects/:id/edit',
-        component: AdminProjectFormComponent,
+        loadComponent: () =>
+          import('./pages/admin-project-form/admin-project-form.component').then(
+            (m) => m.AdminProjectFormComponent
+          ),
         canDeactivate: [pendingChangesGuard],
       },
       {
@@ -49,26 +56,41 @@ export const routes: Routes = [
       },
       {
         path: 'contact',
-        component: AdminContactComponent,
+        loadComponent: () =>
+          import('./pages/admin-contact/admin-contact.component').then(
+            (m) => m.AdminContactComponent
+          ),
       },
       {
         path: 'hero',
-        component: AdminHeroComponent,
+        loadComponent: () =>
+          import('./pages/admin-hero/admin-hero.component').then(
+            (m) => m.AdminHeroComponent
+          ),
       },
       {
         path: 'about',
-        component: AdminAboutComponent,
+        loadComponent: () =>
+          import('./pages/admin-about/admin-about.component').then(
+            (m) => m.AdminAboutComponent
+          ),
         canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'resume',
-        component: AdminResumeComponent,
+        loadComponent: () =>
+          import('./pages/admin-resume/admin-resume.component').then(
+            (m) => m.AdminResumeComponent
+          ),
       },
     ],
   },
   {
     path: 'projects/:slug',
-    component: ProjectDetailPageComponent,
+    loadComponent: () =>
+      import('./pages/project-detail/project-detail-page.component').then(
+        (m) => m.ProjectDetailPageComponent
+      ),
   },
   {
     path: '**',

@@ -50,6 +50,10 @@ export class TextFieldComponent {
     return this.shouldShowError && this.computedErrorText && this.errorId ? this.errorId : null;
   }
 
+  get isActuallyDisabled(): boolean {
+    return !!this.control?.disabled || this.disabled;
+  }
+
   get inputClasses(): string {
     return [
       'w-full h-11 rounded-full border px-4 text-sm outline-none transition',
@@ -57,7 +61,7 @@ export class TextFieldComponent {
       'placeholder:text-foreground/50',
       'focus-visible:ring-2 focus-visible:ring-primary/40',
       this.shouldShowError ? 'border-red-500' : 'border-border/70',
-      this.disabled ? 'opacity-60 pointer-events-none' : '',
+      this.isActuallyDisabled ? 'opacity-60 pointer-events-none' : '',
     ].join(' ');
   }
 

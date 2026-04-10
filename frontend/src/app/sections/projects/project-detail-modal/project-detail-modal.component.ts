@@ -8,9 +8,11 @@ import {
   SimpleChanges,
   OnDestroy,
   ElementRef,
-  ViewChild
+  ViewChild,
+  Inject,
+  PLATFORM_ID
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -76,7 +78,11 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
   private readonly swipeThresholdPx = 45;
   private readonly verticalTolerancePx = 35;
 
-  constructor(private lang: LanguageService) {}
+  constructor(
+    private lang: LanguageService,
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {}
 
   get currentLang(): 'fr' | 'en' {
     return this.lang.current;
@@ -208,7 +214,7 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']) {
       if (this.open) {
-        document.body.style.overflow = 'hidden';
+        this.setBodyOverflow('hidden');
 
         this.activeImageIndex = 0;
         this.setInitialLayer();
@@ -218,7 +224,7 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
           this.closeButton?.nativeElement.focus();
         }, 10);
       } else {
-        document.body.style.overflow = '';
+        this.setBodyOverflow('');
       }
     }
 
@@ -229,7 +235,15 @@ export class ProjectDetailModalComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    document.body.style.overflow = '';
+    this.setBodyOverflow('');
     if (this.cleanupTimer) clearTimeout(this.cleanupTimer);
+  }
+
+  private setBodyOverflow(value: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.document.body.style.overflow = value;
   }
 }

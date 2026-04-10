@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -41,7 +41,8 @@ export class AdminLoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
@@ -87,10 +88,12 @@ export class AdminLoginComponent implements OnInit {
   }
 
   private updateSeo(): void {
+    const currentUrl = this.document.location?.href ?? 'http://localhost:4200/admin/login';
+
     this.seoService.updateSeo({
       title: 'Connexion administration — JMLBZZ',
       description: 'Page de connexion à l’interface d’administration du portfolio.',
-      url: window.location.href,
+      url: currentUrl,
       type: 'website',
       robots: 'noindex, nofollow',
       lang: 'fr',

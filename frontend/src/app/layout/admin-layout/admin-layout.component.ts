@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 
@@ -25,7 +25,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
@@ -55,10 +56,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   }
 
   private updateSeo(currentUrl: string): void {
+    const origin = this.document.location?.origin ?? 'http://localhost:4200';
+
     this.seoService.updateSeo({
       title: `${this.getAdminPageTitle(currentUrl)} — JMLBZZ`,
       description: 'Interface d’administration du portfolio.',
-      url: `${window.location.origin}${currentUrl}`,
+      url: `${origin}${currentUrl}`,
       type: 'website',
       robots: 'noindex, nofollow',
       lang: 'fr',

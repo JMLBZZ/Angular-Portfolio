@@ -1,4 +1,13 @@
-import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from '@angular/core';
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  PLATFORM_ID,
+  Renderer2,
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Directive({
   selector: '[appRevealOnScroll]',
@@ -7,9 +16,19 @@ import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from '@ang
 export class RevealOnScrollDirective implements AfterViewInit, OnDestroy {
   private observer?: IntersectionObserver;
 
-  constructor(private el: ElementRef<HTMLElement>, private r: Renderer2) {}
+  constructor(
+    private el: ElementRef<HTMLElement>,
+    private r: Renderer2,
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {}
 
   ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      this.r.addClass(this.el.nativeElement, 'opacity-100');
+      this.r.addClass(this.el.nativeElement, 'translate-y-0');
+      return;
+    }
+
     const baseClasses = [
       'opacity-0',
       'translate-y-2',

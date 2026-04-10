@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 type ThemeMode = 'light' | 'dark' | 'auto';
 
@@ -12,9 +13,15 @@ export class ThemeService {
 
   private fadeTimeoutId: number | null = null;
 
-  constructor() {
-    const saved = localStorage.getItem(this.storageKey) as ThemeMode | null;
-    this.mode = saved ?? 'auto';
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      const saved = localStorage.getItem(this.storageKey) as ThemeMode | null;
+      this.mode = saved ?? 'auto';
+    }
+
     this.apply(false); // au démarrage : pas obligatoire de faire un fade
   }
 
@@ -27,12 +34,20 @@ export class ThemeService {
 
   setMode(mode: ThemeMode) {
     this.mode = mode;
-    localStorage.setItem(this.storageKey, mode);
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.storageKey, mode);
+    }
+
     this.apply(true); // fade à chaque changement via le toggle
   }
 
   apply(withFade: boolean = false) {
-    const root = document.documentElement;
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const root = this.document.documentElement;
 
     const shouldBeDark =
       this.mode === 'dark' ||
@@ -46,7 +61,12 @@ export class ThemeService {
   }
 
   private runFade(fn: () => void) {
-    const root = document.documentElement;
+    if (!isPlatformBrowser(this.platformId)) {
+      fn();
+      return;
+    }
+
+    const root = this.document.documentElement;
 
     // si on reclique vite, on "redémarre" la transition
     if (this.fadeTimeoutId !== null) {
