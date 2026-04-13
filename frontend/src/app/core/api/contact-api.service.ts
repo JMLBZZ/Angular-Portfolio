@@ -1,7 +1,7 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from './api.config';
 
 export type ApiResult<T> = {
   success: boolean;
@@ -22,19 +22,12 @@ export type ContactPayload = {
 export class ContactApiService {
   /**
    * Dev: appelle le backend en dur sur localhost:8080
-   * Prod: on peut basculer sur un reverse-proxy et mettre '' si même domaine
+   * Prod: utilise la même base API centralisée que le reste de l'application
    */
   private readonly baseUrl: string;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: object
-  ) {
-    const hostname = isPlatformBrowser(this.platformId)
-      ? window.location.hostname
-      : 'localhost';
-
-    this.baseUrl = hostname === 'localhost' ? 'http://localhost:8080' : '';
+  constructor(private http: HttpClient) {
+    this.baseUrl = API_BASE_URL;
   }
 
   send(payload: ContactPayload): Observable<ApiResult<string>> {

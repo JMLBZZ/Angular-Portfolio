@@ -18,7 +18,7 @@ async function generateSeoFiles() {
     console.log(`SITE_URL = ${SITE_URL}`);
     console.log(`PROJECTS_API_URL = ${PROJECTS_API_URL}`);
 
-    const projects = await fetchProjects();
+    const projects = await fetchProjectsSafely();
 
     const staticUrls = [
       {
@@ -59,14 +59,22 @@ async function generateSeoFiles() {
   }
 }
 
-async function fetchProjects() {
-  const response = await fetch(PROJECTS_API_URL);
+async function fetchProjectsSafely() {
+  try {
+    const response = await fetch(PROJECTS_API_URL);
 
-  if (!response.ok) {
-    throw new Error(`Erreur API ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      throw new Error(`Erreur API ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.warn('Impossible de récupérer les projets publiés pour le sitemap.');
+    console.warn('Le build continuera avec la route "/" uniquement.');
+    console.warn(error instanceof Error ? error.message : error);
+
+    return [];
   }
-
-  return response.json();
 }
 
 function buildProjectUrlEntry(project) {
