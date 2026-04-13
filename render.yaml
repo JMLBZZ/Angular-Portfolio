@@ -4,13 +4,8 @@ services:
     runtime: docker
     rootDir: backend
     dockerfilePath: ./Dockerfile
-    plan: starter
-    region: frankfurt
+    plan: free
     healthCheckPath: /robots.txt
-    disk:
-      name: uploads
-      mountPath: /var/data/uploads
-      sizeGB: 5
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
@@ -27,7 +22,7 @@ services:
         value: 3600000
 
       - key: APP_UPLOAD_DIR
-        value: /var/data/uploads
+        value: uploads
 
       - key: APP_SEO_PUBLIC_BASE_URL
         sync: false
@@ -63,9 +58,6 @@ services:
 
 databases:
   - name: portfolio-db
-    region: frankfurt
-    plan: basic-256mb
+    plan: free
     databaseName: portfolio_db
     user: portfolio_user
-    diskSizeGB: 5
-    storageAutoscalingEnabled: true
