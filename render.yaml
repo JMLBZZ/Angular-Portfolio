@@ -4,7 +4,7 @@ services:
     runtime: docker
     rootDir: backend
     dockerfilePath: ./Dockerfile
-    plan: basic-256mb
+    plan: starter
     region: frankfurt
     healthCheckPath: /robots.txt
     disk:
@@ -41,27 +41,12 @@ services:
       - key: APP_CONTACT_TO
         sync: false
 
-      # À renseigner plus tard quand tu activeras le SMTP de production
-      # - key: SPRING_MAIL_HOST
-      #   sync: false
-      # - key: SPRING_MAIL_PORT
-      #   sync: false
-      # - key: SPRING_MAIL_USERNAME
-      #   sync: false
-      # - key: SPRING_MAIL_PASSWORD
-      #   sync: false
-      # - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH
-      #   value: true
-      # - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
-      #   value: true
-
   - type: web
     name: portfolio-frontend
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist/frontend/browser
-    region: frankfurt
     routes:
       - type: rewrite
         source: /*
