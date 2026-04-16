@@ -44,9 +44,6 @@ export class AdminDashboardComponent implements OnInit {
 
   isReordering = false;
 
-  readonly pageSize = 10;
-  currentPage = 1;
-
   readonly selectedProjectIds = new Set<string>();
   readonly searchControl = new FormControl('', { nonNullable: true });
 
@@ -60,11 +57,6 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProjects();
-
-    this.searchControl.valueChanges.subscribe(() => {
-      this.currentPage = 1;
-      this.closeBulkConfirmations();
-    });
   }
 
   loadProjects(): void {
@@ -75,13 +67,11 @@ export class AdminDashboardComponent implements OnInit {
       next: (response) => {
         this.projects = this.sortProjects(response.data);
         this.pruneSelection();
-        this.ensureCurrentPageIsValid();
         this.isLoading = false;
       },
       error: (error) => {
         this.projects = [];
         this.selectedProjectIds.clear();
-        this.currentPage = 1;
         this.errorMessage = extractApiErrorMessage(
           error,
           'Impossible de charger la liste des projets.'
@@ -97,21 +87,12 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    const reorderedPageProjects = [...this.paginatedProjects];
-    moveItemInArray(reorderedPageProjects, event.previousIndex, event.currentIndex);
+    const reorderedProjects = [...this.filteredProjects];
+    moveItemInArray(reorderedProjects, event.previousIndex, event.currentIndex);
 
-    const reorderedFullList = [...this.filteredProjects];
-    const pageStartIndex = this.startIndex;
+    const displayOrderStart = reorderedProjects.length - 1;
 
-    reorderedFullList.splice(
-      pageStartIndex,
-      reorderedPageProjects.length,
-      ...reorderedPageProjects
-    );
-
-    const displayOrderStart = reorderedFullList.length - 1;
-
-    const optimisticProjects = reorderedFullList.map((project, index) => ({
+    const optimisticProjects = reorderedProjects.map((project, index) => ({
       ...project,
       displayOrder: displayOrderStart - index,
     }));
@@ -128,7 +109,6 @@ export class AdminDashboardComponent implements OnInit {
     this.adminProjectsApi.reorder(projectIds).subscribe({
       next: (projects) => {
         this.projects = this.sortProjects(projects);
-        this.ensureCurrentPageIsValid();
         this.isReordering = false;
         this.toastService.success('Ordre des projets mis à jour.');
       },
@@ -157,7 +137,6 @@ export class AdminDashboardComponent implements OnInit {
     this.adminProjectsApi.create(payload).subscribe({
       next: (createdProject) => {
         this.projects = this.sortProjects([createdProject, ...this.projects]);
-        this.ensureCurrentPageIsValid();
         this.isDuplicatingProjectId = null;
         this.toastService.success(`Projet "${project.title}" dupliqué.`);
       },
@@ -205,7 +184,6 @@ export class AdminDashboardComponent implements OnInit {
         this.selectedProjectIds.delete(project.id);
         this.deletingProjectId = null;
         this.confirmDeleteProjectId = null;
-        this.ensureCurrentPageIsValid();
         this.toastService.success(`Projet "${project.title}" supprimé.`);
       },
       error: (error) => {
@@ -261,7 +239,6 @@ export class AdminDashboardComponent implements OnInit {
 
         this.isDeletingAllProjects = false;
         this.isConfirmDeleteAllOpen = false;
-        this.ensureCurrentPageIsValid();
 
         const count = projectsToDelete.length;
         this.toastService.success(
@@ -323,7 +300,6 @@ export class AdminDashboardComponent implements OnInit {
 
         this.isDeletingSelectedProjects = false;
         this.isConfirmDeleteSelectionOpen = false;
-        this.ensureCurrentPageIsValid();
 
         const count = projectsToDelete.length;
         this.toastService.success(
@@ -360,7 +336,7 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    const selectableIds = this.paginatedProjects
+    const selectableIds = this.filteredProjects
       .map((project) => project.id)
       .filter((id): id is string => !!id);
 
@@ -382,13 +358,11 @@ export class AdminDashboardComponent implements OnInit {
 
   setStatusFilter(value: ProjectStatusFilter): void {
     this.statusFilter = value;
-    this.currentPage = 1;
     this.closeBulkConfirmations();
   }
 
   setFeaturedFilter(value: ProjectFeaturedFilter): void {
     this.featuredFilter = value;
-    this.currentPage = 1;
     this.closeBulkConfirmations();
   }
 
@@ -396,39 +370,11 @@ export class AdminDashboardComponent implements OnInit {
     this.searchControl.setValue('');
     this.statusFilter = 'all';
     this.featuredFilter = 'all';
-    this.currentPage = 1;
     this.closeBulkConfirmations();
-  }
-
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages || page === this.currentPage) {
-      return;
-    }
-
-    this.currentPage = page;
-    this.closeBulkConfirmations();
-  }
-
-  goToPreviousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.closeBulkConfirmations();
-    }
-  }
-
-  goToNextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.closeBulkConfirmations();
-    }
   }
 
   trackByProjectId(_: number, project: AdminProject): string {
     return project.id;
-  }
-
-  trackByPageNumber(_: number, page: number): number {
-    return page;
   }
 
   isDeleteConfirmationOpen(project: AdminProject): boolean {
@@ -516,28 +462,8 @@ export class AdminDashboardComponent implements OnInit {
       .sort((a, b) => this.compareProjects(a, b));
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredProjects.length / this.pageSize));
-  }
-
-  get startIndex(): number {
-    return (this.currentPage - 1) * this.pageSize;
-  }
-
-  get endIndex(): number {
-    return this.startIndex + this.pageSize;
-  }
-
-  get paginatedProjects(): AdminProject[] {
-    return this.filteredProjects.slice(this.startIndex, this.endIndex);
-  }
-
-  get visiblePageNumbers(): number[] {
-    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
-  }
-
   get selectedFilteredProjects(): AdminProject[] {
-    return this.paginatedProjects.filter((project) =>
+    return this.filteredProjects.filter((project) =>
       project.id ? this.selectedProjectIds.has(project.id) : false
     );
   }
@@ -547,7 +473,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get areAllFilteredProjectsSelected(): boolean {
-    const selectableIds = this.paginatedProjects
+    const selectableIds = this.filteredProjects
       .map((project) => project.id)
       .filter((id): id is string => !!id);
 
@@ -577,18 +503,6 @@ export class AdminDashboardComponent implements OnInit {
 
   get canDeleteSelectedProjects(): boolean {
     return !this.isLoading && this.selectedFilteredProjects.length > 0;
-  }
-
-  private ensureCurrentPageIsValid(): void {
-    const totalPages = this.totalPages;
-
-    if (this.currentPage > totalPages) {
-      this.currentPage = totalPages;
-    }
-
-    if (this.currentPage < 1) {
-      this.currentPage = 1;
-    }
   }
 
   private pruneSelection(): void {

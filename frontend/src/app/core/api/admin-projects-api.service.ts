@@ -18,7 +18,9 @@ export class AdminProjectsApiService {
 
   getAll(): Observable<AdminApiResult<AdminProject[]>> {
     return this.http
-      .get<AdminApiResult<AdminProject[]>>(`${this.baseUrl}/api/admin/projects`)
+      .get<AdminApiResult<AdminProject[]>>(
+        `${this.baseUrl}/api/admin/projects?size=200&sort=displayOrder,desc`
+      )
       .pipe(
         map((response) => ({
           ...response,

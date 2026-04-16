@@ -181,6 +181,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Gestion des paramètres métier invalides (400)
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResult<?>> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request
+    ) {
+        logger.warn("Illegal argument: {}", ex.getMessage());
+
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                "INVALID_REQUEST",
+                null,
+                request
+        );
+    }
+
+    /**
      * Gestion de conflit des emails déjà utilisés (409)
      */
     @ExceptionHandler(EmailAlreadyUsedException.class)

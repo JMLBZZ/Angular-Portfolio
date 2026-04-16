@@ -15,6 +15,8 @@ public interface ProjectRepositoryPort {
 
     List<Project> saveAll(List<Project> projects);
 
+    List<Project> saveAllAndFlush(List<Project> projects);
+
     Optional<Project> findById(UUID id);
 
     Optional<Project> findBySlug(String slug);

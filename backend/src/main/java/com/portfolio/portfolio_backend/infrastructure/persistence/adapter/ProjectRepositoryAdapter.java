@@ -51,6 +51,18 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    public List<Project> saveAllAndFlush(List<Project> projects) {
+        List<ProjectEntity> entities = projects.stream()
+                .map(mapper::toEntity)
+                .toList();
+
+        return repository.saveAllAndFlush(entities)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Project> findById(UUID id) {
         return repository.findById(id).map(mapper::toDomain);
     }

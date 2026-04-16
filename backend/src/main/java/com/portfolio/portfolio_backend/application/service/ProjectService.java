@@ -157,6 +157,10 @@ public class ProjectService {
     public List<Project> reorderProjects(List<UUID> orderedProjectIds) {
         List<Project> existingProjects = repository.findAllOrdered();
 
+        if (orderedProjectIds == null || orderedProjectIds.isEmpty()) {
+            throw new IllegalArgumentException("La liste des projets à réordonner est obligatoire.");
+        }
+
         if (orderedProjectIds.size() != existingProjects.size()) {
             throw new IllegalArgumentException("La liste reçue doit contenir tous les projets.");
         }
@@ -183,8 +187,43 @@ public class ProjectService {
                 .toList();
 
         int highestDisplayOrder = reorderedProjects.size() - 1;
+        int temporaryOffset = highestDisplayOrder + 1000;
 
-        List<Project> projectsToSave = reorderedProjects.stream()
+        List<Project> temporaryProjectsToSave = reorderedProjects.stream()
+                .map(project -> {
+                    int index = reorderedProjects.indexOf(project);
+                    int temporaryDisplayOrder = temporaryOffset + (highestDisplayOrder - index);
+
+                    return new Project(
+                            project.getId(),
+                            project.getSlug(),
+                            project.getTitle(),
+                            project.getCategory(),
+                            project.getImage(),
+                            project.getCover(),
+                            project.getImages(),
+                            project.getDescription(),
+                            project.getLongDescription(),
+                            project.getStack(),
+                            project.getType(),
+                            project.isFeatured(),
+                            project.getRole(),
+                            project.getProblem(),
+                            project.getSolution(),
+                            project.getDemoUrl(),
+                            project.getTags(),
+                            project.getGithubUrl(),
+                            project.isShowGithub(),
+                            project.isPublished(),
+                            temporaryDisplayOrder,
+                            project.getCreatedAt()
+                    );
+                })
+                .toList();
+
+        repository.saveAllAndFlush(temporaryProjectsToSave);
+
+        List<Project> finalProjectsToSave = reorderedProjects.stream()
                 .map(project -> {
                     int index = reorderedProjects.indexOf(project);
                     int newDisplayOrder = highestDisplayOrder - index;
@@ -216,7 +255,7 @@ public class ProjectService {
                 })
                 .toList();
 
-        return repository.saveAll(projectsToSave).stream()
+        return repository.saveAllAndFlush(finalProjectsToSave).stream()
                 .sorted((a, b) -> {
                     int compareOrder = Integer.compare(
                             b.getDisplayOrder() != null ? b.getDisplayOrder() : 0,
@@ -227,7 +266,22 @@ public class ProjectService {
                         return compareOrder;
                     }
 
-                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                    LocalDate createdAtA = a.getCreatedAt();
+                    LocalDate createdAtB = b.getCreatedAt();
+
+                    if (createdAtA == null && createdAtB == null) {
+                        return 0;
+                    }
+
+                    if (createdAtA == null) {
+                        return 1;
+                    }
+
+                    if (createdAtB == null) {
+                        return -1;
+                    }
+
+                    return createdAtB.compareTo(createdAtA);
                 })
                 .toList();
     }
