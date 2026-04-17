@@ -1,13 +1,35 @@
 <section class="min-h-screen py-16">
   <div class="max-w-5xl mx-auto px-4">
 
-    <a
-      routerLink="/"
-      fragment="projects"
-      class="inline-flex items-center text-sm opacity-80 hover:opacity-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md mb-8"
-    >
-      ← Retour aux projets
-    </a>
+    <div class="mb-8 flex flex-wrap items-center gap-3">
+      <button
+        *ngIf="isAdminPreview"
+        type="button"
+        (click)="goBackToAdminList()"
+        class="inline-flex items-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        ← Retour à la liste admin
+      </button>
+
+      <a
+        *ngIf="!isAdminPreview"
+        routerLink="/"
+        fragment="projects"
+        class="inline-flex items-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        ← Retour aux projets
+      </a>
+
+      <button
+        *ngIf="project"
+        type="button"
+        (click)="generatePdf()"
+        [disabled]="isGeneratingPdf"
+        class="inline-flex items-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        {{ isGeneratingPdf ? 'Génération du PDF...' : 'Générer en PDF' }}
+      </button>
+    </div>
 
     <div
       *ngIf="isLoading"
@@ -59,6 +81,179 @@
         </div>
       </section>
 
+      <div class="pt-2 flex flex-wrap items-center gap-3">
+        <button
+          *ngIf="isAdminPreview"
+          type="button"
+          (click)="goBackToAdminList()"
+          class="inline-flex items-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          ← Retour à la liste admin
+        </button>
+
+        <a
+          *ngIf="!isAdminPreview"
+          routerLink="/"
+          fragment="projects"
+          class="inline-flex items-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          ← Retour aux projets
+        </a>
+
+        <button
+          type="button"
+          (click)="generatePdf()"
+          [disabled]="isGeneratingPdf"
+          class="inline-flex items-center rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          {{ isGeneratingPdf ? 'Génération du PDF...' : 'Générer en PDF' }}
+        </button>
+      </div>
+
     </article>
   </div>
 </section>
+
+<div
+  *ngIf="project"
+  aria-hidden="true"
+  class="fixed left-[-200vw] top-0 w-[1120px] overflow-hidden bg-white text-slate-900"
+>
+  <div #pdfExportContent class="bg-white text-slate-900">
+    <div class="px-10 pt-8 pb-10">
+
+      <div class="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
+        <img
+          [src]="heroImage"
+          [alt]="'Visuel du projet ' + project.title"
+          class="w-full aspect-video object-cover"
+          width="1200"
+          height="675"
+          decoding="async"
+          crossorigin="anonymous"
+        />
+      </div>
+
+      <div class="mt-8 rounded-[24px] border border-slate-200 bg-white p-8">
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span
+            *ngIf="project.type"
+            class="rounded-full border border-slate-300 px-3 py-1 text-xs bg-white">
+            {{ project.type | uppercase }}
+          </span>
+
+          <span
+            *ngIf="project.featured"
+            class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold bg-white">
+            ★ {{ 'projects.featured' | translate }}
+          </span>
+        </div>
+
+        <h1 class="text-3xl font-bold leading-tight">
+          {{ project.title }}
+        </h1>
+
+        <p class="mt-4 text-[15px] leading-7 text-slate-700">
+          {{ loc(project.longDescription || project.description) }}
+        </p>
+
+        <div class="mt-8" *ngIf="project.stack.length">
+          <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            {{ 'projects.stack' | translate }}
+          </p>
+
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span
+              *ngFor="let tech of project.stack"
+              class="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs">
+              {{ tech }}
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-8" *ngIf="project.role">
+          <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            {{ 'projects.role' | translate }}
+          </p>
+
+          <p class="mt-2 text-[15px] leading-7 text-slate-800">
+            {{ loc(project.role) }}
+          </p>
+        </div>
+
+        <div class="mt-8 grid gap-6 md:grid-cols-2" *ngIf="project.problem || project.solution">
+          <div
+            *ngIf="project.problem"
+            class="rounded-2xl border-2 border-red-500 bg-white p-5">
+            <p class="text-xs uppercase tracking-wider text-red-600 font-semibold">
+              {{ 'projects.problem' | translate }}
+            </p>
+
+            <p class="mt-3 text-sm leading-6 text-slate-700">
+              {{ loc(project.problem) }}
+            </p>
+          </div>
+
+          <div
+            *ngIf="project.solution"
+            class="rounded-2xl border-2 border-emerald-500 bg-white p-5">
+            <p class="text-xs uppercase tracking-wider text-emerald-600 font-semibold">
+              {{ 'projects.solution' | translate }}
+            </p>
+
+            <p class="mt-3 text-sm leading-6 text-slate-700">
+              {{ loc(project.solution) }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-8" *ngIf="project.demoUrl || (project.showGithub && project.githubUrl)">
+          <p class="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            Liens
+          </p>
+
+          <div class="mt-3 flex flex-wrap gap-3">
+            <a
+              *ngIf="project.demoUrl"
+              [href]="project.demoUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center rounded-full border border-emerald-500 bg-white px-4 py-2 text-xs font-medium text-emerald-700 no-underline"
+            >
+              Demo : {{ project.demoUrl }}
+            </a>
+
+            <a
+              *ngIf="project.showGithub && project.githubUrl"
+              [href]="project.githubUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center rounded-full border border-slate-400 bg-white px-4 py-2 text-xs font-medium text-slate-800 no-underline"
+            >
+              GitHub : {{ project.githubUrl }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <section *ngIf="project.images?.length" class="mt-8 space-y-4">
+        <h2 class="text-sm uppercase tracking-wider text-slate-500 font-semibold">
+          Galerie
+        </h2>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <img
+            *ngFor="let image of project.images"
+            [src]="image"
+            [alt]="'Illustration du projet ' + project.title"
+            class="w-full h-64 object-cover rounded-2xl border border-slate-200 bg-white"
+            loading="lazy"
+            decoding="async"
+            crossorigin="anonymous"
+          />
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>

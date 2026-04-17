@@ -258,7 +258,9 @@
       *ngFor="let project of filteredProjects; trackBy: trackByProjectId"
       cdkDrag
       [cdkDragDisabled]="!canReorderProjects"
-      class="rounded-3xl border border-border/70 bg-card/60 p-5"
+      class="rounded-3xl border border-border/70 bg-card/60 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      [attr.id]="getProjectFragment(project)"
+      tabindex="-1"
     >
       <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div class="flex min-w-0 flex-1 gap-4">
@@ -360,7 +362,25 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap justify-end gap-3 xl:w-[380px] xl:shrink-0">
+        <div class="flex flex-wrap justify-end gap-3 xl:w-[560px] xl:shrink-0">
+          <a
+            [routerLink]="['/projects', project.slug]"
+            [queryParams]="{ source: 'admin', projectId: project.id }"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [attr.aria-label]="'Voir la fiche du projet ' + project.title"
+          >
+            Voir la fiche
+          </a>
+
+          <a
+            [routerLink]="['/projects', project.slug]"
+            [queryParams]="{ source: 'admin', projectId: project.id, autoPdf: '1' }"
+            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [attr.aria-label]="'Générer le PDF du projet ' + project.title"
+          >
+            Générer en PDF
+          </a>
+
           <button
             type="button"
             class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"

@@ -1,7 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  OnInit,
+} from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
@@ -26,7 +31,7 @@ type ProjectFeaturedFilter = 'all' | 'featured' | 'not-featured';
   ],
   templateUrl: './admin-dashboard.component.html',
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, AfterViewInit {
   projects: AdminProject[] = [];
   isLoading = true;
   errorMessage = '';
@@ -50,13 +55,26 @@ export class AdminDashboardComponent implements OnInit {
   statusFilter: ProjectStatusFilter = 'all';
   featuredFilter: ProjectFeaturedFilter = 'all';
 
+  private pendingFocusProjectId: string | null = null;
+
   constructor(
     private adminProjectsApi: AdminProjectsApiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private route: ActivatedRoute,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
+    this.route.fragment.subscribe((fragment) => {
+      this.pendingFocusProjectId = this.extractProjectIdFromFragment(fragment);
+      this.tryFocusPendingProject();
+    });
+
     this.loadProjects();
+  }
+
+  ngAfterViewInit(): void {
+    this.tryFocusPendingProject();
   }
 
   loadProjects(): void {
@@ -68,6 +86,7 @@ export class AdminDashboardComponent implements OnInit {
         this.projects = this.sortProjects(response.data);
         this.pruneSelection();
         this.isLoading = false;
+        this.tryFocusPendingProject();
       },
       error: (error) => {
         this.projects = [];
@@ -385,6 +404,10 @@ export class AdminDashboardComponent implements OnInit {
     return !!project.id && this.deletingProjectId === project.id;
   }
 
+  getProjectFragment(project: AdminProject): string {
+    return `project-${project.id}`;
+  }
+
   get isDeletingAnyProject(): boolean {
     return this.deletingProjectId !== null;
   }
@@ -604,5 +627,33 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     return candidate;
+  }
+
+  private extractProjectIdFromFragment(fragment: string | null): string | null {
+    if (!fragment || !fragment.startsWith('project-')) {
+      return null;
+    }
+
+    return fragment.replace('project-', '').trim() || null;
+  }
+
+  private tryFocusPendingProject(): void {
+    if (!this.pendingFocusProjectId || this.isLoading) {
+      return;
+    }
+
+    const targetId = `project-${this.pendingFocusProjectId}`;
+
+    setTimeout(() => {
+      const element = this.document.getElementById(targetId) as HTMLElement | null;
+
+      if (!element) {
+        return;
+      }
+
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.focus({ preventScroll: true });
+      this.pendingFocusProjectId = null;
+    }, 0);
   }
 }
