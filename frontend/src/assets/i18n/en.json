@@ -164,10 +164,10 @@
       "sending": "Sending...",
       "sent": "Message sent!",
       "placeholders": {
-        "name": "John Doe",
-        "email": "john@example.com",
-        "subject": "Collaboration opportunity",
-        "message": "Your message..."
+        "name": "NAME and Fist name",
+        "email": "Your email",
+        "subject": "Your subject",
+        "message": "Your message"
       },
       "errors": {
         "name": "Please enter your name.",

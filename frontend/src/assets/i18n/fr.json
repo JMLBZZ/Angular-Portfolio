@@ -164,10 +164,10 @@
       "sending": "Envoi...",
       "sent": "Message envoyé !",
       "placeholders": {
-        "name": "Jean Dupont",
-        "email": "jean@exemple.com",
-        "subject": "Opportunité de collaboration",
-        "message": "Votre message..."
+        "name": "NOM Prénom",
+        "email": "Votre adresse mail",
+        "subject": "Objet de votre message",
+        "message": "Votre message"
       },
       "errors": {
         "name": "Merci d’indiquer votre nom.",
