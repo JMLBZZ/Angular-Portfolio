@@ -3,6 +3,7 @@ package com.portfolio.portfolio_backend.web.exception;
 import com.portfolio.portfolio_backend.application.exception.FileStorageException;
 import com.portfolio.portfolio_backend.application.exception.RateLimitException;
 import com.portfolio.portfolio_backend.application.exception.SpamDetectedException;
+import com.portfolio.portfolio_backend.application.exception.TranslationException;
 import com.portfolio.portfolio_backend.domain.exception.EmailAlreadyUsedException;
 import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundException;
 import com.portfolio.portfolio_backend.domain.exception.SlugAlreadyUsedException;
@@ -292,6 +293,26 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Email sending failed",
                 "SMTP_ERROR",
+                null,
+                request
+        );
+    }
+
+
+    /**
+     * Gestion des erreurs de traduction (503)
+     */
+    @ExceptionHandler(TranslationException.class)
+    public ResponseEntity<ApiResult<?>> handleTranslationException(
+            TranslationException ex,
+            HttpServletRequest request
+    ) {
+        logger.warn("Translation error: {}", ex.getMessage());
+
+        return buildErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                ex.getMessage(),
+                "TRANSLATION_ERROR",
                 null,
                 request
         );

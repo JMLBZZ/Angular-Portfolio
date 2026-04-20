@@ -42,7 +42,7 @@ public class ContactContentService {
                         "Discutons de votre prochain projet",
                         "Let’s talk about your next project"
                 ),
-                "contact@alexandredumont.dev",
+                "contact@mail.com",
                 "+33 6 12 34 56 78",
                 "Paris, France",
                 "https://www.linkedin.com/",

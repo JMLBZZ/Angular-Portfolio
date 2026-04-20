@@ -103,6 +103,12 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
+		<!-- Traduction DeepL -->
+		<dependency>
+			<groupId>com.deepl.api</groupId>
+			<artifactId>deepl-java</artifactId>
+			<version>1.16.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

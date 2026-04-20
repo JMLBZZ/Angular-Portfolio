@@ -43,7 +43,7 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
   title = 'Contact';
   subtitle = 'Discutons de votre prochain projet';
 
-  email = 'contact@alexandredumont.dev';
+  email = 'contact@mail.com';
   phone = '+33 6 12 34 56 78';
   location = 'Paris, France';
 
