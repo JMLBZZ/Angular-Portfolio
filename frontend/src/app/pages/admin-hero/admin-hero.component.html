@@ -61,15 +61,29 @@
         <div class="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h4 class="text-lg font-semibold">Textes</h4>
+            <p class="text-sm opacity-75 mt-2">
+              Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
+            </p>
           </div>
 
-          <span
-            *ngIf="heroForm.dirty && !isSubmittingHero"
-            class="text-sm opacity-70"
-            aria-live="polite"
-          >
-            Modifications non enregistrées
-          </span>
+          <div class="flex flex-wrap items-center gap-3">
+            <span
+              *ngIf="heroForm.dirty && !isSubmittingHero"
+              class="text-sm opacity-70"
+              aria-live="polite"
+            >
+              Modifications non enregistrées
+            </span>
+
+            <app-primary-button
+              type="button"
+              [loading]="isTranslatingHero"
+              [disabled]="isSubmittingHero || isTranslatingHero"
+              (pressed)="translateHeroToEnglish()"
+            >
+              Tout traduire en anglais
+            </app-primary-button>
+          </div>
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
@@ -199,7 +213,7 @@
         <app-primary-button
           type="submit"
           [loading]="isSubmittingHero"
-          [disabled]="isSubmittingHero"
+          [disabled]="isSubmittingHero || isTranslatingHero"
         >
           <span *ngIf="!isSubmittingHero">Enregistrer le hero</span>
           <span *ngIf="isSubmittingHero">Enregistrement...</span>
@@ -251,15 +265,29 @@
         <div class="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h4 class="text-lg font-semibold">En-tête de la carte</h4>
+            <p class="text-sm opacity-75 mt-2">
+              Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
+            </p>
           </div>
 
-          <span
-            *ngIf="heroCardForm.dirty && !isSubmittingHeroCard"
-            class="text-sm opacity-70"
-            aria-live="polite"
-          >
-            Modifications non enregistrées
-          </span>
+          <div class="flex flex-wrap items-center gap-3">
+            <span
+              *ngIf="heroCardForm.dirty && !isSubmittingHeroCard"
+              class="text-sm opacity-70"
+              aria-live="polite"
+            >
+              Modifications non enregistrées
+            </span>
+
+            <app-primary-button
+              type="button"
+              [loading]="isTranslatingHeroCard"
+              [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
+              (pressed)="translateHeroCardToEnglish()"
+            >
+              Tout traduire en anglais
+            </app-primary-button>
+          </div>
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
@@ -446,7 +474,7 @@
         <app-primary-button
           type="submit"
           [loading]="isSubmittingHeroCard"
-          [disabled]="isSubmittingHeroCard"
+          [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
         >
           <span *ngIf="!isSubmittingHeroCard">Enregistrer la carte</span>
           <span *ngIf="isSubmittingHeroCard">Enregistrement...</span>

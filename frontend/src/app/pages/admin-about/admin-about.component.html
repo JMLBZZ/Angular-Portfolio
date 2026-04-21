@@ -21,7 +21,7 @@
       <app-primary-button
         type="button"
         [loading]="isSubmitting"
-        [disabled]="isSubmitting"
+        [disabled]="isSubmitting || isTranslating"
         (pressed)="save()"
       >
         <span *ngIf="!isSubmitting">Enregistrer</span>
@@ -68,15 +68,29 @@
           <p class="text-sm opacity-75 mt-1">
             Cette zone correspond à l’introduction de la section About affichée sur le site.
           </p>
+          <p class="text-sm opacity-75 mt-2">
+            Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
+          </p>
         </div>
 
-        <span
-          *ngIf="form.dirty && !isSubmitting"
-          class="text-sm opacity-70"
-          aria-live="polite"
-        >
-          Modifications non enregistrées
-        </span>
+        <div class="flex flex-wrap items-center gap-3">
+          <span
+            *ngIf="form.dirty && !isSubmitting"
+            class="text-sm opacity-70"
+            aria-live="polite"
+          >
+            Modifications non enregistrées
+          </span>
+
+          <app-primary-button
+            type="button"
+            [loading]="isTranslating"
+            [disabled]="isSubmitting || isTranslating"
+            (pressed)="translateAllToEnglish()"
+          >
+            Tout traduire en anglais
+          </app-primary-button>
+        </div>
       </div>
 
       <div class="grid gap-5 md:grid-cols-2">
@@ -641,7 +655,7 @@
       <app-primary-button
         type="submit"
         [loading]="isSubmitting"
-        [disabled]="isSubmitting"
+        [disabled]="isSubmitting || isTranslating"
       >
         <span *ngIf="!isSubmitting">Enregistrer</span>
         <span *ngIf="isSubmitting">Enregistrement...</span>

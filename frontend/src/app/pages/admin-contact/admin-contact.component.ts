@@ -17,6 +17,7 @@ import {
   scrollToSelector,
   setupAdminFormErrorCleanup,
 } from '../../shared/utils/admin-form.utils';
+import { TranslationApiService } from '../../core/api/translation-api.service';
 
 @Component({
   selector: 'app-admin-contact',
@@ -33,6 +34,7 @@ import {
 export class AdminContactComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSubmitting = false;
+  isTranslating = false;
   errorMessage = '';
 
   private subscriptions = new Subscription();
@@ -78,6 +80,7 @@ export class AdminContactComponent implements OnInit, OnDestroy {
 
   constructor(
     private adminContactApi: AdminContactApiService,
+    private translationApi: TranslationApiService,
     private toastService: ToastService,
     private elementRef: ElementRef<HTMLElement>
   ) {}
@@ -128,6 +131,59 @@ export class AdminContactComponent implements OnInit, OnDestroy {
         );
         this.toastService.error(this.errorMessage);
         this.scrollToGlobalError();
+      },
+    });
+  }
+
+  translateAllToEnglish(): void {
+    if (this.isSubmitting || this.isTranslating) {
+      return;
+    }
+
+    const fieldsToTranslate = this.buildTranslationFields();
+
+    if (Object.keys(fieldsToTranslate).length === 0) {
+      this.toastService.warning(
+        'Renseigne au moins un champ français avant de lancer la traduction.'
+      );
+      return;
+    }
+
+    this.isTranslating = true;
+
+    this.translationApi.translateFrToEn(fieldsToTranslate).subscribe({
+      next: (translatedFields) => {
+        let translatedCount = 0;
+
+        translatedCount += this.applyTranslatedValue(
+          this.form.controls.titleEn,
+          translatedFields['titleEn']
+        );
+
+        translatedCount += this.applyTranslatedValue(
+          this.form.controls.subtitleEn,
+          translatedFields['subtitleEn']
+        );
+
+        if (translatedCount === 0) {
+          this.toastService.warning(
+            'Aucune traduction exploitable n’a été renvoyée par le serveur.'
+          );
+          this.isTranslating = false;
+          return;
+        }
+
+        this.toastService.success('Les champs anglais ont été mis à jour.');
+        this.isTranslating = false;
+      },
+      error: (error) => {
+        const message = extractApiErrorMessage(
+          error,
+          'La traduction automatique a échoué.'
+        );
+
+        this.toastService.error(message);
+        this.isTranslating = false;
       },
     });
   }
@@ -197,6 +253,45 @@ export class AdminContactComponent implements OnInit, OnDestroy {
         this.scrollToGlobalError();
       },
     });
+  }
+
+  private buildTranslationFields(): Record<string, string> {
+    const fields: Record<string, string> = {};
+
+    this.addTranslationField(fields, 'titleFr', this.form.controls.titleFr.value);
+    this.addTranslationField(fields, 'subtitleFr', this.form.controls.subtitleFr.value);
+
+    return fields;
+  }
+
+  private addTranslationField(
+    fields: Record<string, string>,
+    key: string,
+    value: string
+  ): void {
+    const cleanedValue = value.trim();
+
+    if (!cleanedValue) {
+      return;
+    }
+
+    fields[key] = cleanedValue;
+  }
+
+  private applyTranslatedValue(
+    control: FormControl<string>,
+    translatedValue: unknown
+  ): number {
+    if (typeof translatedValue !== 'string') {
+      return 0;
+    }
+
+    control.setValue(translatedValue);
+    control.markAsDirty();
+    control.markAsTouched();
+    control.updateValueAndValidity();
+
+    return 1;
   }
 
   private scrollToGlobalError(): void {

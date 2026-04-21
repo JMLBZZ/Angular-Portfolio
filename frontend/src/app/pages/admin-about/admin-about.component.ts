@@ -25,6 +25,7 @@ import {
   scrollToSelector,
   setupAdminFormErrorCleanup,
 } from '../../shared/utils/admin-form.utils';
+import { TranslationApiService } from '../../core/api/translation-api.service';
 
 @Component({
   selector: 'app-admin-about',
@@ -42,6 +43,7 @@ import {
 export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesComponent {
   isLoading = false;
   isSubmitting = false;
+  isTranslating = false;
   errorMessage = '';
 
   private subscriptions = new Subscription();
@@ -122,6 +124,7 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
 
   constructor(
     private adminAboutApi: AdminAboutApiService,
+    private translationApi: TranslationApiService,
     private toastService: ToastService,
     private elementRef: ElementRef<HTMLElement>
   ) {}
@@ -190,6 +193,49 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
         );
         this.toastService.error(this.errorMessage);
         this.scrollToGlobalError();
+      },
+    });
+  }
+
+  translateAllToEnglish(): void {
+    if (this.isSubmitting || this.isTranslating) {
+      return;
+    }
+
+    const fieldsToTranslate = this.buildTranslationFields();
+
+    if (Object.keys(fieldsToTranslate).length === 0) {
+      this.toastService.warning(
+        'Renseigne au moins un champ français avant de lancer la traduction.'
+      );
+      return;
+    }
+
+    this.isTranslating = true;
+
+    this.translationApi.translateFrToEn(fieldsToTranslate).subscribe({
+      next: (translatedFields) => {
+        const translatedCount = this.applyTranslatedFields(translatedFields);
+
+        if (translatedCount === 0) {
+          this.toastService.warning(
+            'Aucune traduction exploitable n’a été renvoyée par le serveur.'
+          );
+          this.isTranslating = false;
+          return;
+        }
+
+        this.toastService.success('Les champs anglais ont été mis à jour.');
+        this.isTranslating = false;
+      },
+      error: (error) => {
+        const message = extractApiErrorMessage(
+          error,
+          'La traduction automatique a échoué.'
+        );
+
+        this.toastService.error(message);
+        this.isTranslating = false;
       },
     });
   }
@@ -435,11 +481,160 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return 'La valeur saisie est invalide.';
   }
 
-  private moveItemWithinFormArray(formArray: FormArray<FormGroup>, from: number, to: number): void {
-    const control = formArray.at(from);
-    formArray.removeAt(from);
-    formArray.insert(to, control);
-    this.form.markAsDirty();
+  private buildTranslationFields(): Record<string, string> {
+    const fields: Record<string, string> = {};
+
+    this.addTranslationField(fields, 'titleFr', this.form.controls.titleFr.value);
+    this.addTranslationField(fields, 'subtitleFr', this.form.controls.subtitleFr.value);
+    this.addTranslationField(fields, 'profileRoleFr', this.form.controls.profileRoleFr.value);
+    this.addTranslationField(fields, 'bioFr', this.form.controls.bioFr.value);
+    this.addTranslationField(fields, 'locationFr', this.form.controls.locationFr.value);
+    this.addTranslationField(fields, 'timelineTitleFr', this.form.controls.timelineTitleFr.value);
+    this.addTranslationField(fields, 'skillsTitleFr', this.form.controls.skillsTitleFr.value);
+    this.addTranslationField(fields, 'softSkillsTitleFr', this.form.controls.softSkillsTitleFr.value);
+
+    this.timelineItems.controls.forEach((group, index) => {
+      this.addTranslationField(
+        fields,
+        `timelineItems_${index}_dateFr`,
+        group.get('dateFr')?.value ?? ''
+      );
+      this.addTranslationField(
+        fields,
+        `timelineItems_${index}_companyFr`,
+        group.get('companyFr')?.value ?? ''
+      );
+      this.addTranslationField(
+        fields,
+        `timelineItems_${index}_titleFr`,
+        group.get('titleFr')?.value ?? ''
+      );
+      this.addTranslationField(
+        fields,
+        `timelineItems_${index}_descriptionFr`,
+        group.get('descriptionFr')?.value ?? ''
+      );
+    });
+
+    this.skillGroups.controls.forEach((group, index) => {
+      this.addTranslationField(
+        fields,
+        `skillGroups_${index}_titleFr`,
+        group.get('titleFr')?.value ?? ''
+      );
+    });
+
+    this.softSkills.controls.forEach((group, index) => {
+      this.addTranslationField(
+        fields,
+        `softSkills_${index}Fr`,
+        group.get('fr')?.value ?? ''
+      );
+    });
+
+    return fields;
+  }
+
+  private applyTranslatedFields(translatedFields: Record<string, string>): number {
+    let appliedCount = 0;
+
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.titleEn,
+      translatedFields['titleEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.subtitleEn,
+      translatedFields['subtitleEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.profileRoleEn,
+      translatedFields['profileRoleEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.bioEn,
+      translatedFields['bioEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.locationEn,
+      translatedFields['locationEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.timelineTitleEn,
+      translatedFields['timelineTitleEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.skillsTitleEn,
+      translatedFields['skillsTitleEn']
+    );
+    appliedCount += this.applyTranslatedValue(
+      this.form.controls.softSkillsTitleEn,
+      translatedFields['softSkillsTitleEn']
+    );
+
+    this.timelineItems.controls.forEach((group, index) => {
+      appliedCount += this.applyTranslatedValue(
+        group.get('dateEn'),
+        translatedFields[`timelineItems_${index}_dateEn`]
+      );
+      appliedCount += this.applyTranslatedValue(
+        group.get('companyEn'),
+        translatedFields[`timelineItems_${index}_companyEn`]
+      );
+      appliedCount += this.applyTranslatedValue(
+        group.get('titleEn'),
+        translatedFields[`timelineItems_${index}_titleEn`]
+      );
+      appliedCount += this.applyTranslatedValue(
+        group.get('descriptionEn'),
+        translatedFields[`timelineItems_${index}_descriptionEn`]
+      );
+    });
+
+    this.skillGroups.controls.forEach((group, index) => {
+      appliedCount += this.applyTranslatedValue(
+        group.get('titleEn'),
+        translatedFields[`skillGroups_${index}_titleEn`]
+      );
+    });
+
+    this.softSkills.controls.forEach((group, index) => {
+      appliedCount += this.applyTranslatedValue(
+        group.get('en'),
+        translatedFields[`softSkills_${index}En`]
+      );
+    });
+
+    return appliedCount;
+  }
+
+  private addTranslationField(
+    fields: Record<string, string>,
+    key: string,
+    value: string
+  ): void {
+    const cleanedValue = value.trim();
+
+    if (!cleanedValue) {
+      return;
+    }
+
+    fields[key] = cleanedValue;
+  }
+
+  private applyTranslatedValue(
+    control: AbstractControl | null,
+    translatedValue: unknown
+  ): number {
+    if (!control || typeof translatedValue !== 'string') {
+      return 0;
+    }
+
+    control.setValue(translatedValue);
+    control.markAsDirty();
+    control.markAsTouched();
+    control.updateValueAndValidity();
+
+    return 1;
   }
 
   private scrollToGlobalError(): void {

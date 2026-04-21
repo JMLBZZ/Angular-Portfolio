@@ -25,6 +25,7 @@ import {
   scrollToSelector,
   setupAdminFormErrorCleanup,
 } from '../../shared/utils/admin-form.utils';
+import { TranslationApiService } from '../../core/api/translation-api.service';
 
 type HeroTechBadgeFormGroup = FormGroup<{
   id: FormControl<number | null>;
@@ -48,10 +49,12 @@ type HeroTechBadgeFormGroup = FormGroup<{
 export class AdminHeroComponent implements OnInit, OnDestroy {
   isLoadingHero = false;
   isSubmittingHero = false;
+  isTranslatingHero = false;
   heroErrorMessage = '';
 
   isLoadingHeroCard = false;
   isSubmittingHeroCard = false;
+  isTranslatingHeroCard = false;
   heroCardErrorMessage = '';
 
   private subscriptions = new Subscription();
@@ -169,6 +172,7 @@ export class AdminHeroComponent implements OnInit, OnDestroy {
   constructor(
     private adminHeroApi: AdminHeroApiService,
     private adminHeroCardApi: AdminHeroCardApiService,
+    private translationApi: TranslationApiService,
     private toastService: ToastService,
     private elementRef: ElementRef<HTMLElement>
   ) {}
@@ -231,6 +235,59 @@ export class AdminHeroComponent implements OnInit, OnDestroy {
         );
         this.toastService.error(this.heroErrorMessage);
         this.scrollToHeroError();
+      },
+    });
+  }
+
+  translateHeroToEnglish(): void {
+    if (this.isSubmittingHero || this.isTranslatingHero) {
+      return;
+    }
+
+    const fieldsToTranslate = this.buildHeroTranslationFields();
+
+    if (Object.keys(fieldsToTranslate).length === 0) {
+      this.toastService.warning(
+        'Renseigne au moins un champ français avant de lancer la traduction.'
+      );
+      return;
+    }
+
+    this.isTranslatingHero = true;
+
+    this.translationApi.translateFrToEn(fieldsToTranslate).subscribe({
+      next: (translatedFields) => {
+        let translatedCount = 0;
+
+        translatedCount += this.applyTranslatedValue(
+          this.heroForm.controls.titleEn,
+          translatedFields['titleEn']
+        );
+
+        translatedCount += this.applyTranslatedValue(
+          this.heroForm.controls.subtitleEn,
+          translatedFields['subtitleEn']
+        );
+
+        if (translatedCount === 0) {
+          this.toastService.warning(
+            'Aucune traduction exploitable n’a été renvoyée par le serveur.'
+          );
+          this.isTranslatingHero = false;
+          return;
+        }
+
+        this.toastService.success('Les champs anglais du hero ont été mis à jour.');
+        this.isTranslatingHero = false;
+      },
+      error: (error) => {
+        const message = extractApiErrorMessage(
+          error,
+          'La traduction automatique du hero a échoué.'
+        );
+
+        this.toastService.error(message);
+        this.isTranslatingHero = false;
       },
     });
   }
@@ -424,6 +481,86 @@ export class AdminHeroComponent implements OnInit, OnDestroy {
     });
   }
 
+  translateHeroCardToEnglish(): void {
+    if (this.isSubmittingHeroCard || this.isTranslatingHeroCard) {
+      return;
+    }
+
+    const fieldsToTranslate = this.buildHeroCardTranslationFields();
+
+    if (Object.keys(fieldsToTranslate).length === 0) {
+      this.toastService.warning(
+        'Renseigne au moins un champ français avant de lancer la traduction.'
+      );
+      return;
+    }
+
+    this.isTranslatingHeroCard = true;
+
+    this.translationApi.translateFrToEn(fieldsToTranslate).subscribe({
+      next: (translatedFields) => {
+        let translatedCount = 0;
+
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.titleEn,
+          translatedFields['titleEn']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.subtitleEn,
+          translatedFields['subtitleEn']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.badgeEn,
+          translatedFields['badgeEn']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.highlight1En,
+          translatedFields['highlight1En']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.highlight2En,
+          translatedFields['highlight2En']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.highlight3En,
+          translatedFields['highlight3En']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.stat1LabelEn,
+          translatedFields['stat1LabelEn']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.stat2LabelEn,
+          translatedFields['stat2LabelEn']
+        );
+        translatedCount += this.applyTranslatedValue(
+          this.heroCardForm.controls.stat3LabelEn,
+          translatedFields['stat3LabelEn']
+        );
+
+        if (translatedCount === 0) {
+          this.toastService.warning(
+            'Aucune traduction exploitable n’a été renvoyée par le serveur.'
+          );
+          this.isTranslatingHeroCard = false;
+          return;
+        }
+
+        this.toastService.success('Les champs anglais de la hero card ont été mis à jour.');
+        this.isTranslatingHeroCard = false;
+      },
+      error: (error) => {
+        const message = extractApiErrorMessage(
+          error,
+          'La traduction automatique de la hero card a échoué.'
+        );
+
+        this.toastService.error(message);
+        this.isTranslatingHeroCard = false;
+      },
+    });
+  }
+
   saveHeroCard(): void {
     this.heroCardErrorMessage = '';
     clearApiErrorsFromForm(this.heroCardForm);
@@ -524,5 +661,60 @@ export class AdminHeroComponent implements OnInit, OnDestroy {
         this.scrollToHeroCardError();
       },
     });
+  }
+
+  private buildHeroTranslationFields(): Record<string, string> {
+    const fields: Record<string, string> = {};
+
+    this.addTranslationField(fields, 'titleFr', this.heroForm.controls.titleFr.value);
+    this.addTranslationField(fields, 'subtitleFr', this.heroForm.controls.subtitleFr.value);
+
+    return fields;
+  }
+
+  private buildHeroCardTranslationFields(): Record<string, string> {
+    const fields: Record<string, string> = {};
+
+    this.addTranslationField(fields, 'titleFr', this.heroCardForm.controls.titleFr.value);
+    this.addTranslationField(fields, 'subtitleFr', this.heroCardForm.controls.subtitleFr.value);
+    this.addTranslationField(fields, 'badgeFr', this.heroCardForm.controls.badgeFr.value);
+    this.addTranslationField(fields, 'highlight1Fr', this.heroCardForm.controls.highlight1Fr.value);
+    this.addTranslationField(fields, 'highlight2Fr', this.heroCardForm.controls.highlight2Fr.value);
+    this.addTranslationField(fields, 'highlight3Fr', this.heroCardForm.controls.highlight3Fr.value);
+    this.addTranslationField(fields, 'stat1LabelFr', this.heroCardForm.controls.stat1LabelFr.value);
+    this.addTranslationField(fields, 'stat2LabelFr', this.heroCardForm.controls.stat2LabelFr.value);
+    this.addTranslationField(fields, 'stat3LabelFr', this.heroCardForm.controls.stat3LabelFr.value);
+
+    return fields;
+  }
+
+  private addTranslationField(
+    fields: Record<string, string>,
+    key: string,
+    value: string
+  ): void {
+    const cleanedValue = value.trim();
+
+    if (!cleanedValue) {
+      return;
+    }
+
+    fields[key] = cleanedValue;
+  }
+
+  private applyTranslatedValue(
+    control: FormControl<string>,
+    translatedValue: unknown
+  ): number {
+    if (typeof translatedValue !== 'string') {
+      return 0;
+    }
+
+    control.setValue(translatedValue);
+    control.markAsDirty();
+    control.markAsTouched();
+    control.updateValueAndValidity();
+
+    return 1;
   }
 }

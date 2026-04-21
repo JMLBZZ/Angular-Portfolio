@@ -30,6 +30,7 @@ import {
 import { FallbackImageDirective } from '../../shared/directives/fallback-image.directive';
 import { AdminProjectImagesApiService } from '../../core/api/admin-project-images-api.service';
 import { resolveMediaUrl } from '../../core/api/media-url.utils';
+import { TranslationApiService } from '../../core/api/translation-api.service';
 
 @Component({
   selector: 'app-admin-project-form',
@@ -54,6 +55,7 @@ export class AdminProjectFormComponent
 
   isLoading = false;
   isSubmitting = false;
+  isTranslating = false;
   errorMessage = '';
 
   isUploadingImage = false;
@@ -183,6 +185,7 @@ export class AdminProjectFormComponent
     private router: Router,
     private adminProjectsApi: AdminProjectsApiService,
     private adminProjectImagesApi: AdminProjectImagesApiService,
+    private translationApi: TranslationApiService,
     private toastService: ToastService,
     private elementRef: ElementRef<HTMLElement>
   ) {}
@@ -237,6 +240,53 @@ export class AdminProjectFormComponent
         this.toastService.error(this.errorMessage);
         this.scrollToGlobalError();
         this.isLoading = false;
+      },
+    });
+  }
+
+  translateAllToEnglish(): void {
+    if (this.isSubmitting || this.isTranslating) {
+      return;
+    }
+
+    const fieldsToTranslate = this.buildTranslationFields();
+
+    if (Object.keys(fieldsToTranslate).length === 0) {
+      this.toastService.warning(
+        'Renseigne au moins un champ français avant de lancer la traduction.'
+      );
+      return;
+    }
+
+    this.isTranslating = true;
+
+    this.translationApi.translateFrToEn(fieldsToTranslate).subscribe({
+      next: (translatedFields) => {
+        const translationPatch = this.buildTranslationPatch(translatedFields);
+
+        if (Object.keys(translationPatch).length === 0) {
+          this.toastService.warning(
+            'Aucune traduction exploitable n’a été renvoyée par le serveur.'
+          );
+          this.isTranslating = false;
+          return;
+        }
+
+        this.form.patchValue(translationPatch);
+
+        this.markTranslatedEnglishFieldsAsDirtyAndTouched(translationPatch);
+
+        this.toastService.success('Les champs anglais ont été mis à jour.');
+        this.isTranslating = false;
+      },
+      error: (error) => {
+        const message = extractApiErrorMessage(
+          error,
+          'La traduction automatique a échoué.'
+        );
+
+        this.toastService.error(message);
+        this.isTranslating = false;
       },
     });
   }
@@ -508,6 +558,111 @@ export class AdminProjectFormComponent
     });
 
     this.subscriptions.add(globalErrorCleanupSubscription);
+  }
+
+  private buildTranslationFields(): Record<string, string> {
+    const raw = this.form.getRawValue();
+
+    return this.filterNonEmptyFields({
+      descriptionFr: raw.descriptionFr,
+      longDescriptionFr: raw.longDescriptionFr,
+      roleFr: raw.roleFr,
+      problemFr: raw.problemFr,
+      solutionFr: raw.solutionFr,
+    });
+  }
+
+  private filterNonEmptyFields(fields: Record<string, string>): Record<string, string> {
+    return Object.entries(fields).reduce<Record<string, string>>((acc, [key, value]) => {
+      const cleanedValue = value.trim();
+
+      if (!cleanedValue) {
+        return acc;
+      }
+
+      acc[key] = cleanedValue;
+      return acc;
+    }, {});
+  }
+
+  private buildTranslationPatch(
+    translatedFields: Record<string, string>
+  ): Partial<{
+    descriptionEn: string;
+    longDescriptionEn: string;
+    roleEn: string;
+    problemEn: string;
+    solutionEn: string;
+  }> {
+    const patch: Partial<{
+      descriptionEn: string;
+      longDescriptionEn: string;
+      roleEn: string;
+      problemEn: string;
+      solutionEn: string;
+    }> = {};
+
+    if (typeof translatedFields['descriptionEn'] === 'string') {
+      patch.descriptionEn = translatedFields['descriptionEn'];
+    }
+
+    if (typeof translatedFields['longDescriptionEn'] === 'string') {
+      patch.longDescriptionEn = translatedFields['longDescriptionEn'];
+    }
+
+    if (typeof translatedFields['roleEn'] === 'string') {
+      patch.roleEn = translatedFields['roleEn'];
+    }
+
+    if (typeof translatedFields['problemEn'] === 'string') {
+      patch.problemEn = translatedFields['problemEn'];
+    }
+
+    if (typeof translatedFields['solutionEn'] === 'string') {
+      patch.solutionEn = translatedFields['solutionEn'];
+    }
+
+    return patch;
+  }
+
+  private markTranslatedEnglishFieldsAsDirtyAndTouched(
+    translatedFields: Partial<{
+      descriptionEn: string;
+      longDescriptionEn: string;
+      roleEn: string;
+      problemEn: string;
+      solutionEn: string;
+    }>
+  ): void {
+    if (typeof translatedFields.descriptionEn === 'string') {
+      this.descriptionEnControl.markAsDirty();
+      this.descriptionEnControl.markAsTouched();
+      this.descriptionEnControl.updateValueAndValidity();
+    }
+
+    if (typeof translatedFields.longDescriptionEn === 'string') {
+      this.longDescriptionEnControl.markAsDirty();
+      this.longDescriptionEnControl.markAsTouched();
+      this.longDescriptionEnControl.updateValueAndValidity();
+    }
+
+    if (typeof translatedFields.roleEn === 'string') {
+      this.roleEnControl.markAsDirty();
+      this.roleEnControl.markAsTouched();
+      this.roleEnControl.updateValueAndValidity();
+    }
+
+    if (typeof translatedFields.problemEn === 'string') {
+      this.problemEnControl.markAsDirty();
+      this.problemEnControl.markAsTouched();
+      this.problemEnControl.updateValueAndValidity();
+    }
+
+    if (typeof translatedFields.solutionEn === 'string') {
+      this.solutionEnControl.markAsDirty();
+      this.solutionEnControl.markAsTouched();
+      this.solutionEnControl.updateValueAndValidity();
+    }
   }
 
   private patchForm(project: AdminProject): void {
