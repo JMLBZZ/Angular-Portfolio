@@ -298,21 +298,50 @@ public class GlobalExceptionHandler {
         );
     }
 
-
     /**
-     * Gestion des erreurs de traduction (503)
+     * Gestion des erreurs de traduction
      */
     @ExceptionHandler(TranslationException.class)
     public ResponseEntity<ApiResult<?>> handleTranslationException(
             TranslationException ex,
             HttpServletRequest request
     ) {
-        logger.warn("Translation error: {}", ex.getMessage());
+        logger.warn("Translation error [{}]: {}", ex.getReason(), ex.getMessage());
+
+        HttpStatus status;
+        String code;
+
+        switch (ex.getReason()) {
+            case CONFIGURATION -> {
+                status = HttpStatus.SERVICE_UNAVAILABLE;
+                code = "TRANSLATION_CONFIGURATION_ERROR";
+            }
+            case INVALID_CREDENTIALS -> {
+                status = HttpStatus.SERVICE_UNAVAILABLE;
+                code = "TRANSLATION_AUTH_ERROR";
+            }
+            case QUOTA_EXCEEDED -> {
+                status = HttpStatus.SERVICE_UNAVAILABLE;
+                code = "TRANSLATION_QUOTA_EXCEEDED";
+            }
+            case TOO_MANY_REQUESTS -> {
+                status = HttpStatus.TOO_MANY_REQUESTS;
+                code = "TRANSLATION_RATE_LIMIT";
+            }
+            case TEMPORARY_UNAVAILABLE -> {
+                status = HttpStatus.SERVICE_UNAVAILABLE;
+                code = "TRANSLATION_ERROR";
+            }
+            default -> {
+                status = HttpStatus.SERVICE_UNAVAILABLE;
+                code = "TRANSLATION_ERROR";
+            }
+        }
 
         return buildErrorResponse(
-                HttpStatus.SERVICE_UNAVAILABLE,
+                status,
                 ex.getMessage(),
-                "TRANSLATION_ERROR",
+                code,
                 null,
                 request
         );
