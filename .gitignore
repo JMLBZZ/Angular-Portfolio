@@ -23,5 +23,9 @@ target/
 # uploads
 uploads/
 
-# zip
-.zip
+# archives
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
