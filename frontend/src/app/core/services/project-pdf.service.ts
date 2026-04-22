@@ -25,7 +25,6 @@ export class ProjectPdfService {
     const html2canvas = (await import('html2canvas')).default;
 
     const generatedAt = options.generatedAt ?? new Date();
-    const linkAreas = this.collectLinkAreas(options.element);
 
     const canvas = await html2canvas(options.element, {
       scale: 2,
@@ -38,6 +37,8 @@ export class ProjectPdfService {
       scrollX: 0,
       scrollY: 0,
     });
+
+    const linkAreas = this.collectLinkAreas(options.element, canvas);
 
     const pdf = new jsPDF({
       orientation: 'p',
@@ -60,8 +61,8 @@ export class ProjectPdfService {
     const contentWidthMm = pageWidth - marginLeft - marginRight;
     const contentHeightMm = pageHeight - contentTop - contentBottom;
 
-    const mmPerPx = contentWidthMm / canvas.width;
-    const pageSliceHeightPx = Math.floor(contentHeightMm / mmPerPx);
+    const mmPerCanvasPx = contentWidthMm / canvas.width;
+    const pageSliceHeightPx = Math.floor(contentHeightMm / mmPerCanvasPx);
 
     const totalPages = Math.max(1, Math.ceil(canvas.height / pageSliceHeightPx));
 
@@ -104,7 +105,7 @@ export class ProjectPdfService {
       );
 
       const imageData = pageCanvas.toDataURL('image/jpeg', 0.98);
-      const renderedHeightMm = sliceHeightPx * mmPerPx;
+      const renderedHeightMm = sliceHeightPx * mmPerCanvasPx;
 
       pdf.addImage(
         imageData,
@@ -119,10 +120,9 @@ export class ProjectPdfService {
 
       this.addPageLinks(pdf, {
         linkAreas,
-        pageIndex,
         pageSliceHeightPx,
         sourceY,
-        mmPerPx,
+        mmPerCanvasPx,
         marginLeft,
         contentTop,
       });
@@ -152,12 +152,19 @@ export class ProjectPdfService {
     }, 60000);
   }
 
-  private collectLinkAreas(root: HTMLElement): PdfLinkArea[] {
+  private collectLinkAreas(root: HTMLElement, canvas: HTMLCanvasElement): PdfLinkArea[] {
     const rootRect = root.getBoundingClientRect();
+
+    if (rootRect.width <= 0 || rootRect.height <= 0) {
+      return [];
+    }
+
+    const scaleX = canvas.width / rootRect.width;
+    const scaleY = canvas.height / rootRect.height;
 
     return Array.from(root.querySelectorAll<HTMLAnchorElement>('a[href]'))
       .map((anchor) => {
-        const href = anchor.href?.trim();
+        const href = this.normalizeHref(anchor.getAttribute('href'), anchor.href);
 
         if (!href) {
           return null;
@@ -171,23 +178,37 @@ export class ProjectPdfService {
 
         return {
           href,
-          xPx: rect.left - rootRect.left,
-          yPx: rect.top - rootRect.top,
-          widthPx: rect.width,
-          heightPx: rect.height,
+          xPx: (rect.left - rootRect.left) * scaleX,
+          yPx: (rect.top - rootRect.top) * scaleY,
+          widthPx: rect.width * scaleX,
+          heightPx: rect.height * scaleY,
         };
       })
       .filter((value): value is PdfLinkArea => value !== null);
+  }
+
+  private normalizeHref(rawHref: string | null, resolvedHref: string | null | undefined): string | null {
+    const trimmedRawHref = rawHref?.trim() ?? '';
+    const trimmedResolvedHref = resolvedHref?.trim() ?? '';
+
+    if (trimmedRawHref.startsWith('http://') || trimmedRawHref.startsWith('https://')) {
+      return trimmedRawHref;
+    }
+
+    if (trimmedResolvedHref.startsWith('http://') || trimmedResolvedHref.startsWith('https://')) {
+      return trimmedResolvedHref;
+    }
+
+    return null;
   }
 
   private addPageLinks(
     pdf: InstanceType<typeof import('jspdf').jsPDF>,
     options: {
       linkAreas: PdfLinkArea[];
-      pageIndex: number;
       pageSliceHeightPx: number;
       sourceY: number;
-      mmPerPx: number;
+      mmPerCanvasPx: number;
       marginLeft: number;
       contentTop: number;
     }
@@ -207,10 +228,10 @@ export class ProjectPdfService {
       const visibleBottomPx = Math.min(linkBottom, pageEndY);
       const visibleHeightPx = visibleBottomPx - visibleTopPx;
 
-      const xMm = options.marginLeft + (link.xPx * options.mmPerPx);
-      const yMm = options.contentTop + ((visibleTopPx - pageStartY) * options.mmPerPx);
-      const widthMm = link.widthPx * options.mmPerPx;
-      const heightMm = visibleHeightPx * options.mmPerPx;
+      const xMm = options.marginLeft + (link.xPx * options.mmPerCanvasPx);
+      const yMm = options.contentTop + ((visibleTopPx - pageStartY) * options.mmPerCanvasPx);
+      const widthMm = link.widthPx * options.mmPerCanvasPx;
+      const heightMm = visibleHeightPx * options.mmPerCanvasPx;
 
       if (widthMm <= 0 || heightMm <= 0) {
         continue;
@@ -258,41 +279,52 @@ export class ProjectPdfService {
   ): void {
     const footerY = options.pageHeight - 8;
     const currentYear = options.generatedAt.getFullYear();
-    const formattedDate = new Intl.DateTimeFormat('fr-FR', {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    }).format(options.generatedAt);
 
     pdf.setDrawColor(220, 226, 232);
-    pdf.line(12, options.pageHeight - 13, options.pageWidth - 12, options.pageHeight - 13);
+    pdf.line(12, options.pageHeight - 14, options.pageWidth - 12, options.pageHeight - 14);
 
     pdf.setTextColor(71, 85, 105);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
 
-    pdf.text(`Généré le ${formattedDate}`, 12, footerY);
-
-    pdf.text(options.title, options.pageWidth / 2, footerY, {
-      align: 'center',
-    });
+    pdf.text(
+      `Généré le ${this.formatDate(options.generatedAt)}`,
+      12,
+      footerY
+    );
 
     pdf.text(
-      `© ${currentYear} ${options.author} • Page ${options.pageNumber}/${options.totalPages}`,
+      `Page ${options.pageNumber} / ${options.totalPages}`,
+      options.pageWidth / 2,
+      footerY,
+      { align: 'center' }
+    );
+
+    pdf.text(
+      `© ${currentYear} ${options.author}`,
       options.pageWidth - 12,
       footerY,
       { align: 'right' }
     );
   }
 
-  private buildFilename(value: string): string {
-    const sanitized = value
+  private formatDate(date: Date): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date);
+  }
+
+  private buildFilename(baseTitle: string): string {
+    const sanitizedTitle = baseTitle
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9-_ ]/g, '')
-      .trim()
-      .replace(/\s+/g, ' ');
+      .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
 
-    const baseName = sanitized || 'Projet';
-    return `${baseName} - Portfolio Jamel Bouazza.pdf`;
+    const safeTitle = sanitizedTitle || 'Projet';
+
+    return `${safeTitle} - Portfolio Jamel Bouazza.pdf`;
   }
 }
