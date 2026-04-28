@@ -16,7 +16,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +27,11 @@ public class ContactService {
     private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
 
     private static final Duration COOLDOWN = Duration.ofSeconds(30);
+
+    private static final ZoneId PARIS_ZONE = ZoneId.of("Europe/Paris");
+
+    private static final DateTimeFormatter CONTACT_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private final JavaMailSender mailSender;
     private final ContactRepositoryPort contactRepositoryPort;
@@ -65,11 +70,11 @@ public class ContactService {
 
         String fullSubject = "[Portfolio] - " + name + " : " + subject;
 
-        // 👉 Date/heure formatée
-        String formattedDate = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        String sentAt = Instant.now()
+                .atZone(PARIS_ZONE)
+                .format(CONTACT_DATE_FORMATTER);
 
-        String htmlBody = buildHtmlBody(name, email, subject, message, safeIp, formattedDate);
+        String htmlBody = buildHtmlBody(name, email, subject, message, sentAt, safeIp);
 
         try {
             MimeMessage mail = mailSender.createMimeMessage();
@@ -147,74 +152,153 @@ public class ContactService {
     }
 
     private String sanitize(String input, int maxLength) {
-        if (input == null) return "";
-        String sanitized = input.replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "").trim();
+        if (input == null) {
+            return "";
+        }
+
+        String sanitized = input
+                .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")
+                .trim();
+
         if (sanitized.length() > maxLength) {
             sanitized = sanitized.substring(0, maxLength);
         }
+
         return sanitized;
     }
 
-    private String buildHtmlBody(String name, String email, String subject, String message, String ip, String date) {
+    private String buildHtmlBody(
+            String name,
+            String email,
+            String subject,
+            String message,
+            String sentAt,
+            String clientIp
+    ) {
+        String safeName = escapeHtml(name);
+        String safeEmail = escapeHtml(email);
+        String safeSubject = escapeHtml(subject);
+        String safeMessage = nl2br(escapeHtml(message));
+        String safeSentAt = escapeHtml(sentAt);
+        String safeIp = escapeHtml(clientIp);
 
         return """
-                <div style="font-family: Arial, sans-serif; background:#ffffff; padding:20px;">
-                    <div style="max-width:600px; margin:auto; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden;">
+                <!DOCTYPE html>
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Nouveau message de contact</title>
+                </head>
+                <body style="margin:0; padding:0; background-color:#ffffff; font-family:Arial, Helvetica, sans-serif; color:#171717;">
+                    <div style="width:100%%; background-color:#ffffff; padding:28px 14px;">
+                        <table role="presentation" style="width:100%%; border-collapse:collapse;">
+                            <tr>
+                                <td align="center">
+                                    <table role="presentation" style="width:100%%; max-width:680px; border-collapse:separate; border-spacing:0; background-color:#ffffff; border:1px solid #e7dcc4; border-radius:22px; overflow:hidden;">
+                                        <tr>
+                                            <td style="padding:30px 32px 24px 32px; background-color:#ffffff; border-bottom:1px solid #e7dcc4;">
+                                                <div style="font-size:12px; line-height:18px; letter-spacing:1.8px; text-transform:uppercase; color:#b08d57; font-weight:700; margin-bottom:10px;">
+                                                    Portfolio
+                                                </div>
+                                                <h1 style="margin:0; font-size:28px; line-height:36px; font-weight:700; color:#171717;">
+                                                    Nouveau message de contact
+                                                </h1>
+                                                <p style="margin:12px 0 0 0; font-size:15px; line-height:24px; color:#525252;">
+                                                    Un visiteur a utilisé le formulaire de contact de ton portfolio.
+                                                </p>
+                                            </td>
+                                        </tr>
 
-                        <div style="background:#111111; color:#d4af37; padding:20px; text-align:center;">
-                            <h2 style="margin:0;">Portfolio</h2>
-                        </div>
+                                        <tr>
+                                            <td style="padding:32px;">
+                                                <table role="presentation" style="width:100%%; border-collapse:collapse; margin-bottom:24px;">
+                                                    <tr>
+                                                        <td style="padding:0 0 16px 0;">
+                                                            <div style="font-size:13px; line-height:20px; font-weight:700; color:#b08d57; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">
+                                                                Informations du contact
+                                                            </div>
 
-                        <div style="padding:20px; color:#111;">
-                            <p>Vous avez reçu un nouveau message :</p>
+                                                            <div style="background-color:#fffaf0; border:1px solid #e7dcc4; border-radius:18px; padding:20px;">
+                                                                <table role="presentation" style="width:100%%; border-collapse:collapse;">
+                                                                    <tr>
+                                                                        <td style="padding:0 0 12px 0; width:120px; font-size:14px; line-height:22px; font-weight:700; color:#171717; vertical-align:top;">Nom</td>
+                                                                        <td style="padding:0 0 12px 0; font-size:14px; line-height:22px; color:#404040; vertical-align:top;">%s</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding:0 0 12px 0; width:120px; font-size:14px; line-height:22px; font-weight:700; color:#171717; vertical-align:top;">Email</td>
+                                                                        <td style="padding:0 0 12px 0; font-size:14px; line-height:22px; color:#404040; vertical-align:top;">
+                                                                            <a href="mailto:%s" style="color:#9a6b24; text-decoration:none; font-weight:700;">%s</a>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding:0 0 12px 0; width:120px; font-size:14px; line-height:22px; font-weight:700; color:#171717; vertical-align:top;">Sujet</td>
+                                                                        <td style="padding:0 0 12px 0; font-size:14px; line-height:22px; color:#404040; vertical-align:top;">%s</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding:0 0 12px 0; width:120px; font-size:14px; line-height:22px; font-weight:700; color:#171717; vertical-align:top;">Date</td>
+                                                                        <td style="padding:0 0 12px 0; font-size:14px; line-height:22px; color:#404040; vertical-align:top;">%s</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding:0; width:120px; font-size:14px; line-height:22px; font-weight:700; color:#171717; vertical-align:top;">IP</td>
+                                                                        <td style="padding:0; font-size:14px; line-height:22px; color:#404040; vertical-align:top;">%s</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
 
-                            <table style="width:100%; border-collapse:collapse;">
-                                <tr>
-                                    <td style="padding:8px; font-weight:bold;">Nom :</td>
-                                    <td style="padding:8px;">%s</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px; font-weight:bold;">Email :</td>
-                                    <td style="padding:8px;">%s</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px; font-weight:bold;">Sujet :</td>
-                                    <td style="padding:8px;">%s</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px; font-weight:bold;">Date :</td>
-                                    <td style="padding:8px;">%s</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px; font-weight:bold;">IP :</td>
-                                    <td style="padding:8px;">%s</td>
-                                </tr>
-                            </table>
+                                                <table role="presentation" style="width:100%%; border-collapse:collapse;">
+                                                    <tr>
+                                                        <td>
+                                                            <div style="font-size:13px; line-height:20px; font-weight:700; color:#b08d57; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">
+                                                                Message
+                                                            </div>
+                                                            <div style="background-color:#ffffff; border:1px solid #e7dcc4; border-left:4px solid #b08d57; border-radius:18px; padding:20px; font-size:15px; line-height:26px; color:#171717;">
+                                                                %s
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
 
-                            <div style="margin-top:20px;">
-                                <p style="font-weight:bold;">Message :</p>
-                                <div style="border:1px solid #e5e7eb; padding:15px; border-radius:8px;">
-                                    %s
-                                </div>
-                            </div>
+                                                <table role="presentation" style="width:100%%; border-collapse:collapse; margin-top:24px;">
+                                                    <tr>
+                                                        <td align="left">
+                                                            <a href="mailto:%s?subject=%s"
+                                                               style="display:inline-block; background-color:#b08d57; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; line-height:20px; padding:12px 20px; border-radius:999px;">
+                                                                Répondre au contact
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
 
-                            <div style="margin-top:20px;">
-                                <a href="mailto:%s"
-                                   style="background:#d4af37; color:#000; padding:10px 15px; text-decoration:none; border-radius:5px;">
-                                    Répondre
-                                </a>
-                            </div>
-                        </div>
+                                        <tr>
+                                            <td style="padding:20px 32px 32px 32px; border-top:1px solid #e7dcc4; background-color:#ffffff;">
+                                                <p style="margin:0; font-size:12px; line-height:20px; color:#737373; text-align:center;">
+                                                    Message envoyé depuis le formulaire de contact du portfolio.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                </div>
+                </body>
+                </html>
                 """.formatted(
-                escapeHtml(name),
-                escapeHtml(email),
-                escapeHtml(subject),
-                date,
-                escapeHtml(ip),
-                nl2br(escapeHtml(message)),
-                email
+                safeName,
+                safeEmail,
+                safeEmail,
+                safeSubject,
+                safeSentAt,
+                safeIp,
+                safeMessage,
+                safeEmail,
+                urlEncodeSubject("Re: " + subject)
         );
     }
 
@@ -223,6 +307,15 @@ public class ContactService {
     }
 
     private String nl2br(String value) {
-        return value.replace("\n", "<br>");
+        return value.replace("\r\n", "\n").replace("\n", "<br>");
+    }
+
+    private String urlEncodeSubject(String value) {
+        return value
+                .replace("%", "%25")
+                .replace(" ", "%20")
+                .replace(":", "%3A")
+                .replace("[", "%5B")
+                .replace("]", "%5D");
     }
 }
