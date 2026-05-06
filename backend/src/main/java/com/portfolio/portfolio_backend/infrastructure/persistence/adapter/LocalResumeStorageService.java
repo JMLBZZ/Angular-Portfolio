@@ -24,7 +24,7 @@ public class LocalResumeStorageService implements ResumeStorageService {
         validate(file);
 
         try {
-            return cloudinaryService.uploadPdf(file.getBytes());
+            return cloudinaryService.uploadPdf(file.getBytes(), file.getOriginalFilename());
         } catch (IOException ex) {
             throw new FileStorageException("Impossible d'envoyer le CV vers Cloudinary.", ex);
         }

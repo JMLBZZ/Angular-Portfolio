@@ -35,10 +35,20 @@ public class CloudinaryService {
         return uploadResult.get("secure_url").toString();
     }
 
-    public String uploadPdf(byte[] fileBytes) throws IOException {
+    public String uploadPdf(byte[] fileBytes, String originalFilename) throws IOException {
+
+        String fileNameWithoutExtension = originalFilename
+                .replaceAll("\\.pdf$", "")
+                .replaceAll("[^a-zA-Z0-9-_]", "_")
+                .toLowerCase();
+
         Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap(
                 "folder", "portfolio/resumes",
-                "resource_type", "raw"
+                "resource_type", "raw",
+                "public_id", fileNameWithoutExtension,
+                "format", "pdf",
+                "use_filename", true,
+                "unique_filename", false
         ));
 
         return uploadResult.get("secure_url").toString();
