@@ -2,26 +2,21 @@ package com.portfolio.portfolio_backend.infrastructure.persistence.adapter;
 
 import com.portfolio.portfolio_backend.application.exception.FileStorageException;
 import com.portfolio.portfolio_backend.application.service.ProjectImageStorageService;
-import com.portfolio.portfolio_backend.infrastructure.config.UploadProperties;
+import com.portfolio.portfolio_backend.infrastructure.external.cloudinary.CloudinaryService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @Service
 public class LocalProjectImageStorageService implements ProjectImageStorageService {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    private final UploadProperties uploadProperties;
+    private final CloudinaryService cloudinaryService;
 
-    public LocalProjectImageStorageService(UploadProperties uploadProperties) {
-        this.uploadProperties = uploadProperties;
+    public LocalProjectImageStorageService(CloudinaryService cloudinaryService) {
+        this.cloudinaryService = cloudinaryService;
     }
 
     @Override
@@ -29,23 +24,9 @@ public class LocalProjectImageStorageService implements ProjectImageStorageServi
         validate(file);
 
         try {
-            Path baseDir = Paths.get(uploadProperties.dir(), uploadProperties.projectsSubdir())
-                    .toAbsolutePath()
-                    .normalize();
-
-            Files.createDirectories(baseDir);
-
-            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename() == null ? "" : file.getOriginalFilename());
-            String extension = extractExtension(originalFilename);
-            String storedFileName = UUID.randomUUID() + extension;
-
-            Path target = baseDir.resolve(storedFileName).normalize();
-
-            file.transferTo(target);
-
-            return "/uploads/" + uploadProperties.projectsSubdir() + "/" + storedFileName;
+            return cloudinaryService.uploadImage(file.getBytes());
         } catch (IOException ex) {
-            throw new FileStorageException("Impossible d'enregistrer le fichier.", ex);
+            throw new FileStorageException("Impossible d'envoyer l'image vers Cloudinary.", ex);
         }
     }
 
@@ -55,19 +36,10 @@ public class LocalProjectImageStorageService implements ProjectImageStorageServi
             return;
         }
 
-        if (!fileUrl.startsWith("/uploads/" + uploadProperties.projectsSubdir() + "/")) {
-            return;
-        }
-
         try {
-            String filename = fileUrl.substring(("/uploads/" + uploadProperties.projectsSubdir() + "/").length());
-            Path filePath = Paths.get(uploadProperties.dir(), uploadProperties.projectsSubdir(), filename)
-                    .toAbsolutePath()
-                    .normalize();
-
-            Files.deleteIfExists(filePath);
+            cloudinaryService.deleteImage(fileUrl);
         } catch (IOException ex) {
-            throw new FileStorageException("Impossible de supprimer le fichier.", ex);
+            throw new FileStorageException("Impossible de supprimer l'image Cloudinary.", ex);
         }
     }
 
@@ -84,13 +56,5 @@ public class LocalProjectImageStorageService implements ProjectImageStorageServi
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new FileStorageException("Seules les images sont autorisées.");
         }
-    }
-
-    private String extractExtension(String filename) {
-        int index = filename.lastIndexOf('.');
-        if (index < 0) {
-            return "";
-        }
-        return filename.substring(index).toLowerCase();
     }
 }

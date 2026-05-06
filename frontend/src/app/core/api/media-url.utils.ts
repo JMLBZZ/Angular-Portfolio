@@ -13,7 +13,7 @@ export function resolveMediaUrl(url: string | null | undefined): string | undefi
     value.startsWith('data:') ||
     value.startsWith('blob:')
   ) {
-    return value;
+    return optimizeCloudinaryImageUrl(value);
   }
 
   if (value.startsWith('/')) {
@@ -21,4 +21,16 @@ export function resolveMediaUrl(url: string | null | undefined): string | undefi
   }
 
   return value;
+}
+
+function optimizeCloudinaryImageUrl(url: string): string {
+  if (!url.includes('res.cloudinary.com') || !url.includes('/image/upload/')) {
+    return url;
+  }
+
+  if (url.includes('/image/upload/f_auto,q_auto/')) {
+    return url;
+  }
+
+  return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
 }

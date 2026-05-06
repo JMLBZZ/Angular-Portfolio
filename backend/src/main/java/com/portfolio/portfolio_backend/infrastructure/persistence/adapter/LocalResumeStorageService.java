@@ -2,26 +2,21 @@ package com.portfolio.portfolio_backend.infrastructure.persistence.adapter;
 
 import com.portfolio.portfolio_backend.application.exception.FileStorageException;
 import com.portfolio.portfolio_backend.application.service.ResumeStorageService;
-import com.portfolio.portfolio_backend.infrastructure.config.UploadProperties;
+import com.portfolio.portfolio_backend.infrastructure.external.cloudinary.CloudinaryService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @Service
 public class LocalResumeStorageService implements ResumeStorageService {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    private final UploadProperties uploadProperties;
+    private final CloudinaryService cloudinaryService;
 
-    public LocalResumeStorageService(UploadProperties uploadProperties) {
-        this.uploadProperties = uploadProperties;
+    public LocalResumeStorageService(CloudinaryService cloudinaryService) {
+        this.cloudinaryService = cloudinaryService;
     }
 
     @Override
@@ -29,26 +24,9 @@ public class LocalResumeStorageService implements ResumeStorageService {
         validate(file);
 
         try {
-            Path baseDir = Paths.get(uploadProperties.dir(), uploadProperties.resumesSubdir())
-                    .toAbsolutePath()
-                    .normalize();
-
-            Files.createDirectories(baseDir);
-
-            String originalFilename = StringUtils.cleanPath(
-                    file.getOriginalFilename() == null ? "resume.pdf" : file.getOriginalFilename()
-            );
-
-            String extension = extractExtension(originalFilename);
-            String storedFileName = UUID.randomUUID() + extension;
-
-            Path target = baseDir.resolve(storedFileName).normalize();
-
-            file.transferTo(target);
-
-            return "/uploads/" + uploadProperties.resumesSubdir() + "/" + storedFileName;
+            return cloudinaryService.uploadPdf(file.getBytes());
         } catch (IOException ex) {
-            throw new FileStorageException("Impossible d'enregistrer le CV.", ex);
+            throw new FileStorageException("Impossible d'envoyer le CV vers Cloudinary.", ex);
         }
     }
 
@@ -58,20 +36,10 @@ public class LocalResumeStorageService implements ResumeStorageService {
             return;
         }
 
-        String expectedPrefix = "/uploads/" + uploadProperties.resumesSubdir() + "/";
-        if (!fileUrl.startsWith(expectedPrefix)) {
-            return;
-        }
-
         try {
-            String filename = fileUrl.substring(expectedPrefix.length());
-            Path filePath = Paths.get(uploadProperties.dir(), uploadProperties.resumesSubdir(), filename)
-                    .toAbsolutePath()
-                    .normalize();
-
-            Files.deleteIfExists(filePath);
+            cloudinaryService.deleteRawFile(fileUrl);
         } catch (IOException ex) {
-            throw new FileStorageException("Impossible de supprimer l'ancien CV.", ex);
+            throw new FileStorageException("Impossible de supprimer l'ancien CV Cloudinary.", ex);
         }
     }
 
@@ -93,13 +61,5 @@ public class LocalResumeStorageService implements ResumeStorageService {
         if (!isPdfContentType && !isPdfExtension) {
             throw new FileStorageException("Seuls les fichiers PDF sont autorisés.");
         }
-    }
-
-    private String extractExtension(String filename) {
-        int index = filename.lastIndexOf('.');
-        if (index < 0) {
-            return ".pdf";
-        }
-        return filename.substring(index).toLowerCase();
     }
 }
