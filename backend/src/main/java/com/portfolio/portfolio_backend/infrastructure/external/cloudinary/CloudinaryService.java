@@ -44,7 +44,7 @@ public class CloudinaryService {
 
         Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap(
                 "folder", "portfolio/resumes",
-                "resource_type", "raw",
+                "resource_type", "image",
                 "public_id", fileNameWithoutExtension,
                 "format", "pdf",
                 "use_filename", true,
@@ -74,7 +74,7 @@ public class CloudinaryService {
         }
 
         cloudinary.uploader().destroy(publicId, ObjectUtils.asMap(
-                "resource_type", "raw"
+                "resource_type", "image"
         ));
     }
 
