@@ -13,7 +13,7 @@ export function resolveMediaUrl(url: string | null | undefined): string | undefi
     value.startsWith('data:') ||
     value.startsWith('blob:')
   ) {
-    return optimizeCloudinaryImageUrl(value);
+    return optimizeCloudinaryUrl(value);
   }
 
   if (value.startsWith('/')) {
@@ -23,14 +23,24 @@ export function resolveMediaUrl(url: string | null | undefined): string | undefi
   return value;
 }
 
-function optimizeCloudinaryImageUrl(url: string): string {
-  if (!url.includes('res.cloudinary.com') || !url.includes('/image/upload/')) {
-    return url;
+function optimizeCloudinaryUrl(url: string): string {
+
+  // IMAGE → optimisation classique
+  if (url.includes('/image/upload/')) {
+    if (url.includes('/f_auto,q_auto/')) {
+      return url;
+    }
+
+    return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
   }
 
-  if (url.includes('/image/upload/f_auto,q_auto/')) {
-    return url;
+  // PDF → transformation en image preview
+  if (url.includes('/raw/upload/') && url.endsWith('.pdf')) {
+
+    return url
+      .replace('/raw/upload/', '/image/upload/')
+      .replace('/upload/', '/upload/pg_1,f_jpg,q_auto,w_600/');
   }
 
-  return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
+  return url;
 }
