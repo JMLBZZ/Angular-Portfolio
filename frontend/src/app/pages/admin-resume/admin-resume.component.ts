@@ -75,8 +75,20 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     return this.selectedFile?.name ?? null;
   }
 
+  get thumbnailUrl(): string | undefined {
+    if (this.thumbnailDataUrl) {
+      return this.thumbnailDataUrl;
+    }
+
+    if (!this.selectedFile) {
+      return this.getCloudinaryPdfPreviewUrl(this.resumeUrl);
+    }
+
+    return undefined;
+  }
+
   get hasThumbnail(): boolean {
-    return !!this.thumbnailDataUrl;
+    return !!this.thumbnailUrl;
   }
 
   get thumbnailTitle(): string {
@@ -93,7 +105,7 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
 
     if (!file) {
       this.clearSelectedFile(input);
-      await this.generateThumbnailFromCurrentResume();
+      this.prepareCurrentResumeThumbnail();
       return;
     }
 
@@ -102,7 +114,7 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
       this.toastService.error(this.errorMessage);
       this.scrollToGlobalError();
       this.clearSelectedFile(input);
-      await this.generateThumbnailFromCurrentResume();
+      this.prepareCurrentResumeThumbnail();
       return;
     }
 
@@ -123,15 +135,15 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
 
     this.adminResumeApi.upload(this.selectedFile).subscribe({
-      next: async (resume) => {
+      next: (resume) => {
         this.resume = resume;
         this.selectedFile = null;
         this.isSubmitting = false;
         this.errorMessage = '';
         this.toastService.success('CV mis à jour avec succès.');
-        await this.generateThumbnailFromCurrentResume();
+        this.prepareCurrentResumeThumbnail();
       },
-      error: async (error) => {
+      error: (error) => {
         this.isSubmitting = false;
         this.errorMessage = extractApiErrorMessage(
           error,
@@ -139,7 +151,7 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
         );
         this.toastService.error(this.errorMessage);
         this.scrollToGlobalError();
-        await this.generateThumbnailFromCurrentResume();
+        this.prepareCurrentResumeThumbnail();
       },
     });
   }
@@ -147,7 +159,7 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
   clearSelection(fileInput?: HTMLInputElement): void {
     this.errorMessage = '';
     this.clearSelectedFile(fileInput);
-    void this.generateThumbnailFromCurrentResume();
+    this.prepareCurrentResumeThumbnail();
   }
 
   private loadResume(): void {
@@ -155,10 +167,10 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.adminResumeApi.get().subscribe({
-      next: async (resume) => {
+      next: (resume) => {
         this.resume = resume;
         this.isLoading = false;
-        await this.generateThumbnailFromCurrentResume();
+        this.prepareCurrentResumeThumbnail();
       },
       error: (error) => {
         this.isLoading = false;
@@ -172,70 +184,32 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async generateThumbnailFromCurrentResume(): Promise<void> {
-    const url = this.resumeUrl;
-
-    if (!url) {
-      this.thumbnailDataUrl = undefined;
-      return;
-    }
-
-    await this.generateThumbnailFromUrl(url);
+  private prepareCurrentResumeThumbnail(): void {
+    this.thumbnailRenderVersion++;
+    this.thumbnailDataUrl = undefined;
+    this.isGeneratingThumbnail = false;
   }
 
-  private async generateThumbnailFromUrl(url: string): Promise<void> {
-    const version = ++this.thumbnailRenderVersion;
-    this.isGeneratingThumbnail = true;
-
-    try {
-      const loadingTask = getDocument(url);
-      const pdf = await loadingTask.promise;
-
-      if (version !== this.thumbnailRenderVersion) {
-        return;
-      }
-
-      const page = await pdf.getPage(1);
-      const baseViewport = page.getViewport({ scale: 1 });
-
-      /**
-       * On génère une image assez nette,
-       * puis on laisse le CSS faire le cadrage "cover".
-       */
-      const targetWidth = 900;
-      const scale = targetWidth / baseViewport.width;
-      const viewport = page.getViewport({ scale });
-
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-
-      if (!context) {
-        throw new Error('Impossible de créer le contexte canvas.');
-      }
-
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-
-      await page.render({
-        canvas,
-        canvasContext: context,
-        viewport,
-      }).promise;
-
-      if (version !== this.thumbnailRenderVersion) {
-        return;
-      }
-
-      this.thumbnailDataUrl = canvas.toDataURL('image/png');
-    } catch {
-      if (version === this.thumbnailRenderVersion) {
-        this.thumbnailDataUrl = undefined;
-      }
-    } finally {
-      if (version === this.thumbnailRenderVersion) {
-        this.isGeneratingThumbnail = false;
-      }
+  private getCloudinaryPdfPreviewUrl(url: string | null | undefined): string | undefined {
+    if (!url) {
+      return undefined;
     }
+
+    if (!url.includes('res.cloudinary.com') || !url.toLowerCase().endsWith('.pdf')) {
+      return undefined;
+    }
+
+    if (url.includes('/image/upload/')) {
+      return url.replace('/image/upload/', '/image/upload/pg_1,f_jpg,q_auto,w_900/');
+    }
+
+    if (url.includes('/raw/upload/')) {
+      return url
+        .replace('/raw/upload/', '/image/upload/')
+        .replace('/upload/', '/upload/pg_1,f_jpg,q_auto,w_900/');
+    }
+
+    return undefined;
   }
 
   private async generateThumbnailFromFile(file: File): Promise<void> {
@@ -259,6 +233,10 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
       const page = await pdf.getPage(1);
       const baseViewport = page.getViewport({ scale: 1 });
 
+      /**
+       * On génère une image assez nette,
+       * puis on laisse le CSS faire le cadrage "cover".
+       */
       const targetWidth = 900;
       const scale = targetWidth / baseViewport.width;
       const viewport = page.getViewport({ scale });
