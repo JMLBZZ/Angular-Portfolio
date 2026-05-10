@@ -43,14 +43,16 @@
           {{ errorMessage }}
         </p>
 
-        <app-primary-button
-          type="submit"
-          fullWidthMode="always"
-          [loading]="isSubmitting"
-          [disabled]="isSubmitting"
-          ariaLabel="Se connecter au backoffice">
-          Se connecter
-        </app-primary-button>
+        <div class="pt-2">
+          <app-primary-button
+            type="submit"
+            fullWidthMode="always"
+            [loading]="isSubmitting"
+            [disabled]="isSubmitting"
+            ariaLabel="Se connecter au backoffice">
+            Se connecter
+          </app-primary-button>
+        </div>
       </form>
     </div>
   </div>

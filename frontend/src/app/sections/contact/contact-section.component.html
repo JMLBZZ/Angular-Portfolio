@@ -125,7 +125,7 @@
 
           <!-- Social -->
           <div appRevealOnScroll>
-            <p class="text-sm text-foreground/70 mb-4">
+            <p class="text-sm text-center text-foreground/70 mb-4">
               {{ 'contact.followMe' | translate }}
             </p>
 
@@ -154,9 +154,10 @@
         <!-- RIGHT (Form) -->
         <div appRevealOnScroll class="rounded-3xl border border-border/70 bg-card/40 backdrop-blur-xl shadow-soft">
           <div class="p-6">
-            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-3">
               <!-- Nom -->
               <app-text-field
+                class="block"
                 id="contact-name"
                 [label]="'contact.form.name' | translate"
                 [placeholder]="'contact.form.placeholders.name' | translate"
@@ -167,6 +168,7 @@
 
               <!-- Email -->
               <app-text-field
+                class="block"
                 id="contact-email"
                 type="email"
                 [label]="'contact.form.email' | translate"
@@ -178,6 +180,7 @@
 
               <!-- Sujet -->
               <app-text-field
+                class="block"
                 id="contact-subject"
                 [label]="'contact.form.subject' | translate"
                 [placeholder]="'contact.form.placeholders.subject' | translate"
@@ -188,6 +191,7 @@
 
               <!-- Message -->
               <app-text-area
+                class="block"
                 id="contact-message"
                 [label]="'contact.form.message' | translate"
                 [placeholder]="'contact.form.placeholders.message' | translate"
@@ -204,16 +208,18 @@
               </div>
 
               <!-- Submit -->
-              <app-primary-button
-                type="submit"
-                [loading]="isSubmitting"
-                [disabled]="isSubmitting"
-                iconClass="bi bi-send-fill"
-                fullWidthMode="always"
-              >
-                <span *ngIf="!isSubmitting">{{ 'contact.form.send' | translate }}</span>
-                <span *ngIf="isSubmitting">{{ 'contact.form.sending' | translate }}</span>
-              </app-primary-button>
+              <div class="pt-2">
+                <app-primary-button
+                  type="submit"
+                  [loading]="isSubmitting"
+                  [disabled]="isSubmitting"
+                  iconClass="bi bi-send-fill"
+                  fullWidthMode="always"
+                >
+                  <span *ngIf="!isSubmitting">{{ 'contact.form.send' | translate }}</span>
+                  <span *ngIf="isSubmitting">{{ 'contact.form.sending' | translate }}</span>
+                </app-primary-button>
+              </div>
             </form>
           </div>
         </div>

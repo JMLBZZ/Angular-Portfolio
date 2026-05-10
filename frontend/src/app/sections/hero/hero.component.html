@@ -76,7 +76,7 @@
       appRevealOnScroll
       class="grid items-center gap-10 md:gap-12 md:grid-cols-2"
     >
-      <div class="space-y-6">
+      <div class="space-y-6 text-center md:text-left">
         <div
           class="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-sm shadow-soft"
         >
@@ -99,7 +99,7 @@
             [innerHTML]="title || ('hero.titleLine1' | translate)"
           ></h1>
 
-          <p class="max-w-xl text-base leading-relaxed text-foreground/70 md:text-lg">
+          <p class="mx-auto max-w-xl text-base leading-relaxed text-foreground/70 md:mx-0 md:text-lg">
             {{ subtitle || ('hero.subtitle' | translate) }}
           </p>
         </div>
@@ -133,7 +133,7 @@
           </app-secondary-button>
         </div>
 
-        <div class="flex flex-wrap gap-2 pt-2">
+        <div class="flex flex-wrap justify-center gap-2 pt-2 md:justify-start">
           <span
             *ngFor="let badge of techBadges; trackBy: trackByTechBadge"
             class="rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-foreground/70"
