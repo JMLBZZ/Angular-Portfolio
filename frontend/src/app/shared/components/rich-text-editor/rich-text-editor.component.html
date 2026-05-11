@@ -1,0 +1,194 @@
+<div class="space-y-2">
+  <div class="flex items-center justify-between gap-3 flex-wrap">
+    <label
+      *ngIf="label"
+      class="text-sm font-semibold"
+      [attr.for]="id"
+    >
+      {{ label }}
+    </label>
+
+    <button
+      type="button"
+      class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+      (click)="toggleHtmlMode()"
+      [disabled]="disabled"
+    >
+      {{ isHtmlMode ? 'Mode visuel' : 'Voir HTML' }}
+    </button>
+  </div>
+
+  <div class="rounded-3xl border border-border/70 bg-card/40 overflow-hidden">
+    <div
+      class="flex flex-wrap items-center gap-2 border-b border-border/70 p-3"
+      *ngIf="!isHtmlMode"
+    >
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs font-bold hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyCommand('bold')"
+        [disabled]="disabled"
+      >
+        G
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs italic hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyCommand('italic')"
+        [disabled]="disabled"
+      >
+        I
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs underline hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyCommand('underline')"
+        [disabled]="disabled"
+      >
+        U
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyHeading('h2')"
+        [disabled]="disabled"
+      >
+        Titre 2
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyHeading('h3')"
+        [disabled]="disabled"
+      >
+        Titre 3
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyHeading('p')"
+        [disabled]="disabled"
+      >
+        Paragraphe
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyCommand('insertUnorderedList')"
+        [disabled]="disabled"
+      >
+        Liste
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="applyCommand('insertOrderedList')"
+        [disabled]="disabled"
+      >
+        Liste num.
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-border/70 text-xs hover:bg-card transition disabled:opacity-50 disabled:pointer-events-none"
+        (click)="addLink()"
+        [disabled]="disabled"
+      >
+        Lien
+      </button>
+
+      <div class="ml-auto">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center min-h-9 px-4 rounded-full border border-red-500/45 text-xs text-red-600 hover:bg-red-500/10 transition disabled:opacity-50 disabled:pointer-events-none"
+          (click)="clearEditor()"
+          [disabled]="disabled"
+        >
+          Vider
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!isHtmlMode" class="relative">
+      <div
+        *ngIf="!value"
+        class="pointer-events-none absolute left-4 top-4 text-sm text-foreground/45"
+      >
+        {{ placeholder }}
+      </div>
+
+      <div
+        #editor
+        [id]="id"
+        class="
+          h-[320px]
+          overflow-y-auto
+          px-4
+          py-4
+          text-sm
+          outline-none
+
+          [&_h2]:mt-5
+          [&_h2]:mb-3
+          [&_h2]:text-xl
+          [&_h2]:font-black
+          [&_h2]:tracking-tight
+          [&_h2]:text-foreground
+
+          [&_h3]:mt-4
+          [&_h3]:mb-2
+          [&_h3]:text-lg
+          [&_h3]:font-bold
+          [&_h3]:text-foreground
+
+          [&_p]:mb-3
+          [&_p]:leading-relaxed
+          [&_p]:text-foreground/70
+
+          [&_ul]:mb-3
+          [&_ul]:pl-5
+          [&_ul]:list-disc
+          [&_ul]:text-foreground/70
+
+          [&_ol]:mb-3
+          [&_ol]:pl-5
+          [&_ol]:list-decimal
+          [&_ol]:text-foreground/70
+
+          [&_li]:leading-relaxed
+
+          [&_a]:text-primary
+          [&_a]:underline
+          [&_a]:underline-offset-4
+        "
+        contenteditable="true"
+        [attr.contenteditable]="disabled ? 'false' : 'true'"
+        (input)="handleInput()"
+        (blur)="handleBlur()"
+        (paste)="handlePaste($event)"
+      ></div>
+    </div>
+
+    <div *ngIf="isHtmlMode">
+      <textarea
+        class="w-full min-h-[320px] bg-transparent px-4 py-4 font-mono text-sm outline-none resize-y"
+        [value]="htmlValue"
+        [disabled]="disabled"
+        (input)="handleHtmlInput(($any($event.target)).value)"
+        (blur)="handleBlur()"
+        spellcheck="false"
+      ></textarea>
+    </div>
+  </div>
+
+  <p class="text-xs opacity-70">
+    Le HTML est nettoyé côté backend avant sauvegarde.
+  </p>
+</div>

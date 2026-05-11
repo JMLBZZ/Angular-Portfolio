@@ -12,6 +12,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'legal',
+    loadComponent: () =>
+      import('./pages/legal-page/legal-page.component').then(
+        (m) => m.LegalPageComponent
+      ),
+  },
+  {
     path: 'admin/login',
     loadComponent: () =>
       import('./pages/admin-login/admin-login.component').then(
@@ -82,6 +89,14 @@ export const routes: Routes = [
           import('./pages/admin-resume/admin-resume.component').then(
             (m) => m.AdminResumeComponent
           ),
+      },
+      {
+        path: 'legal',
+        loadComponent: () =>
+          import('./pages/admin-legal/admin-legal.component').then(
+            (m) => m.AdminLegalComponent
+          ),
+        canDeactivate: [pendingChangesGuard],
       },
     ],
   },

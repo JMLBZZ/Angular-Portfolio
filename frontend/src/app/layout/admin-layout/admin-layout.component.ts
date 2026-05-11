@@ -97,6 +97,10 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       return 'Administration CV';
     }
 
+    if (url.includes('/admin/legal')) {
+      return 'Administration mentions légales';
+    }
+
     return 'Administration';
   }
 }

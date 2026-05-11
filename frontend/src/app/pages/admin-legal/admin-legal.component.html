@@ -1,0 +1,185 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-sm uppercase tracking-[0.2em] text-primary font-semibold">
+        Administration
+      </p>
+      <h2 class="text-3xl font-bold tracking-tight">
+        Mentions légales / Confidentialité
+      </h2>
+      <p class="text-sm opacity-75 mt-2">
+        Ici, tu gères le contenu dynamique de la page légale publique.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <a
+        routerLink="/legal"
+        target="_blank"
+        class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
+      >
+        Voir la page
+      </a>
+
+      <a
+        routerLink="/admin/dashboard"
+        class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
+      >
+        Retour au dashboard
+      </a>
+
+      <app-primary-button
+        type="button"
+        [loading]="isSubmitting"
+        [disabled]="isSubmitting || isTranslating"
+        (pressed)="save()"
+      >
+        <span *ngIf="!isSubmitting">Enregistrer</span>
+        <span *ngIf="isSubmitting">Enregistrement...</span>
+      </app-primary-button>
+    </div>
+  </div>
+
+  <div
+    class="rounded-3xl border border-border/70 bg-card/60 p-6"
+    *ngIf="isLoading"
+    aria-live="polite"
+  >
+    Chargement du formulaire...
+  </div>
+
+  <div
+    *ngIf="errorMessage"
+    id="admin-legal-global-error"
+    tabindex="-1"
+    class="rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-2 focus:outline-none"
+    aria-live="assertive"
+  >
+    <p class="font-semibold text-red-600">
+      L’action n’a pas pu être finalisée.
+    </p>
+    <p class="text-sm text-red-600">
+      {{ errorMessage }}
+    </p>
+  </div>
+
+  <form
+    *ngIf="!isLoading"
+    id="admin-legal-form"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+    class="space-y-6"
+    novalidate
+  >
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h3 class="text-lg font-semibold">Contenu général</h3>
+          <p class="text-sm opacity-75 mt-1">
+            Le contenu est stocké en HTML sécurisé après nettoyage côté backend.
+          </p>
+          <p class="text-sm opacity-75 mt-2">
+            Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <span
+            *ngIf="form.dirty && !isSubmitting"
+            class="text-sm opacity-70"
+            aria-live="polite"
+          >
+            Modifications non enregistrées
+          </span>
+
+          <app-primary-button
+            type="button"
+            [loading]="isTranslating"
+            [disabled]="isSubmitting || isTranslating"
+            (pressed)="translateAllToEnglish()"
+          >
+            Tout traduire en anglais
+          </app-primary-button>
+        </div>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-2">
+        <app-text-field
+          id="legal-title-fr"
+          label="Titre de page (FR)"
+          placeholder="Mentions légales & Politique de confidentialité"
+          [control]="form.controls.titleFr"
+        ></app-text-field>
+
+        <app-text-field
+          id="legal-title-en"
+          label="Titre de page (EN)"
+          placeholder="Legal notice & Privacy policy"
+          [control]="form.controls.titleEn"
+        ></app-text-field>
+      </div>
+    </div>
+
+    <div class="grid gap-6 xl:grid-cols-2">
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
+        <app-rich-text-editor
+          id="legal-content-fr"
+          label="Contenu riche (FR)"
+          placeholder="Rédige ici les mentions légales et la politique de confidentialité en français..."
+          formControlName="contentFr"
+        ></app-rich-text-editor>
+
+        <p
+          *ngIf="form.controls.contentFr.invalid && form.controls.contentFr.touched"
+          class="text-xs text-red-500"
+        >
+          Le contenu FR est obligatoire et limité à 20 000 caractères.
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
+        <app-rich-text-editor
+          id="legal-content-en"
+          label="Contenu riche (EN)"
+          placeholder="Write the legal notice and privacy policy in English..."
+          formControlName="contentEn"
+        ></app-rich-text-editor>
+
+        <p
+          *ngIf="form.controls.contentEn.invalid && form.controls.contentEn.touched"
+          class="text-xs text-red-500"
+        >
+          Le contenu EN est obligatoire et limité à 20 000 caractères.
+        </p>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
+      <h3 class="text-lg font-semibold">Aide au contenu RGPD/CNIL</h3>
+
+      <div class="grid gap-4 md:grid-cols-2 text-sm opacity-80">
+        <div class="space-y-2">
+          <p class="font-semibold opacity-100">À prévoir dans la page :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>identité du responsable du site ;</li>
+            <li>hébergeur ;</li>
+            <li>formulaire de contact ;</li>
+            <li>données collectées ;</li>
+            <li>finalité du traitement ;</li>
+            <li>durée de conservation ;</li>
+            <li>droits RGPD ;</li>
+            <li>adresse de contact pour exercer les droits.</li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <p class="font-semibold opacity-100">Important :</p>
+          <p>
+            Cette zone ne remplace pas un conseil juridique. Elle permet simplement
+            d’administrer proprement le contenu légal du portfolio.
+          </p>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>

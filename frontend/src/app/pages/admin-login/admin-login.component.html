@@ -18,9 +18,10 @@
         </p>
       </div>
 
-      <form class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+      <form class="space-y-3" [formGroup]="form" (ngSubmit)="submit()">
         <app-text-field
           id="admin-email"
+          class="block"
           label="Email"
           type="email"
           placeholder="admin@email.com"
@@ -31,6 +32,7 @@
 
         <app-text-field
           id="admin-password"
+          class="block"
           label="Mot de passe"
           type="password"
           placeholder="••••••••"

@@ -11,3 +11,4 @@
 /projects/toto
 /projects/portfolio-angular
 /projects/tttt
+/legal
