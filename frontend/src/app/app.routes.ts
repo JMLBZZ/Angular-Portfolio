@@ -41,6 +41,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'projects',
+        loadComponent: () =>
+          import('./pages/admin-dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent
+          ),
+      },
+      {
         path: 'projects/new',
         loadComponent: () =>
           import('./pages/admin-project-form/admin-project-form.component').then(
@@ -55,11 +62,6 @@ export const routes: Routes = [
             (m) => m.AdminProjectFormComponent
           ),
         canDeactivate: [pendingChangesGuard],
-      },
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'dashboard',
       },
       {
         path: 'contact',
@@ -97,6 +99,25 @@ export const routes: Routes = [
             (m) => m.AdminLegalComponent
           ),
         canDeactivate: [pendingChangesGuard],
+      },
+      {
+        path: 'messages',
+        loadComponent: () =>
+          import('./pages/admin-messages/admin-messages.component').then(
+            (m) => m.AdminMessagesComponent
+          ),
+      },
+      {
+        path: 'appearance',
+        loadComponent: () =>
+          import('./pages/admin-appearance/admin-appearance.component').then(
+            (m) => m.AdminAppearanceComponent
+          ),
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard',
       },
     ],
   },

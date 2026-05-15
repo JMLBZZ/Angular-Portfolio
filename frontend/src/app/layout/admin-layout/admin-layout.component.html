@@ -1,92 +1,160 @@
-<div class="min-h-screen bg-background text-foreground">
-  <header class="border-b border-border/70 bg-card/70 backdrop-blur sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+<div class="min-h-screen bg-muted/40 text-foreground">
+  <header class="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/70 bg-background/95 backdrop-blur">
+    <div class="h-16 px-4 flex items-center justify-between gap-4">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">Admin</p>
-        <h1 class="text-sm sm:text-base font-bold">Backoffice portfolio</h1>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Admin
+        </p>
+
+        <h1 class="text-sm font-bold">
+          Backoffice
+        </h1>
       </div>
 
-      <nav class="flex items-center gap-3 text-sm">
-        <a
-          routerLink="/admin/dashboard"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
-        >
-          Dashboard
-        </a>
+      <button
+        type="button"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-card/70 transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        aria-label="Ouvrir ou fermer le menu administrateur"
+      >
+        <lucide-icon
+          *ngIf="!isMobileMenuOpen"
+          [img]="MenuIcon"
+          class="h-5 w-5"
+        ></lucide-icon>
 
-        <a
-          routerLink="/admin/projects/new"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
-        >
-          Nouveau projet
-        </a>
+        <lucide-icon
+          *ngIf="isMobileMenuOpen"
+          [img]="XIcon"
+          class="h-5 w-5"
+        ></lucide-icon>
+      </button>
+    </div>
+  </header>
 
-        <a
-          routerLink="/admin/hero"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
-        >
-          Hero
-        </a>
+  <div
+    *ngIf="isMobileMenuOpen"
+    class="lg:hidden fixed inset-0 z-40 bg-background/70 backdrop-blur-sm"
+    (click)="closeMobileMenu()"
+    aria-hidden="true"
+  ></div>
 
-        <a
-          routerLink="/admin/about"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
-        >
-          About
-        </a>
+  <aside
+    class="fixed left-0 top-0 z-50 h-screen w-72 max-w-[85vw] border-r border-border/70 bg-background shadow-soft transition-transform duration-200 lg:translate-x-0 lg:shadow-none"
+    [class.translate-x-0]="isMobileMenuOpen"
+    [class.-translate-x-full]="!isMobileMenuOpen"
+  >
+    <div class="flex h-full flex-col">
+      <div class="border-b border-border/70 p-6">
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Admin
+        </p>
 
-        <a
-          routerLink="/admin/resume"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
-        >
-          CV
-        </a>
+        <h2 class="mt-1 text-xl font-bold">
+          <span class="text-primary">Back</span>office
+        </h2>
 
-        <a
-          routerLink="/admin/contact"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
-        >
-          Contact
-        </a>
+        <p class="mt-2 truncate text-xs opacity-70">
+          {{ email }}
+        </p>
+      </div>
 
+      <nav
+        class="flex-1 overflow-y-auto p-4 space-y-1"
+        aria-label="Navigation administrateur"
+      >
         <a
-          routerLink="/admin/legal"
-          routerLinkActive="text-primary font-semibold"
-          class="hover:opacity-100 opacity-80 transition"
+          *ngFor="let item of navItems"
+          [routerLink]="item.path"
+          routerLinkActive="bg-primary text-primary-foreground shadow-soft"
+          [routerLinkActiveOptions]="{ exact: item.exact === true }"
+          class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold opacity-80 transition hover:bg-card hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
-          Legal
-        </a>
+          <span
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-card/70 group-[.bg-primary]:border-primary-foreground/20 group-[.bg-primary]:bg-primary-foreground/10"
+            aria-hidden="true"
+          >
+            <lucide-icon
+              [img]="item.icon"
+              class="h-4 w-4"
+            ></lucide-icon>
+          </span>
 
+          <span>
+            {{ item.label }}
+          </span>
+        </a>
+      </nav>
+
+      <div class="border-t border-border/70 p-4 space-y-2">
         <a
           routerLink="/"
-          class="hover:opacity-100 opacity-80 transition"
           target="_blank"
+          class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold opacity-80 transition hover:bg-card hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
-          Voir le site
+          <span
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-card/70"
+          >
+            <lucide-icon
+              [img]="ExternalLinkIcon"
+              class="h-4 w-4"
+            ></lucide-icon>
+          </span>
+
+          <span>
+            Voir le site
+          </span>
         </a>
 
         <button
           type="button"
-          class="rounded-full border border-border/70 px-4 h-10 hover:bg-card transition"
+          class="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-red-500 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           (click)="logout()"
         >
-          Déconnexion
+          <span
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10"
+          >
+            <lucide-icon
+              [img]="LogOutIcon"
+              class="h-4 w-4"
+            ></lucide-icon>
+          </span>
+
+          <span>
+            Déconnexion
+          </span>
         </button>
-      </nav>
+      </div>
     </div>
-  </header>
+  </aside>
 
-  <main class="max-w-7xl mx-auto px-4 py-6">
-    <div class="mb-6 text-sm opacity-80">
-      Connecté en tant que <span class="font-semibold">{{ email }}</span>
+  <main class="min-h-screen pt-20 lg:pl-72 lg:pt-0">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <div class="mb-6 rounded-3xl border border-border/70 bg-background/80 p-5 backdrop-blur">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+              Espace administrateur
+            </p>
+
+            <h1 class="mt-1 text-2xl font-bold">
+              {{ currentPageTitle }}
+            </h1>
+          </div>
+
+          <div
+            class="rounded-2xl border border-border/70 bg-card/70 px-4 py-3 text-sm"
+          >
+            Connecté en tant que
+            <span class="font-semibold">
+              {{ email }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <router-outlet></router-outlet>
     </div>
-
-    <router-outlet></router-outlet>
   </main>
 </div>
