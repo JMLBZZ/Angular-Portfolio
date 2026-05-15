@@ -1,84 +1,203 @@
 <section class="space-y-6">
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
           Apparence
         </p>
 
         <h2 class="mt-2 text-2xl font-bold">
-          Apparence du portfolio
+          Centre de configuration visuelle
         </h2>
 
-        <p class="mt-2 max-w-2xl text-sm opacity-75">
-          Cette page servira à centraliser les réglages visuels du portfolio.
-          Pour l’instant, elle prépare l’espace sans modifier ton design public existant.
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Cette page sert de base pour suivre et préparer les réglages visuels du portfolio et de l’espace administrateur.
         </p>
       </div>
 
       <div class="rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm opacity-80">
-        Préparation UI
+        Configuration évolutive
       </div>
     </div>
   </div>
 
-  <div class="grid gap-4 lg:grid-cols-3">
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">Identité visuelle</p>
-      <p class="mt-2 text-2xl font-bold">JMLBZZ</p>
-      <p class="mt-2 text-sm opacity-70">
-        Couleurs, typographies et cohérence globale.
+      <p class="text-sm opacity-70">
+        Réglages actifs
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        {{ activeOptionsCount }}
       </p>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">Thème</p>
-      <p class="mt-2 text-2xl font-bold">Clair / sombre</p>
-      <p class="mt-2 text-sm opacity-70">
-        Le thème actuel reste géré par le service existant.
+      <p class="text-sm opacity-70">
+        Réglages prévus
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        {{ plannedOptionsCount }}
       </p>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">Interface admin</p>
-      <p class="mt-2 text-2xl font-bold">Uniformisation</p>
-      <p class="mt-2 text-sm opacity-70">
-        Layouts, formulaires, boutons et responsive.
+      <p class="text-sm opacity-70">
+        Design public
       </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        Conservé
+      </p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">
+        Admin UI
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        En cours
+      </p>
+    </div>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Paramètres
+        </p>
+
+        <h3 class="mt-2 text-xl font-bold">
+          Suivi des réglages visuels
+        </h3>
+
+        <p class="mt-1 text-sm opacity-75">
+          Pour l’instant, ces éléments servent de repère visuel. Plus tard, ils pourront être reliés au backend.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <article
+          *ngFor="let option of options"
+          class="rounded-2xl border border-border/70 bg-background/60 p-4"
+        >
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h4 class="font-bold">
+                {{ option.title }}
+              </h4>
+
+              <p class="mt-1 text-sm opacity-75">
+                {{ option.description }}
+              </p>
+            </div>
+
+            <span
+              class="w-fit rounded-full border px-3 py-1 text-xs font-semibold"
+              [class.border-primary]="option.status === 'active'"
+              [class.bg-primary]="option.status === 'active'"
+              [class.text-primary-foreground]="option.status === 'active'"
+              [class.border-border]="option.status === 'planned'"
+              [class.opacity-70]="option.status === 'planned'"
+            >
+              {{ getStatusLabel(option.status) }}
+            </span>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Identité
+        </p>
+
+        <h3 class="mt-2 text-xl font-bold">
+          Charte actuelle
+        </h3>
+
+        <p class="mt-1 text-sm opacity-75">
+          Rappel de la direction visuelle à conserver pendant les prochaines évolutions.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+          <p class="text-sm font-semibold">
+            Style général
+          </p>
+
+          <p class="mt-2 text-sm opacity-75">
+            Moderne, arrondi, clair, lisible, avec cartes et espacements généreux.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+          <p class="text-sm font-semibold">
+            Design public
+          </p>
+
+          <p class="mt-2 text-sm opacity-75">
+            Le portfolio public doit rester visuellement cohérent avec l’existant.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+          <p class="text-sm font-semibold">
+            Design admin
+          </p>
+
+          <p class="mt-2 text-sm opacity-75">
+            L’admin doit rester simple, fluide, responsive et intuitif.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
-    <h3 class="text-lg font-bold">
-      Réglages prévus
-    </h3>
+    <div>
+      <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+        Prochaines évolutions possibles
+      </p>
 
-    <div class="mt-5 grid gap-4 md:grid-cols-2">
-      <div class="rounded-2xl border border-border/70 bg-background/70 p-4">
-        <p class="font-semibold">Couleurs principales</p>
-        <p class="mt-1 text-sm opacity-70">
-          À connecter plus tard si tu veux rendre les couleurs modifiables depuis l’admin.
+      <h3 class="mt-2 text-xl font-bold">
+        Fonctionnalités futures
+      </h3>
+    </div>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-3">
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+        <p class="font-semibold">
+          Couleurs dynamiques
+        </p>
+
+        <p class="mt-2 text-sm opacity-75">
+          Permettre plus tard de changer certaines couleurs depuis l’admin.
         </p>
       </div>
 
-      <div class="rounded-2xl border border-border/70 bg-background/70 p-4">
-        <p class="font-semibold">Mode sombre</p>
-        <p class="mt-1 text-sm opacity-70">
-          À garder cohérent avec le thème déjà présent dans ton frontend.
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+        <p class="font-semibold">
+          Préférences utilisateur
+        </p>
+
+        <p class="mt-2 text-sm opacity-75">
+          Mémoriser les préférences d’affichage de l’administrateur.
         </p>
       </div>
 
-      <div class="rounded-2xl border border-border/70 bg-background/70 p-4">
-        <p class="font-semibold">Préférences d’affichage</p>
-        <p class="mt-1 text-sm opacity-70">
-          Possibilité future : choisir certains comportements visuels du site public.
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+        <p class="font-semibold">
+          Prévisualisation
         </p>
-      </div>
 
-      <div class="rounded-2xl border border-border/70 bg-background/70 p-4">
-        <p class="font-semibold">Cohérence admin</p>
-        <p class="mt-1 text-sm opacity-70">
-          Cette page servira aussi de repère pour uniformiser les autres pages admin.
+        <p class="mt-2 text-sm opacity-75">
+          Afficher un aperçu avant d’appliquer des changements visuels globaux.
         </p>
       </div>
     </div>
