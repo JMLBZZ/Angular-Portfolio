@@ -1,0 +1,497 @@
+<section class="space-y-6">
+  <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Projets
+        </p>
+
+        <h2 class="mt-2 text-2xl font-bold">
+          Gestion des projets
+        </h2>
+
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Créer, modifier, filtrer, sélectionner, supprimer, dupliquer ou réorganiser les projets du portfolio.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          class="inline-flex h-11 items-center justify-center rounded-full border border-red-500 px-5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          [disabled]="!canDeleteSelectedProjects || isActionLocked"
+          (click)="requestDeleteSelection()"
+          aria-label="Supprimer les projets sélectionnés"
+        >
+          Supprimer la sélection
+        </button>
+
+        <button
+          type="button"
+          class="inline-flex h-11 items-center justify-center rounded-full border border-red-500 px-5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          [disabled]="!canDeleteAllFilteredProjects || isActionLocked"
+          (click)="requestDeleteAll()"
+          aria-label="Supprimer tous les projets actuellement affichés"
+        >
+          Tout supprimer
+        </button>
+
+        <a
+          routerLink="/admin/projects/new"
+          class="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          Nouveau projet
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">
+        Total projets
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        {{ projects.length }}
+      </p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">
+        Projets publiés
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        {{ publishedCount }}
+      </p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">
+        Brouillons
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        {{ draftCount }}
+      </p>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <p class="text-sm opacity-70">
+        Projets en favoris
+      </p>
+
+      <p class="mt-2 text-3xl font-bold">
+        {{ featuredCount }}
+      </p>
+    </div>
+  </div>
+
+  <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
+    <div class="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_auto]">
+      <app-text-field
+        id="admin-project-search"
+        label="Recherche"
+        placeholder="Titre, slug, catégorie, stack, tag..."
+        [control]="searchControl">
+      </app-text-field>
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold" for="status-filter">
+          Statut
+        </label>
+
+        <select
+          id="status-filter"
+          class="h-11 w-full rounded-full border border-border/70 bg-card/40 px-4 text-sm outline-none backdrop-blur transition focus-visible:ring-2 focus-visible:ring-primary/40"
+          [value]="statusFilter"
+          (change)="setStatusFilter($any($event.target).value)"
+          aria-label="Filtrer les projets par statut"
+        >
+          <option value="all">Tous</option>
+          <option value="published">Publiés</option>
+          <option value="draft">Brouillons</option>
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold" for="featured-filter">
+          Favoris
+        </label>
+
+        <select
+          id="featured-filter"
+          class="h-11 w-full rounded-full border border-border/70 bg-card/40 px-4 text-sm outline-none backdrop-blur transition focus-visible:ring-2 focus-visible:ring-primary/40"
+          [value]="featuredFilter"
+          (change)="setFeaturedFilter($any($event.target).value)"
+          aria-label="Filtrer les projets par favoris"
+        >
+          <option value="all">Tous</option>
+          <option value="featured">Mis en favoris</option>
+          <option value="not-featured">Non mis en favoris</option>
+        </select>
+      </div>
+
+      <div class="flex items-end">
+        <button
+          type="button"
+          class="inline-flex h-11 w-full items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 lg:w-auto"
+          (click)="clearFilters()"
+          aria-label="Réinitialiser la recherche et les filtres"
+        >
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4 rounded-2xl border border-border/70 bg-background/60 p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-sm font-semibold" aria-live="polite">
+          {{ filteredProjects.length }} projet(s) affiché(s)
+        </p>
+
+        <p class="mt-1 text-xs opacity-60">
+          Les filtres actifs peuvent désactiver la réorganisation.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <label class="inline-flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            [checked]="areAllFilteredProjectsSelected"
+            [disabled]="filteredProjects.length === 0 || isActionLocked"
+            (change)="toggleSelectAllFiltered($any($event.target).checked)"
+          />
+
+          Tout sélectionner
+        </label>
+
+        <span class="rounded-full border border-border/70 bg-card/60 px-4 py-2 text-sm opacity-80">
+          {{ selectedCount }} sélectionné(s)
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="rounded-2xl border border-border/60 bg-background/60 p-4 text-sm"
+      [class.opacity-70]="!canReorderProjects"
+      aria-live="polite"
+    >
+      <p class="font-semibold mb-1">
+        Réorganisation des projets
+      </p>
+
+      <p *ngIf="canReorderProjects">
+        Glisse-dépose les cartes pour modifier l’ordre d’affichage.
+      </p>
+
+      <p *ngIf="!canReorderProjects && hasActiveFilters">
+        La réorganisation est disponible uniquement sans recherche ni filtre actif.
+      </p>
+
+      <p *ngIf="!canReorderProjects && !hasActiveFilters && isReordering">
+        Réorganisation en cours...
+      </p>
+    </div>
+  </div>
+
+  <div
+    *ngIf="isConfirmDeleteSelectionOpen"
+    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 space-y-4"
+    aria-live="assertive"
+  >
+    <div class="space-y-2">
+      <p class="font-semibold text-red-600">
+        Confirmer la suppression des projets sélectionnés ?
+      </p>
+
+      <p class="text-sm opacity-80">
+        Cette action supprimera définitivement les {{ selectedCount }} projet(s) sélectionné(s), ainsi que leurs images uploadées associées qui ne sont plus utilisées.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        class="inline-flex h-10 items-center justify-center rounded-full bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        [disabled]="isActionLocked"
+        (click)="confirmDeleteSelection()"
+      >
+        {{ isDeletingSelectedProjects ? 'Suppression...' : 'Oui, supprimer la sélection' }}
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        [disabled]="isActionLocked"
+        (click)="cancelDeleteSelection()"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+
+  <div
+    *ngIf="isConfirmDeleteAllOpen"
+    class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 space-y-4"
+    aria-live="assertive"
+  >
+    <div class="space-y-2">
+      <p class="font-semibold text-red-600">
+        Confirmer la suppression de tous les projets affichés ?
+      </p>
+
+      <p class="text-sm opacity-80">
+        Cette action supprimera définitivement les {{ resultCount }} projet(s) actuellement visibles dans la liste, ainsi que leurs images uploadées associées qui ne sont plus utilisées.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        class="inline-flex h-10 items-center justify-center rounded-full bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        [disabled]="isActionLocked"
+        (click)="confirmDeleteAll()"
+      >
+        {{ isDeletingAllProjects ? 'Suppression...' : 'Oui, tout supprimer définitivement' }}
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        [disabled]="isActionLocked"
+        (click)="cancelDeleteAll()"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm text-red-500" aria-live="assertive">
+    {{ errorMessage }}
+  </p>
+
+  <div
+    *ngIf="isLoading"
+    class="rounded-3xl border border-border/70 bg-card/60 p-6"
+    aria-live="polite"
+  >
+    Chargement des projets...
+  </div>
+
+  <div
+    *ngIf="!isLoading && filteredProjects.length === 0"
+    class="rounded-3xl border border-border/70 bg-card/60 p-8 text-center"
+  >
+    <p class="font-semibold mb-2">
+      Aucun projet ne correspond aux filtres actuels.
+    </p>
+
+    <p class="text-sm opacity-75">
+      Essaie de modifier la recherche ou de réinitialiser les filtres.
+    </p>
+  </div>
+
+  <div
+    *ngIf="!isLoading && filteredProjects.length > 0"
+    class="space-y-4"
+    cdkDropList
+    [cdkDropListData]="filteredProjects"
+    (cdkDropListDropped)="onProjectDrop($event)"
+  >
+    <article
+      *ngFor="let project of filteredProjects; trackBy: trackByProjectId"
+      cdkDrag
+      [cdkDragDisabled]="!canReorderProjects"
+      class="rounded-3xl border border-border/70 bg-card/60 p-5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      [attr.id]="getProjectFragment(project)"
+      tabindex="-1"
+    >
+      <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto]">
+        <div class="grid min-w-0 gap-5 lg:grid-cols-[auto_minmax(0,1fr)_320px] xl:grid-cols-[auto_minmax(0,1fr)_360px]">
+          <div class="flex items-start gap-3">
+            <button
+              type="button"
+              cdkDragHandle
+              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 transition hover:bg-card disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              [disabled]="!canReorderProjects"
+              [attr.aria-label]="'Réorganiser le projet ' + project.title"
+              title="Glisser pour réordonner"
+            >
+              ⋮⋮
+            </button>
+
+            <input
+              type="checkbox"
+              class="mt-2"
+              [checked]="isProjectSelected(project)"
+              [disabled]="isActionLocked"
+              (change)="toggleProjectSelection(project, $any($event.target).checked)"
+              [attr.aria-label]="'Sélectionner le projet ' + project.title"
+            />
+          </div>
+
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="text-lg font-bold">
+                {{ project.title }}
+              </h3>
+
+              <span class="rounded-full border border-border/70 px-3 py-1 text-xs">
+                {{ project.category }}
+              </span>
+
+              <span
+                class="rounded-full border px-3 py-1 text-xs font-semibold"
+                [class.border-emerald-500]="project.published"
+                [class.text-emerald-600]="project.published"
+                [class.border-slate-400]="!project.published"
+                [class.opacity-70]="!project.published"
+              >
+                {{ project.published ? 'Publié' : 'Brouillon' }}
+              </span>
+
+              <span
+                *ngIf="project.featured"
+                class="rounded-full border border-primary px-3 py-1 text-xs font-semibold text-primary"
+              >
+                Favoris
+              </span>
+
+              <span
+                *ngIf="isProjectSelected(project)"
+                class="rounded-full border border-primary px-3 py-1 text-xs font-semibold text-primary"
+              >
+                Sélectionné
+              </span>
+            </div>
+
+            <div class="mt-4 grid gap-2 text-sm opacity-80 sm:grid-cols-2">
+              <p>
+                <strong>Slug :</strong> {{ project.slug }}
+              </p>
+
+              <p>
+                <strong>Type :</strong> {{ project.type }}
+              </p>
+
+              <p>
+                <strong>Ordre :</strong> {{ project.displayOrder ?? 0 }}
+              </p>
+
+              <p *ngIf="project.stack.length" class="sm:col-span-2">
+                <strong>Stack :</strong> {{ project.stack.join(', ') }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="h-36 w-full overflow-hidden rounded-3xl border border-border/70 bg-card/40 sm:h-44 lg:h-full lg:min-h-[170px]"
+          >
+            <img
+              *ngIf="project.cover"
+              [src]="project.cover"
+              [alt]="'Aperçu de la cover du projet ' + project.title"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+
+            <div
+              *ngIf="!project.cover"
+              class="flex h-full w-full items-center justify-center text-sm opacity-60"
+              aria-hidden="true"
+            >
+              Aucune cover
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 xl:w-[360px] xl:justify-end">
+          <a
+            [routerLink]="['/projects', project.slug]"
+            [queryParams]="{ source: 'admin', projectId: project.id }"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [attr.aria-label]="'Voir la fiche du projet ' + project.title"
+          >
+            Voir la fiche
+          </a>
+
+          <a
+            [routerLink]="['/projects', project.slug]"
+            [queryParams]="{ source: 'admin', projectId: project.id, autoPdf: '1' }"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [attr.aria-label]="'Générer le PDF du projet ' + project.title"
+          >
+            PDF
+          </a>
+
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [disabled]="isActionLocked"
+            (click)="duplicateProject(project)"
+            [attr.aria-label]="'Dupliquer le projet ' + project.title"
+          >
+            {{ isDuplicatingProject(project) ? 'Duplication...' : 'Dupliquer' }}
+          </button>
+
+          <a
+            [routerLink]="['/admin/projects', project.id, 'edit']"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [attr.aria-label]="'Modifier le projet ' + project.title"
+          >
+            Modifier
+          </a>
+
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-red-500 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            [disabled]="isActionLocked"
+            (click)="requestDelete(project)"
+            [attr.aria-label]="'Supprimer le projet ' + project.title"
+          >
+            {{ isDeleteConfirmationOpen(project) ? 'Confirmation ouverte' : 'Supprimer' }}
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="isDeleteConfirmationOpen(project)"
+        class="mt-5 rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-4"
+        aria-live="assertive"
+      >
+        <div class="space-y-2">
+          <p class="font-semibold text-red-600">
+            Confirmer la suppression de « {{ project.title }} » ?
+          </p>
+
+          <p class="text-sm opacity-80">
+            Cette action supprimera définitivement le projet ainsi que ses images uploadées associées qui ne sont plus utilisées.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            [disabled]="isActionLocked"
+            (click)="confirmDelete(project)"
+          >
+            {{ isDeletingProject(project) ? 'Suppression...' : 'Oui, supprimer définitivement' }}
+          </button>
+
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [disabled]="isActionLocked"
+            (click)="cancelDelete()"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

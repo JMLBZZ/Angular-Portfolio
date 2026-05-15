@@ -43,8 +43,8 @@ export const routes: Routes = [
       {
         path: 'projects',
         loadComponent: () =>
-          import('./pages/admin-dashboard/admin-dashboard.component').then(
-            (m) => m.AdminDashboardComponent
+          import('./pages/admin-projects/admin-projects.component').then(
+            (m) => m.AdminProjectsComponent
           ),
       },
       {
