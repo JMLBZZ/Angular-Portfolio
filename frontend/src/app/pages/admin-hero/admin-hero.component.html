@@ -1,33 +1,56 @@
 <section class="space-y-6">
-  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-    <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-primary font-semibold">
-        Administration
-      </p>
-      <h2 class="text-3xl font-bold tracking-tight">Hero</h2>
-      <p class="text-sm opacity-75 mt-2">
-        Ici, tu gères séparément le contenu principal du hero et la carte affichée à droite.
-      </p>
-    </div>
+  <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Hero
+        </p>
 
-    <a
-      routerLink="/admin/dashboard"
-      class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
-    >
-      Retour au dashboard
-    </a>
+        <h2 class="mt-2 text-2xl font-bold">
+          Gestion de la section Hero
+        </h2>
+
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Ici, tu gères séparément le contenu principal du hero et la carte affichée à droite sur la page publique.
+        </p>
+      </div>
+
+      <a
+        routerLink="/admin/dashboard"
+        class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        Retour au dashboard
+      </a>
+    </div>
   </div>
 
-  <div class="space-y-4">
-    <div>
-      <h3 class="text-xl font-semibold">Contenu principal du hero</h3>
-      <p class="text-sm opacity-75 mt-1">
-        Ce formulaire gère le titre, le sous-titre, le statut de disponibilité et les badges technos.
-      </p>
+  <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Contenu principal
+        </p>
+
+        <h3 class="mt-2 text-xl font-bold">
+          Textes et badges du Hero
+        </h3>
+
+        <p class="mt-1 text-sm opacity-75">
+          Ce formulaire gère le titre, le sous-titre, le statut de disponibilité et les badges technos.
+        </p>
+      </div>
+
+      <div
+        *ngIf="heroForm.dirty && !isSubmittingHero"
+        class="w-fit rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
+        aria-live="polite"
+      >
+        Modifications non enregistrées
+      </div>
     </div>
 
     <div
-      class="rounded-3xl border border-border/70 bg-card/60 p-6"
+      class="rounded-2xl border border-border/70 bg-background/60 p-5"
       *ngIf="isLoadingHero"
       aria-live="polite"
     >
@@ -44,6 +67,7 @@
       <p class="font-semibold text-red-600">
         L’action n’a pas pu être finalisée.
       </p>
+
       <p class="text-sm text-red-600">
         {{ heroErrorMessage }}
       </p>
@@ -54,36 +78,29 @@
       id="admin-hero-main-form"
       [formGroup]="heroForm"
       (ngSubmit)="saveHero()"
-      class="space-y-6"
+      class="space-y-5"
       novalidate
     >
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h4 class="text-lg font-semibold">Textes</h4>
-            <p class="text-sm opacity-75 mt-2">
+            <h4 class="text-lg font-bold">
+              Textes principaux
+            </h4>
+
+            <p class="mt-1 text-sm opacity-75">
               Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
             </p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3">
-            <span
-              *ngIf="heroForm.dirty && !isSubmittingHero"
-              class="text-sm opacity-70"
-              aria-live="polite"
-            >
-              Modifications non enregistrées
-            </span>
-
-            <app-primary-button
-              type="button"
-              [loading]="isTranslatingHero"
-              [disabled]="isSubmittingHero || isTranslatingHero"
-              (pressed)="translateHeroToEnglish()"
-            >
-              Tout traduire en anglais
-            </app-primary-button>
-          </div>
+          <app-primary-button
+            type="button"
+            [loading]="isTranslatingHero"
+            [disabled]="isSubmittingHero || isTranslatingHero"
+            (pressed)="translateHeroToEnglish()"
+          >
+            Tout traduire en anglais
+          </app-primary-button>
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
@@ -117,33 +134,39 @@
         </div>
       </div>
 
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">Disponibilité</h4>
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-4">
+        <h4 class="text-lg font-bold">
+          Disponibilité
+        </h4>
 
-        <label class="inline-flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm cursor-pointer">
           <input
             type="checkbox"
             formControlName="available"
             class="h-5 w-5 rounded border-border/70 text-primary focus:ring-primary/40"
           />
-          <span class="text-sm">
+
+          <span>
             Afficher le statut « disponible pour de nouveaux projets »
           </span>
         </label>
       </div>
 
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h4 class="text-lg font-semibold">Badges technos</h4>
-            <p class="text-sm opacity-75 mt-1">
+            <h4 class="text-lg font-bold">
+              Badges technos
+            </h4>
+
+            <p class="mt-1 text-sm opacity-75">
               Ces badges sont affichés sous le contenu principal du hero.
             </p>
           </div>
 
           <button
             type="button"
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addTechBadge()"
           >
             Ajouter un badge
@@ -152,15 +175,19 @@
 
         <div
           *ngIf="techBadgesFormArray.length === 0"
-          class="rounded-2xl border border-dashed border-border/70 bg-background/20 p-6 text-center"
+          class="rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 text-center"
         >
-          <p class="font-medium">Aucun badge techno</p>
-          <p class="text-sm opacity-75 mt-1">
+          <p class="font-semibold">
+            Aucun badge techno
+          </p>
+
+          <p class="mt-1 text-sm opacity-75">
             Ajoute des badges pour mettre en avant ta stack principale.
           </p>
+
           <button
             type="button"
-            class="mt-4 inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+            class="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addTechBadge()"
           >
             Ajouter le premier badge
@@ -177,7 +204,7 @@
             *ngFor="let badge of techBadgesFormArray.controls; let i = index; trackBy: trackByTechBadgeIndex"
             [formGroup]="badge"
             cdkDrag
-            class="rounded-2xl border border-border/60 bg-background/30 p-4"
+            class="rounded-2xl border border-border/60 bg-card/40 p-4"
           >
             <div class="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
               <app-text-field
@@ -191,14 +218,14 @@
                 <button
                   type="button"
                   cdkDragHandle
-                  class="inline-flex items-center justify-center h-11 px-4 rounded-full border border-border/70 hover:bg-card transition"
+                  class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
                   Déplacer
                 </button>
 
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center h-11 px-4 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition"
+                  class="inline-flex h-11 items-center justify-center rounded-full border border-red-500 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                   (click)="removeTechBadge(i)"
                 >
                   Supprimer
@@ -209,29 +236,52 @@
         </div>
       </div>
 
-      <div class="flex justify-end">
-        <app-primary-button
-          type="submit"
-          [loading]="isSubmittingHero"
-          [disabled]="isSubmittingHero || isTranslatingHero"
-        >
-          <span *ngIf="!isSubmittingHero">Enregistrer le hero</span>
-          <span *ngIf="isSubmittingHero">Enregistrement...</span>
-        </app-primary-button>
+      <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm opacity-70">
+            Enregistre cette partie avant de quitter la page.
+          </p>
+
+          <app-primary-button
+            type="submit"
+            [loading]="isSubmittingHero"
+            [disabled]="isSubmittingHero || isTranslatingHero"
+          >
+            <span *ngIf="!isSubmittingHero">Enregistrer le hero</span>
+            <span *ngIf="isSubmittingHero">Enregistrement...</span>
+          </app-primary-button>
+        </div>
       </div>
     </form>
   </div>
 
-  <div class="space-y-4">
-    <div>
-      <h3 class="text-xl font-semibold">Carte à droite du hero</h3>
-      <p class="text-sm opacity-75 mt-1">
-        Ce formulaire gère la carte affichée à droite du hero public.
-      </p>
+  <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Carte Hero
+        </p>
+
+        <h3 class="mt-2 text-xl font-bold">
+          Carte à droite du Hero
+        </h3>
+
+        <p class="mt-1 text-sm opacity-75">
+          Ce formulaire gère la carte affichée à droite du hero public.
+        </p>
+      </div>
+
+      <div
+        *ngIf="heroCardForm.dirty && !isSubmittingHeroCard"
+        class="w-fit rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
+        aria-live="polite"
+      >
+        Modifications non enregistrées
+      </div>
     </div>
 
     <div
-      class="rounded-3xl border border-border/70 bg-card/60 p-6"
+      class="rounded-2xl border border-border/70 bg-background/60 p-5"
       *ngIf="isLoadingHeroCard"
       aria-live="polite"
     >
@@ -248,6 +298,7 @@
       <p class="font-semibold text-red-600">
         L’action n’a pas pu être finalisée.
       </p>
+
       <p class="text-sm text-red-600">
         {{ heroCardErrorMessage }}
       </p>
@@ -258,36 +309,29 @@
       id="admin-hero-card-form"
       [formGroup]="heroCardForm"
       (ngSubmit)="saveHeroCard()"
-      class="space-y-6"
+      class="space-y-5"
       novalidate
     >
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h4 class="text-lg font-semibold">En-tête de la carte</h4>
-            <p class="text-sm opacity-75 mt-2">
+            <h4 class="text-lg font-bold">
+              En-tête de la carte
+            </h4>
+
+            <p class="mt-1 text-sm opacity-75">
               Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
             </p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3">
-            <span
-              *ngIf="heroCardForm.dirty && !isSubmittingHeroCard"
-              class="text-sm opacity-70"
-              aria-live="polite"
-            >
-              Modifications non enregistrées
-            </span>
-
-            <app-primary-button
-              type="button"
-              [loading]="isTranslatingHeroCard"
-              [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
-              (pressed)="translateHeroCardToEnglish()"
-            >
-              Tout traduire en anglais
-            </app-primary-button>
-          </div>
+          <app-primary-button
+            type="button"
+            [loading]="isTranslatingHeroCard"
+            [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
+            (pressed)="translateHeroCardToEnglish()"
+          >
+            Tout traduire en anglais
+          </app-primary-button>
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
@@ -335,8 +379,10 @@
         </div>
       </div>
 
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">Points forts</h4>
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
+        <h4 class="text-lg font-bold">
+          Points forts
+        </h4>
 
         <div class="grid gap-5 md:grid-cols-2">
           <app-text-field
@@ -383,12 +429,16 @@
         </div>
       </div>
 
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-        <h4 class="text-lg font-semibold">Statistiques</h4>
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
+        <h4 class="text-lg font-bold">
+          Statistiques
+        </h4>
 
         <div class="space-y-5">
-          <div class="rounded-2xl border border-border/60 p-4">
-            <h5 class="font-medium mb-4">Statistique 1</h5>
+          <div class="rounded-2xl border border-border/60 bg-card/40 p-4">
+            <h5 class="mb-4 font-semibold">
+              Statistique 1
+            </h5>
 
             <div class="grid gap-5 md:grid-cols-3">
               <app-text-field
@@ -414,8 +464,10 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-border/60 p-4">
-            <h5 class="font-medium mb-4">Statistique 2</h5>
+          <div class="rounded-2xl border border-border/60 bg-card/40 p-4">
+            <h5 class="mb-4 font-semibold">
+              Statistique 2
+            </h5>
 
             <div class="grid gap-5 md:grid-cols-3">
               <app-text-field
@@ -441,8 +493,10 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-border/60 p-4">
-            <h5 class="font-medium mb-4">Statistique 3</h5>
+          <div class="rounded-2xl border border-border/60 bg-card/40 p-4">
+            <h5 class="mb-4 font-semibold">
+              Statistique 3
+            </h5>
 
             <div class="grid gap-5 md:grid-cols-3">
               <app-text-field
@@ -470,15 +524,21 @@
         </div>
       </div>
 
-      <div class="flex justify-end">
-        <app-primary-button
-          type="submit"
-          [loading]="isSubmittingHeroCard"
-          [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
-        >
-          <span *ngIf="!isSubmittingHeroCard">Enregistrer la carte</span>
-          <span *ngIf="isSubmittingHeroCard">Enregistrement...</span>
-        </app-primary-button>
+      <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm opacity-70">
+            Enregistrez cette partie avant de quitter la page.
+          </p>
+
+          <app-primary-button
+            type="submit"
+            [loading]="isSubmittingHeroCard"
+            [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
+          >
+            <span *ngIf="!isSubmittingHeroCard">Enregistrer la carte</span>
+            <span *ngIf="isSubmittingHeroCard">Enregistrement...</span>
+          </app-primary-button>
+        </div>
       </div>
     </form>
   </div>

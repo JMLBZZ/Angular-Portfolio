@@ -1,9 +1,27 @@
 <section class="space-y-6">
-  <div>
-    <h2 class="text-2xl font-bold">CV</h2>
-    <p class="text-sm opacity-75 mt-1">
-      Gère ici le CV global utilisé dans le Hero et dans la section About.
-    </p>
+  <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          CV
+        </p>
+
+        <h2 class="mt-2 text-2xl font-bold">
+          Gestion du CV
+        </h2>
+
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Gère ici le CV global utilisé dans le Hero et dans la section About.
+        </p>
+      </div>
+
+      <a
+        routerLink="/admin/dashboard"
+        class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        Retour au dashboard
+      </a>
+    </div>
   </div>
 
   <div
@@ -24,19 +42,26 @@
     <p class="font-semibold text-red-600">
       L’action n’a pas pu être finalisée.
     </p>
+
     <p class="text-sm text-red-600">
       {{ errorMessage }}
     </p>
   </div>
 
   <div *ngIf="!isLoading" class="space-y-6">
-    <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
-      <!-- Bloc gauche : fichier actuel -->
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
-        <div class="flex items-start justify-between gap-3 flex-wrap">
+    <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h3 class="text-lg font-semibold">Fichier actuel</h3>
-            <p class="text-sm opacity-75 mt-1">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Fichier publié
+            </p>
+
+            <h3 class="mt-2 text-xl font-bold">
+              CV actuel
+            </h3>
+
+            <p class="mt-1 text-sm opacity-75">
               Ressource globale partagée entre le Hero et la section About.
             </p>
           </div>
@@ -46,25 +71,41 @@
             [href]="resumeUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 text-sm font-medium hover:bg-card transition"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             Ouvrir le CV actuel
           </a>
         </div>
 
-        <div *ngIf="hasResume; else noResume" class="space-y-3">
-          <p class="text-sm">
-            <span class="font-medium">Nom :</span>
-            {{ currentFileName }}
-          </p>
+        <div *ngIf="hasResume; else noResume" class="space-y-5">
+          <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+            <p class="text-sm opacity-70">
+              Nom du fichier
+            </p>
 
-          <p class="text-sm opacity-75">
-            Le fichier actuellement publié est utilisé sur tout le site.
-          </p>
-          <div>
+            <p class="mt-2 break-words text-lg font-bold">
+              {{ currentFileName }}
+            </p>
+
+            <p class="mt-2 text-sm opacity-75">
+              Le fichier actuellement publié est utilisé sur tout le site.
+            </p>
+          </div>
+
+          <div class="rounded-3xl border border-border/70 bg-background/60 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-4">
+              <p class="text-sm font-semibold">
+                Miniature du CV
+              </p>
+
+              <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                PDF
+              </span>
+            </div>
+
             <div
               *ngIf="isGeneratingThumbnail"
-              class="w-full h-52 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4"
+              class="flex h-72 w-full items-center justify-center rounded-2xl border border-dashed border-border/70 bg-card/40 px-4 text-center text-sm opacity-70"
             >
               Génération de la miniature...
             </div>
@@ -73,34 +114,44 @@
               *ngIf="!isGeneratingThumbnail && hasThumbnail; else noThumbnail"
               [src]="thumbnailUrl"
               [alt]="thumbnailTitle"
-              class="w-full h-52 object-cover object-top rounded-2xl border border-border/50 bg-white"
+              class="h-72 w-full rounded-2xl border border-border/50 bg-white object-cover object-top"
             />
 
             <ng-template #noThumbnail>
               <div
                 *ngIf="!isGeneratingThumbnail"
-                class="w-full h-52 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4"
+                class="flex h-72 w-full items-center justify-center rounded-2xl border border-dashed border-border/70 bg-card/40 px-4 text-center text-sm opacity-70"
               >
                 Aucune miniature disponible.
               </div>
             </ng-template>
 
-            <p class="text-xs opacity-60 mt-3 text-center">
+            <p class="text-center text-xs opacity-60">
               Miniature générée à partir de la première page du PDF.
             </p>
           </div>
         </div>
 
         <ng-template #noResume>
-          <div class="space-y-3">
-            <p class="text-sm opacity-75">
-              Aucun CV n’est encore configuré.
+          <div class="rounded-3xl border border-dashed border-border/70 bg-background/60 p-8 text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl text-primary">
+              PDF
+            </div>
+
+            <h3 class="mt-4 text-lg font-bold">
+              Aucun CV configuré
+            </h3>
+
+            <p class="mx-auto mt-2 max-w-xl text-sm opacity-75">
+              Ajoute un PDF pour permettre aux visiteurs de consulter ou télécharger ton CV depuis le portfolio.
             </p>
 
-            <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
-              <p class="text-sm font-semibold">Miniature du CV</p>
+            <div class="mt-6 rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
+              <p class="text-sm font-semibold">
+                Miniature du CV
+              </p>
 
-              <div class="w-full h-52 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
+              <div class="flex h-52 w-full items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/40 px-4 text-center text-sm opacity-70">
                 Aucune miniature disponible.
               </div>
             </div>
@@ -108,74 +159,105 @@
         </ng-template>
       </div>
 
-      <!-- Bloc droit : remplacement -->
-      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
-        <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between xl:flex-col">
           <div>
-            <h3 class="text-lg font-semibold">Remplacer le CV</h3>
-            <p class="text-sm opacity-75 mt-1">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Remplacement
+            </p>
+
+            <h3 class="mt-2 text-xl font-bold">
+              Remplacer le CV
+            </h3>
+
+            <p class="mt-1 text-sm opacity-75">
               Upload d’un PDF unique avec remplacement automatique.
             </p>
           </div>
 
           <span
             *ngIf="selectedFile && !isSubmitting"
-            class="text-sm opacity-70"
+            class="w-fit rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
             aria-live="polite"
           >
-            Modifications non enregistrées
+            Nouveau fichier non enregistré
           </span>
         </div>
 
-        <div class="flex gap-2 flex-wrap">
-          <label
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition"
-          >
-            Sélectionner un PDF
-            <input
-              #fileInput
-              type="file"
-              accept="application/pdf,.pdf"
-              class="hidden"
-              [disabled]="isSubmitting"
-              (change)="onFileSelected($event)"
-            />
-          </label>
-
-          <button
-            type="button"
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition disabled:opacity-50"
-            [disabled]="isSubmitting || !selectedFile"
-            (click)="clearSelection(fileInput)"
-          >
-            Retirer
-          </button>
-        </div>
-
-        <div class="rounded-2xl border border-border/70 bg-background/40 p-4 text-sm">
-          <p *ngIf="selectedFile; else currentState" class="opacity-90">
-            <span class="font-medium">Fichier sélectionné :</span>
-            {{ selectedFileName }}
-          </p>
-
-          <ng-template #currentState>
-            <p class="opacity-75">
-              <span class="font-medium">État :</span>
-              {{ hasResume ? 'un CV est actuellement publié' : 'aucun CV publié' }}
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
+          <div class="rounded-2xl border border-border/70 bg-card/40 p-4">
+            <p class="text-sm font-semibold">
+              Format attendu
             </p>
-          </ng-template>
+
+            <ul class="mt-3 space-y-2 text-sm opacity-75">
+              <li>• Fichier PDF uniquement.</li>
+              <li>• Le nouveau fichier remplacera l’ancien CV.</li>
+              <li>• Une miniature sera générée automatiquement.</li>
+            </ul>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <label
+              class="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-95 focus-within:ring-2 focus-within:ring-primary/40"
+            >
+              Sélectionner un PDF
+
+              <input
+                #fileInput
+                type="file"
+                accept="application/pdf,.pdf"
+                class="hidden"
+                [disabled]="isSubmitting"
+                (change)="onFileSelected($event)"
+              />
+            </label>
+
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              [disabled]="isSubmitting || !selectedFile"
+              (click)="clearSelection(fileInput)"
+            >
+              Retirer
+            </button>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 bg-card/40 p-4 text-sm">
+            <p *ngIf="selectedFile; else currentState" class="opacity-90">
+              <span class="font-semibold">Fichier sélectionné :</span>
+              {{ selectedFileName }}
+            </p>
+
+            <ng-template #currentState>
+              <p class="opacity-75">
+                <span class="font-semibold">État :</span>
+                {{ hasResume ? 'un CV est actuellement publié' : 'aucun CV publié' }}
+              </p>
+            </ng-template>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 bg-card/40 p-4 text-sm opacity-75">
+            Après enregistrement, pense à vérifier le rendu public du bouton CV sur la page d’accueil.
+          </div>
         </div>
 
-        <div class="flex justify-end">
-          <app-primary-button
-            type="button"
-            [loading]="isSubmitting"
-            [disabled]="isSubmitting || !selectedFile"
-            (pressed)="upload()"
-          >
-            <span *ngIf="!isSubmitting">Enregistrer le CV</span>
-            <span *ngIf="isSubmitting">Enregistrement...</span>
-          </app-primary-button>
+        <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+          <div class="flex flex-col gap-3">
+            <p class="text-sm opacity-70">
+              Le changement sera appliqué au portfolio après l’enregistrement.
+            </p>
+
+            <app-primary-button
+              type="button"
+              [loading]="isSubmitting"
+              [disabled]="isSubmitting || !selectedFile"
+              (pressed)="upload()"
+            >
+              <span *ngIf="!isSubmitting">Enregistrer le CV</span>
+              <span *ngIf="isSubmitting">Enregistrement...</span>
+            </app-primary-button>
+          </div>
         </div>
       </div>
     </div>

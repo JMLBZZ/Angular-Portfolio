@@ -1,42 +1,47 @@
 <section class="space-y-6">
-  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-    <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-primary font-semibold">
-        Administration
-      </p>
-      <h2 class="text-3xl font-bold tracking-tight">
-        Mentions légales / Confidentialité
-      </h2>
-      <p class="text-sm opacity-75 mt-2">
-        Ici, tu gères le contenu dynamique de la page légale publique.
-      </p>
-    </div>
+  <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Légal
+        </p>
 
-    <div class="flex flex-wrap items-center gap-3">
-      <a
-        routerLink="/legal"
-        target="_blank"
-        class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
-      >
-        Voir la page
-      </a>
+        <h2 class="mt-2 text-2xl font-bold">
+          Mentions légales / Confidentialité
+        </h2>
 
-      <a
-        routerLink="/admin/dashboard"
-        class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
-      >
-        Retour au dashboard
-      </a>
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Ici, tu gères le contenu dynamique de la page légale publique.
+          Le contenu HTML est nettoyé côté backend avant affichage.
+        </p>
+      </div>
 
-      <app-primary-button
-        type="button"
-        [loading]="isSubmitting"
-        [disabled]="isSubmitting || isTranslating"
-        (pressed)="save()"
-      >
-        <span *ngIf="!isSubmitting">Enregistrer</span>
-        <span *ngIf="isSubmitting">Enregistrement...</span>
-      </app-primary-button>
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          routerLink="/legal"
+          target="_blank"
+          class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          Voir la page
+        </a>
+
+        <a
+          routerLink="/admin/dashboard"
+          class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          Retour au dashboard
+        </a>
+
+        <app-primary-button
+          type="button"
+          [loading]="isSubmitting"
+          [disabled]="isSubmitting || isTranslating"
+          (pressed)="save()"
+        >
+          <span *ngIf="!isSubmitting">Enregistrer</span>
+          <span *ngIf="isSubmitting">Enregistrement...</span>
+        </app-primary-button>
+      </div>
     </div>
   </div>
 
@@ -58,6 +63,7 @@
     <p class="font-semibold text-red-600">
       L’action n’a pas pu être finalisée.
     </p>
+
     <p class="text-sm text-red-600">
       {{ errorMessage }}
     </p>
@@ -72,13 +78,21 @@
     novalidate
   >
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h3 class="text-lg font-semibold">Contenu général</h3>
-          <p class="text-sm opacity-75 mt-1">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Contenu général
+          </p>
+
+          <h3 class="mt-2 text-xl font-bold">
+            Titre et traduction
+          </h3>
+
+          <p class="mt-1 text-sm opacity-75">
             Le contenu est stocké en HTML sécurisé après nettoyage côté backend.
           </p>
-          <p class="text-sm opacity-75 mt-2">
+
+          <p class="mt-2 text-sm opacity-75">
             Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
           </p>
         </div>
@@ -86,7 +100,7 @@
         <div class="flex flex-wrap items-center gap-3">
           <span
             *ngIf="form.dirty && !isSubmitting"
-            class="text-sm opacity-70"
+            class="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
             aria-live="polite"
           >
             Modifications non enregistrées
@@ -103,31 +117,49 @@
         </div>
       </div>
 
-      <div class="grid gap-5 md:grid-cols-2">
-        <app-text-field
-          id="legal-title-fr"
-          label="Titre de page (FR)"
-          placeholder="Mentions légales & Politique de confidentialité"
-          [control]="form.controls.titleFr"
-        ></app-text-field>
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="legal-title-fr"
+            label="Titre de page (FR)"
+            placeholder="Mentions légales & Politique de confidentialité"
+            [control]="form.controls.titleFr"
+          ></app-text-field>
 
-        <app-text-field
-          id="legal-title-en"
-          label="Titre de page (EN)"
-          placeholder="Legal notice & Privacy policy"
-          [control]="form.controls.titleEn"
-        ></app-text-field>
+          <app-text-field
+            id="legal-title-en"
+            label="Titre de page (EN)"
+            placeholder="Legal notice & Privacy policy"
+            [control]="form.controls.titleEn"
+          ></app-text-field>
+        </div>
       </div>
     </div>
 
     <div class="grid gap-6 xl:grid-cols-2">
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
-        <app-rich-text-editor
-          id="legal-content-fr"
-          label="Contenu riche (FR)"
-          placeholder="Rédige ici les mentions légales et la politique de confidentialité en français..."
-          formControlName="contentFr"
-        ></app-rich-text-editor>
+        <div>
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Français
+          </p>
+
+          <h3 class="mt-2 text-xl font-bold">
+            Contenu riche FR
+          </h3>
+
+          <p class="mt-1 text-sm opacity-75">
+            Rédige ici les mentions légales et la politique de confidentialité en français.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-4">
+          <app-rich-text-editor
+            id="legal-content-fr"
+            label="Contenu riche (FR)"
+            placeholder="Rédige ici les mentions légales et la politique de confidentialité en français..."
+            formControlName="contentFr"
+          ></app-rich-text-editor>
+        </div>
 
         <p
           *ngIf="form.controls.contentFr.invalid && form.controls.contentFr.touched"
@@ -138,12 +170,28 @@
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
-        <app-rich-text-editor
-          id="legal-content-en"
-          label="Contenu riche (EN)"
-          placeholder="Write the legal notice and privacy policy in English..."
-          formControlName="contentEn"
-        ></app-rich-text-editor>
+        <div>
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Anglais
+          </p>
+
+          <h3 class="mt-2 text-xl font-bold">
+            Contenu riche EN
+          </h3>
+
+          <p class="mt-1 text-sm opacity-75">
+            Rédige ici les mentions légales et la politique de confidentialité en anglais.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-4">
+          <app-rich-text-editor
+            id="legal-content-en"
+            label="Contenu riche (EN)"
+            placeholder="Write the legal notice and privacy policy in English..."
+            formControlName="contentEn"
+          ></app-rich-text-editor>
+        </div>
 
         <p
           *ngIf="form.controls.contentEn.invalid && form.controls.contentEn.touched"
@@ -154,13 +202,28 @@
       </div>
     </div>
 
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
-      <h3 class="text-lg font-semibold">Aide au contenu RGPD/CNIL</h3>
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Aide
+        </p>
 
-      <div class="grid gap-4 md:grid-cols-2 text-sm opacity-80">
-        <div class="space-y-2">
-          <p class="font-semibold opacity-100">À prévoir dans la page :</p>
-          <ul class="list-disc pl-5 space-y-1">
+        <h3 class="mt-2 text-xl font-bold">
+          Aide au contenu RGPD/CNIL
+        </h3>
+
+        <p class="mt-1 text-sm opacity-75">
+          Cette zone sert de rappel pour structurer correctement ta page légale.
+        </p>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2 text-sm">
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-3">
+          <p class="font-semibold">
+            À prévoir dans la page :
+          </p>
+
+          <ul class="list-disc pl-5 space-y-1 opacity-80">
             <li>identité du responsable du site ;</li>
             <li>hébergeur ;</li>
             <li>formulaire de contact ;</li>
@@ -172,13 +235,38 @@
           </ul>
         </div>
 
-        <div class="space-y-2">
-          <p class="font-semibold opacity-100">Important :</p>
-          <p>
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-3">
+          <p class="font-semibold">
+            Important :
+          </p>
+
+          <p class="opacity-80">
             Cette zone ne remplace pas un conseil juridique. Elle permet simplement
             d’administrer proprement le contenu légal du portfolio.
           </p>
+
+          <p class="opacity-80">
+            Le backend nettoie le HTML avec JSoup avant affichage public, mais il faut tout de même
+            éviter de coller du code externe non maîtrisé.
+          </p>
         </div>
+      </div>
+    </div>
+
+    <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm opacity-70">
+          Pensez à enregistrer avant de quitter la page.
+        </p>
+
+        <app-primary-button
+          type="submit"
+          [loading]="isSubmitting"
+          [disabled]="isSubmitting || isTranslating"
+        >
+          <span *ngIf="!isSubmitting">Enregistrer</span>
+          <span *ngIf="isSubmitting">Enregistrement...</span>
+        </app-primary-button>
       </div>
     </div>
   </form>

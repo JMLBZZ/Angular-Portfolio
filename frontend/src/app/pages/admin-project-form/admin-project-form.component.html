@@ -1,17 +1,34 @@
 <section class="space-y-6">
-  <div class="flex items-center justify-between gap-4">
-    <div>
-      <a
-        routerLink="/admin/dashboard"
-        class="inline-flex items-center text-sm opacity-80 hover:opacity-100 transition mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
-      >
-        ← Retour au dashboard
-      </a>
+  <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <a
+          routerLink="/admin/projects"
+          class="inline-flex items-center text-sm font-semibold text-primary transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md"
+        >
+          ← Retour aux projets
+        </a>
 
-      <h2 class="text-2xl font-bold">{{ pageTitle }}</h2>
-      <p class="text-sm opacity-80 mt-2">
-        Tu peux maintenant uploader les images depuis le backoffice ou renseigner une URL manuellement.
-      </p>
+        <p class="mt-4 text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Projet
+        </p>
+
+        <h2 class="mt-2 text-2xl font-bold">
+          {{ pageTitle }}
+        </h2>
+
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Tu peux créer ou modifier un projet, gérer ses images, ses textes FR/EN, ses liens et son état de publication.
+        </p>
+      </div>
+
+      <div
+        *ngIf="form.dirty && !isSubmitting"
+        class="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
+        aria-live="polite"
+      >
+        Modifications non enregistrées
+      </div>
     </div>
   </div>
 
@@ -33,6 +50,7 @@
     <p class="font-semibold text-red-600">
       L’action n’a pas pu être finalisée.
     </p>
+
     <p class="text-sm text-red-600">
       {{ errorMessage }}
     </p>
@@ -49,17 +67,15 @@
     (ngSubmit)="submit()"
     novalidate
   >
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-4">
-      <div class="flex items-start justify-between gap-4 flex-wrap">
-        <h3 class="text-lg font-bold">Informations principales</h3>
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
+      <div>
+        <h3 class="text-lg font-bold">
+          Informations principales
+        </h3>
 
-        <span
-          *ngIf="form.dirty && !isSubmitting"
-          class="text-sm opacity-70"
-          aria-live="polite"
-        >
-          Modifications non enregistrées
-        </span>
+        <p class="mt-1 text-sm opacity-70">
+          Ces informations servent à identifier le projet dans l’admin et côté public.
+        </p>
       </div>
 
       <div class="grid gap-4 md:grid-cols-2">
@@ -92,13 +108,16 @@
         </app-text-field>
       </div>
 
-      <p class="text-xs opacity-70 -mt-1">
+      <p class="text-xs opacity-70">
         Le slug se génère automatiquement à partir du titre tant qu’il n’est pas modifié manuellement.
       </p>
 
       <div class="grid gap-4 md:grid-cols-2">
         <div class="space-y-2">
-          <label class="text-sm font-semibold" for="project-category">Catégorie</label>
+          <label class="text-sm font-semibold" for="project-category">
+            Catégorie
+          </label>
+
           <select
             id="project-category"
             formControlName="category"
@@ -112,7 +131,10 @@
         </div>
 
         <div class="space-y-2">
-          <label class="text-sm font-semibold" for="project-type">Type</label>
+          <label class="text-sm font-semibold" for="project-type">
+            Type
+          </label>
+
           <select
             id="project-type"
             formControlName="type"
@@ -123,218 +145,6 @@
               {{ option.label }}
             </option>
           </select>
-        </div>
-      </div>
-
-      <div class="grid gap-6 lg:grid-cols-2">
-        <div class="space-y-4 rounded-3xl border border-border/70 bg-card/40 p-4">
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <p class="text-sm font-semibold">Image de remplacement</p>
-              <p class="text-xs opacity-70">
-                Utilisée comme image de secours si aucune image de couverture ou de galerie n’est disponible.
-              </p>
-            </div>
-
-            <div class="flex gap-2 flex-wrap">
-              <label
-                class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition"
-              >
-                {{ isUploadingImage ? 'Upload...' : 'Uploader une image' }}
-                <input
-                  type="file"
-                  class="hidden"
-                  [accept]="acceptedImageTypes"
-                  [disabled]="isUploadingImage"
-                  (change)="onImageFileSelected($event)"
-                />
-              </label>
-
-              <button
-                type="button"
-                class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
-                (click)="removeMainImage()"
-              >
-                Retirer
-              </button>
-            </div>
-          </div>
-
-          <app-text-field
-            id="project-image"
-            label="Image de remplacement (URL ou /uploads/...)"
-            placeholder="https://... ou /uploads/projects/..."
-            [control]="imageControl"
-            [showError]="imageControl.invalid && imageControl.touched"
-            [errorText]="getUrlErrorMessage(imageControl)">
-          </app-text-field>
-
-          <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
-            <p class="text-sm font-semibold">Aperçu image de remplacement</p>
-
-            <img
-              *ngIf="hasImagePreview; else noMainImage"
-              [src]="mainImagePreviewUrl"
-              appFallbackImage
-              alt="Aperçu image de remplacement du projet"
-              class="w-full h-44 object-cover rounded-2xl border border-border/50"
-            />
-
-            <ng-template #noMainImage>
-              <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
-                Aucune image de remplacement renseignée
-              </div>
-            </ng-template>
-          </div>
-        </div>
-
-        <div class="space-y-4 rounded-3xl border border-border/70 bg-card/40 p-4">
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <p class="text-sm font-semibold">Image de couverture</p>
-              <p class="text-xs opacity-70">
-                Image affichée sur la carte du projet et en en-tête de la page détail.
-              </p>
-            </div>
-
-            <div class="flex gap-2 flex-wrap">
-              <label
-                class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition"
-              >
-                {{ isUploadingCover ? 'Upload...' : 'Uploader une image' }}
-                <input
-                  type="file"
-                  class="hidden"
-                  [accept]="acceptedImageTypes"
-                  [disabled]="isUploadingCover"
-                  (change)="onCoverFileSelected($event)"
-                />
-              </label>
-
-              <button
-                type="button"
-                class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
-                (click)="removeCoverImage()"
-              >
-                Retirer
-              </button>
-            </div>
-          </div>
-
-          <app-text-field
-            id="project-cover"
-            label="Image de couverture (URL ou /uploads/...)"
-            placeholder="https://... ou /uploads/projects/..."
-            [control]="coverControl"
-            [showError]="coverControl.invalid && coverControl.touched"
-            [errorText]="getUrlErrorMessage(coverControl)">
-          </app-text-field>
-
-          <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
-            <p class="text-sm font-semibold">Aperçu image de couverture</p>
-
-            <img
-              *ngIf="hasCoverPreview; else noCoverImage"
-              [src]="coverPreviewUrl"
-              appFallbackImage
-              alt="Aperçu image de couverture du projet"
-              class="w-full h-44 object-cover rounded-2xl border border-border/50"
-            />
-
-            <ng-template #noCoverImage>
-              <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
-                Aucune image de couverture renseignée
-              </div>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-4 rounded-3xl border border-border/70 bg-card/40 p-4">
-        <div class="flex items-center justify-between gap-3 flex-wrap">
-          <div>
-            <p class="text-sm font-semibold">Galerie d’images</p>
-            <p class="text-xs opacity-70 mt-1">
-              Tu peux uploader plusieurs images ou saisir les chemins manuellement.
-            </p>
-          </div>
-
-          <label
-            class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition"
-          >
-            {{ isUploadingGallery ? 'Upload...' : 'Ajouter des images' }}
-            <input
-              type="file"
-              class="hidden"
-              multiple
-              [accept]="acceptedImageTypes"
-              [disabled]="isUploadingGallery"
-              (change)="onGalleryFilesSelected($event)"
-            />
-          </label>
-        </div>
-
-        <app-text-field
-          id="project-images"
-          label="Images secondaires (URLs ou /uploads/... séparés par des virgules)"
-          placeholder="https://img1.jpg, /uploads/projects/img2.jpg"
-          [control]="imagesInputControl"
-          [showError]="imagesInputControl.invalid && imagesInputControl.touched"
-          [errorText]="getListErrorMessage(imagesInputControl, 'images secondaires')">
-        </app-text-field>
-
-        <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
-          <p class="text-sm font-semibold">Aperçu galerie</p>
-          <p class="text-xs opacity-70">
-            Fais glisser les images pour définir leur ordre d'affichage sur le site.
-          </p>
-
-          <div
-            *ngIf="galleryResolvedPreviewUrls.length > 0; else noGalleryImages"
-            cdkDropList
-            [cdkDropListData]="galleryResolvedPreviewUrls"
-            (cdkDropListDropped)="onGalleryDrop($event)"
-            class="grid grid-cols-2 lg:grid-cols-4 gap-3"
-          >
-            <div
-              *ngFor="let imageUrl of galleryResolvedPreviewUrls; let index = index; trackBy: trackByImageUrl"
-              cdkDrag
-              class="space-y-2"
-            >
-              <div
-                class="rounded-2xl border border-border/50 bg-background/40 overflow-hidden cursor-move"
-              >
-                <div
-                  cdkDragHandle
-                  class="flex items-center justify-between px-3 py-2 text-xs font-medium border-b border-border/50 bg-card/50"
-                >
-                  <span>Glisser pour réordonner</span>
-                  <span>#{{ index + 1 }}</span>
-                </div>
-
-                <img
-                  [src]="imageUrl"
-                  appFallbackImage
-                  alt="Aperçu image secondaire du projet"
-                  class="w-full h-24 object-cover"
-                />
-              </div>
-
-              <button
-                type="button"
-                class="w-full inline-flex items-center justify-center h-9 px-3 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition text-sm"
-                (click)="removeGalleryImage(index)"
-              >
-                Retirer
-              </button>
-            </div>
-          </div>
-
-          <ng-template #noGalleryImages>
-            <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
-              Aucune image secondaire renseignée
-            </div>
-          </ng-template>
         </div>
       </div>
 
@@ -378,31 +188,273 @@
         </app-text-field>
       </div>
 
-      <div class="grid gap-4">
-        <div class="grid grid-cols-2 gap-4 items-end">
-          <label class="flex items-center gap-2 text-sm">
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-4">
+        <p class="text-sm font-semibold mb-4">
+          Options d’affichage
+        </p>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          <label class="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm">
             <input type="checkbox" formControlName="featured" />
-            Favoris
+            <span>Favoris</span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm">
             <input type="checkbox" formControlName="published" />
-            Publié
+            <span>Publié</span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm">
             <input type="checkbox" formControlName="showGithub" />
-            Afficher GitHub
+            <span>Afficher GitHub</span>
           </label>
         </div>
       </div>
     </div>
 
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-4">
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
+      <div>
+        <h3 class="text-lg font-bold">
+          Images du projet
+        </h3>
+
+        <p class="mt-1 text-sm opacity-70">
+          Les images peuvent venir de Cloudinary via upload ou d’une URL renseignée manuellement.
+        </p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="space-y-4 rounded-3xl border border-border/70 bg-background/60 p-4">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-sm font-semibold">
+                Image de remplacement
+              </p>
+
+              <p class="text-xs opacity-70">
+                Utilisée si aucune image de couverture ou galerie n’est disponible.
+              </p>
+            </div>
+
+            <div class="flex gap-2 flex-wrap">
+              <label class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition">
+                {{ isUploadingImage ? 'Upload...' : 'Uploader une image' }}
+
+                <input
+                  type="file"
+                  class="hidden"
+                  [accept]="acceptedImageTypes"
+                  [disabled]="isUploadingImage"
+                  (change)="onImageFileSelected($event)"
+                />
+              </label>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+                (click)="removeMainImage()"
+              >
+                Retirer
+              </button>
+            </div>
+          </div>
+
+          <app-text-field
+            id="project-image"
+            label="Image de remplacement (URL ou /uploads/...)"
+            placeholder="https://... ou /uploads/projects/..."
+            [control]="imageControl"
+            [showError]="imageControl.invalid && imageControl.touched"
+            [errorText]="getUrlErrorMessage(imageControl)">
+          </app-text-field>
+
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
+            <p class="text-sm font-semibold">
+              Aperçu image de remplacement
+            </p>
+
+            <img
+              *ngIf="hasImagePreview; else noMainImage"
+              [src]="mainImagePreviewUrl"
+              appFallbackImage
+              alt="Aperçu image de remplacement du projet"
+              class="w-full h-44 object-cover rounded-2xl border border-border/50"
+            />
+
+            <ng-template #noMainImage>
+              <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
+                Aucune image de remplacement renseignée
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="space-y-4 rounded-3xl border border-border/70 bg-background/60 p-4">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-sm font-semibold">
+                Image de couverture
+              </p>
+
+              <p class="text-xs opacity-70">
+                Image affichée sur la carte du projet et en en-tête de la page détail.
+              </p>
+            </div>
+
+            <div class="flex gap-2 flex-wrap">
+              <label class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition">
+                {{ isUploadingCover ? 'Upload...' : 'Uploader une image' }}
+
+                <input
+                  type="file"
+                  class="hidden"
+                  [accept]="acceptedImageTypes"
+                  [disabled]="isUploadingCover"
+                  (change)="onCoverFileSelected($event)"
+                />
+              </label>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center h-10 px-4 rounded-full border border-border/70 hover:bg-card transition"
+                (click)="removeCoverImage()"
+              >
+                Retirer
+              </button>
+            </div>
+          </div>
+
+          <app-text-field
+            id="project-cover"
+            label="Image de couverture (URL ou /uploads/...)"
+            placeholder="https://... ou /uploads/projects/..."
+            [control]="coverControl"
+            [showError]="coverControl.invalid && coverControl.touched"
+            [errorText]="getUrlErrorMessage(coverControl)">
+          </app-text-field>
+
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
+            <p class="text-sm font-semibold">
+              Aperçu image de couverture
+            </p>
+
+            <img
+              *ngIf="hasCoverPreview; else noCoverImage"
+              [src]="coverPreviewUrl"
+              appFallbackImage
+              alt="Aperçu image de couverture du projet"
+              class="w-full h-44 object-cover rounded-2xl border border-border/50"
+            />
+
+            <ng-template #noCoverImage>
+              <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
+                Aucune image de couverture renseignée
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4 rounded-3xl border border-border/70 bg-background/60 p-4">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <p class="text-sm font-semibold">
+              Galerie d’images
+            </p>
+
+            <p class="text-xs opacity-70 mt-1">
+              Tu peux uploader plusieurs images ou saisir les chemins manuellement.
+            </p>
+          </div>
+
+          <label class="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold cursor-pointer hover:opacity-95 transition">
+            {{ isUploadingGallery ? 'Upload...' : 'Ajouter des images' }}
+
+            <input
+              type="file"
+              class="hidden"
+              multiple
+              [accept]="acceptedImageTypes"
+              [disabled]="isUploadingGallery"
+              (change)="onGalleryFilesSelected($event)"
+            />
+          </label>
+        </div>
+
+        <app-text-field
+          id="project-images"
+          label="Images secondaires (URLs ou /uploads/... séparés par des virgules)"
+          placeholder="https://img1.jpg, /uploads/projects/img2.jpg"
+          [control]="imagesInputControl"
+          [showError]="imagesInputControl.invalid && imagesInputControl.touched"
+          [errorText]="getListErrorMessage(imagesInputControl, 'images secondaires')">
+        </app-text-field>
+
+        <div class="rounded-3xl border border-border/70 bg-card/40 p-3 space-y-3">
+          <p class="text-sm font-semibold">
+            Aperçu galerie
+          </p>
+
+          <p class="text-xs opacity-70">
+            Fais glisser les images pour définir leur ordre d'affichage sur le site.
+          </p>
+
+          <div
+            *ngIf="galleryResolvedPreviewUrls.length > 0; else noGalleryImages"
+            cdkDropList
+            [cdkDropListData]="galleryResolvedPreviewUrls"
+            (cdkDropListDropped)="onGalleryDrop($event)"
+            class="grid grid-cols-2 lg:grid-cols-4 gap-3"
+          >
+            <div
+              *ngFor="let imageUrl of galleryResolvedPreviewUrls; let index = index; trackBy: trackByImageUrl"
+              cdkDrag
+              class="space-y-2"
+            >
+              <div class="rounded-2xl border border-border/50 bg-background/40 overflow-hidden cursor-move">
+                <div
+                  cdkDragHandle
+                  class="flex items-center justify-between px-3 py-2 text-xs font-medium border-b border-border/50 bg-card/50"
+                >
+                  <span>Glisser pour réordonner</span>
+                  <span>#{{ index + 1 }}</span>
+                </div>
+
+                <img
+                  [src]="imageUrl"
+                  appFallbackImage
+                  alt="Aperçu image secondaire du projet"
+                  class="w-full h-24 object-cover"
+                />
+              </div>
+
+              <button
+                type="button"
+                class="w-full inline-flex items-center justify-center h-9 px-3 rounded-full border border-red-500 text-red-500 hover:bg-red-500/10 transition text-sm"
+                (click)="removeGalleryImage(index)"
+              >
+                Retirer
+              </button>
+            </div>
+          </div>
+
+          <ng-template #noGalleryImages>
+            <div class="w-full h-44 rounded-2xl border border-dashed border-border/70 bg-background/40 flex items-center justify-center text-sm opacity-70 text-center px-4">
+              Aucune image secondaire renseignée
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
       <div class="flex items-start justify-between gap-4 flex-wrap">
-        <div class="space-y-1">
-          <h3 class="text-lg font-bold">Contenus localisés</h3>
-          <p class="text-sm opacity-70">
+        <div>
+          <h3 class="text-lg font-bold">
+            Contenus localisés
+          </h3>
+
+          <p class="mt-1 text-sm opacity-70">
             Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
           </p>
         </div>
@@ -549,21 +601,29 @@
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-3">
-      <app-primary-button
-        type="submit"
-        [loading]="isSubmitting"
-        [disabled]="isSubmitting || isTranslating || isUploadingImage || isUploadingCover || isUploadingGallery"
-        ariaLabel="Enregistrer le projet">
-        {{ submitLabel }}
-      </app-primary-button>
+    <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm opacity-70">
+          Pensez à enregistrer avant de quitter la page.
+        </p>
 
-      <a
-        routerLink="/admin/dashboard"
-        class="inline-flex items-center justify-center h-11 px-6 rounded-full border border-border/70 hover:bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-      >
-        Annuler
-      </a>
+        <div class="flex flex-wrap items-center gap-3">
+          <app-primary-button
+            type="submit"
+            [loading]="isSubmitting"
+            [disabled]="isSubmitting || isTranslating || isUploadingImage || isUploadingCover || isUploadingGallery"
+            ariaLabel="Enregistrer le projet">
+            {{ submitLabel }}
+          </app-primary-button>
+
+          <a
+            routerLink="/admin/projects"
+            class="inline-flex items-center justify-center h-11 px-6 rounded-full border border-border/70 hover:bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            Annuler
+          </a>
+        </div>
+      </div>
     </div>
   </form>
 </section>

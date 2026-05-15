@@ -1,21 +1,27 @@
 <section class="space-y-6">
-  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-    <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-primary font-semibold">
-        Administration
-      </p>
-      <h2 class="text-3xl font-bold tracking-tight">Contact</h2>
-      <p class="text-sm opacity-75 mt-2">
-        Ici, tu gères uniquement le contenu affiché dans la colonne de gauche de la section contact.
-      </p>
-    </div>
+  <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Contact
+        </p>
 
-    <a
-      routerLink="/admin/dashboard"
-      class="inline-flex items-center justify-center h-11 px-5 rounded-full border border-border/70 hover:bg-card transition"
-    >
-      Retour au dashboard
-    </a>
+        <h2 class="mt-2 text-2xl font-bold">
+          Gestion de la section Contact
+        </h2>
+
+        <p class="mt-2 max-w-3xl text-sm opacity-75">
+          Ici, tu gères uniquement le contenu affiché dans la colonne de gauche de la section contact.
+        </p>
+      </div>
+
+      <a
+        routerLink="/admin/dashboard"
+        class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        Retour au dashboard
+      </a>
+    </div>
   </div>
 
   <div
@@ -36,6 +42,7 @@
     <p class="font-semibold text-red-600">
       L’action n’a pas pu être finalisée.
     </p>
+
     <p class="text-sm text-red-600">
       {{ errorMessage }}
     </p>
@@ -50,13 +57,21 @@
     novalidate
   >
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h3 class="text-lg font-semibold">Contenu de section</h3>
-          <p class="text-sm opacity-75 mt-1">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Contenu
+          </p>
+
+          <h3 class="mt-2 text-xl font-bold">
+            Contenu de section
+          </h3>
+
+          <p class="mt-1 text-sm opacity-75">
             Ces contenus sont affichés dans la partie gauche de la section Contact publique.
           </p>
-          <p class="text-sm opacity-75 mt-2">
+
+          <p class="mt-2 text-sm opacity-75">
             Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
           </p>
         </div>
@@ -64,7 +79,7 @@
         <div class="flex flex-wrap items-center gap-3">
           <span
             *ngIf="form.dirty && !isSubmitting"
-            class="text-sm opacity-70"
+            class="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
             aria-live="polite"
           >
             Modifications non enregistrées
@@ -81,88 +96,110 @@
         </div>
       </div>
 
-      <div class="grid gap-5 md:grid-cols-2">
-        <app-text-field
-          id="contact-title-fr"
-          label="Titre (FR)"
-          placeholder="Contact"
-          [control]="form.controls.titleFr"
-        ></app-text-field>
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="contact-title-fr"
+            label="Titre (FR)"
+            placeholder="Contact"
+            [control]="form.controls.titleFr"
+          ></app-text-field>
 
-        <app-text-field
-          id="contact-title-en"
-          label="Titre (EN)"
-          placeholder="Contact"
-          [control]="form.controls.titleEn"
-        ></app-text-field>
+          <app-text-field
+            id="contact-title-en"
+            label="Titre (EN)"
+            placeholder="Contact"
+            [control]="form.controls.titleEn"
+          ></app-text-field>
 
-        <app-text-field
-          id="contact-subtitle-fr"
-          label="Sous-titre (FR)"
-          placeholder="Discutons de votre prochain projet"
-          [control]="form.controls.subtitleFr"
-        ></app-text-field>
+          <app-text-field
+            id="contact-subtitle-fr"
+            label="Sous-titre (FR)"
+            placeholder="Discutons de votre prochain projet"
+            [control]="form.controls.subtitleFr"
+          ></app-text-field>
 
-        <app-text-field
-          id="contact-subtitle-en"
-          label="Sous-titre (EN)"
-          placeholder="Let’s talk about your next project"
-          [control]="form.controls.subtitleEn"
-        ></app-text-field>
+          <app-text-field
+            id="contact-subtitle-en"
+            label="Sous-titre (EN)"
+            placeholder="Let’s talk about your next project"
+            [control]="form.controls.subtitleEn"
+          ></app-text-field>
+        </div>
       </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <h3 class="text-lg font-semibold">Informations de contact</h3>
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Coordonnées
+        </p>
 
-      <div class="grid gap-5 md:grid-cols-2">
-        <app-text-field
-          id="contact-email"
-          type="email"
-          label="Email"
-          placeholder="contact@monsite.dev"
-          [control]="form.controls.email"
-        ></app-text-field>
+        <h3 class="mt-2 text-xl font-bold">
+          Informations de contact
+        </h3>
 
-        <app-text-field
-          id="contact-phone"
-          label="Téléphone"
-          placeholder="+33 6 00 00 00 00"
-          [control]="form.controls.phone"
-        ></app-text-field>
+        <p class="mt-1 text-sm opacity-75">
+          Ces informations sont affichées sur le site public pour permettre aux visiteurs de te contacter.
+        </p>
+      </div>
 
-        <app-text-field
-          id="contact-location"
-          label="Localisation"
-          placeholder="Paris, France"
-          [control]="form.controls.location"
-        ></app-text-field>
+      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+        <div class="grid gap-5 md:grid-cols-2">
+          <app-text-field
+            id="contact-email"
+            type="email"
+            label="Email"
+            placeholder="contact@monsite.dev"
+            [control]="form.controls.email"
+          ></app-text-field>
 
-        <app-text-field
-          id="contact-linkedin"
-          label="Lien LinkedIn"
-          placeholder="https://www.linkedin.com/in/..."
-          [control]="form.controls.linkedinUrl"
-        ></app-text-field>
+          <app-text-field
+            id="contact-phone"
+            label="Téléphone"
+            placeholder="+33 6 00 00 00 00"
+            [control]="form.controls.phone"
+          ></app-text-field>
 
-        <app-text-field
-          id="contact-github"
-          label="Lien GitHub"
-          placeholder="https://github.com/..."
-          [control]="form.controls.githubUrl"
-        ></app-text-field>
+          <app-text-field
+            id="contact-location"
+            label="Localisation"
+            placeholder="Paris, France"
+            [control]="form.controls.location"
+          ></app-text-field>
+
+          <app-text-field
+            id="contact-linkedin"
+            label="Lien LinkedIn"
+            placeholder="https://www.linkedin.com/in/..."
+            [control]="form.controls.linkedinUrl"
+          ></app-text-field>
+
+          <app-text-field
+            id="contact-github"
+            label="Lien GitHub"
+            placeholder="https://github.com/..."
+            [control]="form.controls.githubUrl"
+          ></app-text-field>
+        </div>
       </div>
     </div>
 
-    <div class="flex justify-end">
-      <app-primary-button
-        type="submit"
-        [loading]="isSubmitting"
-        [disabled]="isSubmitting || isTranslating"
-      >
-        <span *ngIf="!isSubmitting">Enregistrer</span>
-        <span *ngIf="isSubmitting">Enregistrement...</span>
-      </app-primary-button>
+    <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm opacity-70">
+          Pensez à enregistrer avant de quitter la page.
+        </p>
+
+        <app-primary-button
+          type="submit"
+          [loading]="isSubmitting"
+          [disabled]="isSubmitting || isTranslating"
+        >
+          <span *ngIf="!isSubmitting">Enregistrer</span>
+          <span *ngIf="isSubmitting">Enregistrement...</span>
+        </app-primary-button>
+      </div>
     </div>
   </form>
 </section>
