@@ -1,7 +1,8 @@
 /
+/projects/portfolio-angular
 /projects/11-copie
-/projects/11
 /projects/10
+/projects/11
 /projects/9
 /projects/8
 /projects/5
@@ -9,6 +10,4 @@
 /projects/toto2
 /projects/projet-error
 /projects/toto
-/projects/portfolio-angular
 /projects/tttt
-/legal

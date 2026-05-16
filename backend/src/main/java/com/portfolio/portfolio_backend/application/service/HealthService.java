@@ -8,6 +8,6 @@ public class HealthService implements HealthUseCase {
 
     @Override
     public String check() {
-        return "Portfolio backend is running - Le Backend Portfolio est en cours d'exécution";
+        return "OK";
     }
 }
