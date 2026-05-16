@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          Projets
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="FolderKanbanIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            Projets
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Gestion des projets
         </h2>
 
@@ -18,28 +24,31 @@
       <div class="flex flex-wrap gap-3">
         <button
           type="button"
-          class="inline-flex h-11 items-center justify-center rounded-full border border-red-500 px-5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-500 px-5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           [disabled]="!canDeleteSelectedProjects || isActionLocked"
           (click)="requestDeleteSelection()"
           aria-label="Supprimer les projets sélectionnés"
         >
+          <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
           Supprimer la sélection
         </button>
 
         <button
           type="button"
-          class="inline-flex h-11 items-center justify-center rounded-full border border-red-500 px-5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-500 px-5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
           [disabled]="!canDeleteAllFilteredProjects || isActionLocked"
           (click)="requestDeleteAll()"
           aria-label="Supprimer tous les projets actuellement affichés"
         >
+          <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
           Tout supprimer
         </button>
 
         <a
           routerLink="/admin/projects/new"
-          class="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
+          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
           Nouveau projet
         </a>
       </div>
@@ -48,47 +57,95 @@
 
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Total projets
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Total projets
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        {{ projects.length }}
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            {{ projects.length }}
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="FolderKanbanIcon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Projets publiés
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Projets publiés
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        {{ publishedCount }}
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            {{ publishedCount }}
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="EyeIcon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Brouillons
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Brouillons
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        {{ draftCount }}
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            {{ draftCount }}
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="FileTextIcon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Projets en favoris
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Projets en favoris
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        {{ featuredCount }}
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            {{ featuredCount }}
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="StarIcon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
   </div>
 
   <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+        <lucide-icon [img]="SearchIcon" class="h-5 w-5"></lucide-icon>
+      </span>
+
+      <div>
+        <h3 class="text-lg font-bold">
+          Recherche et filtres
+        </h3>
+
+        <p class="text-sm opacity-70">
+          Affine rapidement la liste des projets.
+        </p>
+      </div>
+    </div>
+
     <div class="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_auto]">
       <app-text-field
         id="admin-project-search"
@@ -136,10 +193,11 @@
       <div class="flex items-end">
         <button
           type="button"
-          class="inline-flex h-11 w-full items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 lg:w-auto"
+          class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 lg:w-auto"
           (click)="clearFilters()"
           aria-label="Réinitialiser la recherche et les filtres"
         >
+          <lucide-icon [img]="RotateCcwIcon" class="h-4 w-4"></lucide-icon>
           Réinitialiser
         </button>
       </div>
@@ -179,21 +237,29 @@
       [class.opacity-70]="!canReorderProjects"
       aria-live="polite"
     >
-      <p class="font-semibold mb-1">
-        Réorganisation des projets
-      </p>
+      <div class="flex gap-3">
+        <span class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-primary">
+          <lucide-icon [img]="GripVerticalIcon" class="h-4 w-4"></lucide-icon>
+        </span>
 
-      <p *ngIf="canReorderProjects">
-        Glisse-dépose les cartes pour modifier l’ordre d’affichage.
-      </p>
+        <div>
+          <p class="font-semibold mb-1">
+            Réorganisation des projets
+          </p>
 
-      <p *ngIf="!canReorderProjects && hasActiveFilters">
-        La réorganisation est disponible uniquement sans recherche ni filtre actif.
-      </p>
+          <p *ngIf="canReorderProjects">
+            Glisse-dépose les cartes pour modifier l’ordre d’affichage.
+          </p>
 
-      <p *ngIf="!canReorderProjects && !hasActiveFilters && isReordering">
-        Réorganisation en cours...
-      </p>
+          <p *ngIf="!canReorderProjects && hasActiveFilters">
+            La réorganisation est disponible uniquement sans recherche ni filtre actif.
+          </p>
+
+          <p *ngIf="!canReorderProjects && !hasActiveFilters && isReordering">
+            Réorganisation en cours...
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -202,14 +268,20 @@
     class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 space-y-4"
     aria-live="assertive"
   >
-    <div class="space-y-2">
-      <p class="font-semibold text-red-600">
-        Confirmer la suppression des projets sélectionnés ?
-      </p>
+    <div class="flex gap-3">
+      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 text-red-500">
+        <lucide-icon [img]="Trash2Icon" class="h-5 w-5"></lucide-icon>
+      </span>
 
-      <p class="text-sm opacity-80">
-        Cette action supprimera définitivement les {{ selectedCount }} projet(s) sélectionné(s), ainsi que leurs images uploadées associées qui ne sont plus utilisées.
-      </p>
+      <div class="space-y-2">
+        <p class="font-semibold text-red-600">
+          Confirmer la suppression des projets sélectionnés ?
+        </p>
+
+        <p class="text-sm opacity-80">
+          Cette action supprimera définitivement les {{ selectedCount }} projet(s) sélectionné(s), ainsi que leurs images uploadées associées qui ne sont plus utilisées.
+        </p>
+      </div>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
@@ -238,14 +310,20 @@
     class="rounded-3xl border border-red-500/40 bg-red-500/5 p-5 space-y-4"
     aria-live="assertive"
   >
-    <div class="space-y-2">
-      <p class="font-semibold text-red-600">
-        Confirmer la suppression de tous les projets affichés ?
-      </p>
+    <div class="flex gap-3">
+      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 text-red-500">
+        <lucide-icon [img]="Trash2Icon" class="h-5 w-5"></lucide-icon>
+      </span>
 
-      <p class="text-sm opacity-80">
-        Cette action supprimera définitivement les {{ resultCount }} projet(s) actuellement visibles dans la liste, ainsi que leurs images uploadées associées qui ne sont plus utilisées.
-      </p>
+      <div class="space-y-2">
+        <p class="font-semibold text-red-600">
+          Confirmer la suppression de tous les projets affichés ?
+        </p>
+
+        <p class="text-sm opacity-80">
+          Cette action supprimera définitivement les {{ resultCount }} projet(s) actuellement visibles dans la liste, ainsi que leurs images uploadées associées qui ne sont plus utilisées.
+        </p>
+      </div>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
@@ -285,7 +363,11 @@
     *ngIf="!isLoading && filteredProjects.length === 0"
     class="rounded-3xl border border-border/70 bg-card/60 p-8 text-center"
   >
-    <p class="font-semibold mb-2">
+    <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+      <lucide-icon [img]="SearchIcon" class="h-6 w-6"></lucide-icon>
+    </span>
+
+    <p class="mt-4 font-semibold mb-2">
       Aucun projet ne correspond aux filtres actuels.
     </p>
 
@@ -320,7 +402,7 @@
               [attr.aria-label]="'Réorganiser le projet ' + project.title"
               title="Glisser pour réordonner"
             >
-              ⋮⋮
+              <lucide-icon [img]="GripVerticalIcon" class="h-4 w-4"></lucide-icon>
             </button>
 
             <input
@@ -412,46 +494,51 @@
           <a
             [routerLink]="['/projects', project.slug]"
             [queryParams]="{ source: 'admin', projectId: project.id }"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             [attr.aria-label]="'Voir la fiche du projet ' + project.title"
           >
-            Voir la fiche
+            <lucide-icon [img]="EyeIcon" class="h-4 w-4"></lucide-icon>
+            Voir
           </a>
 
           <a
             [routerLink]="['/projects', project.slug]"
             [queryParams]="{ source: 'admin', projectId: project.id, autoPdf: '1' }"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             [attr.aria-label]="'Générer le PDF du projet ' + project.title"
           >
+            <lucide-icon [img]="FileDownIcon" class="h-4 w-4"></lucide-icon>
             PDF
           </a>
 
           <button
             type="button"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             [disabled]="isActionLocked"
             (click)="duplicateProject(project)"
             [attr.aria-label]="'Dupliquer le projet ' + project.title"
           >
+            <lucide-icon [img]="CopyIcon" class="h-4 w-4"></lucide-icon>
             {{ isDuplicatingProject(project) ? 'Duplication...' : 'Dupliquer' }}
           </button>
 
           <a
             [routerLink]="['/admin/projects', project.id, 'edit']"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             [attr.aria-label]="'Modifier le projet ' + project.title"
           >
+            <lucide-icon [img]="PencilIcon" class="h-4 w-4"></lucide-icon>
             Modifier
           </a>
 
           <button
             type="button"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-red-500 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
             [disabled]="isActionLocked"
             (click)="requestDelete(project)"
             [attr.aria-label]="'Supprimer le projet ' + project.title"
           >
+            <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
             {{ isDeleteConfirmationOpen(project) ? 'Confirmation ouverte' : 'Supprimer' }}
           </button>
         </div>
@@ -462,14 +549,20 @@
         class="mt-5 rounded-2xl border border-red-500/40 bg-red-500/5 p-4 space-y-4"
         aria-live="assertive"
       >
-        <div class="space-y-2">
-          <p class="font-semibold text-red-600">
-            Confirmer la suppression de « {{ project.title }} » ?
-          </p>
+        <div class="flex gap-3">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 text-red-500">
+            <lucide-icon [img]="Trash2Icon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-          <p class="text-sm opacity-80">
-            Cette action supprimera définitivement le projet ainsi que ses images uploadées associées qui ne sont plus utilisées.
-          </p>
+          <div class="space-y-2">
+            <p class="font-semibold text-red-600">
+              Confirmer la suppression de « {{ project.title }} » ?
+            </p>
+
+            <p class="text-sm opacity-80">
+              Cette action supprimera définitivement le projet ainsi que ses images uploadées associées qui ne sont plus utilisées.
+            </p>
+          </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">

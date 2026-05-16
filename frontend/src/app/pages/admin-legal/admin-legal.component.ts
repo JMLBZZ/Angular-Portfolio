@@ -8,6 +8,17 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import {
+  ArrowLeftIcon,
+  BookOpenTextIcon,
+  EyeIcon,
+  FileTextIcon,
+  LanguagesIcon,
+  SaveIcon,
+  ScaleIcon,
+  ShieldCheckIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 import { AdminLegalContentApiService } from '../../core/api/admin-legal-content-api.service';
 import { TranslationApiService } from '../../core/api/translation-api.service';
@@ -38,10 +49,20 @@ import { LegalContent } from '../../shared/models/legal.model';
     TextFieldComponent,
     PrimaryButtonComponent,
     RichTextEditorComponent,
+    LucideAngularModule,
   ],
   templateUrl: './admin-legal.component.html',
 })
 export class AdminLegalComponent implements OnInit, OnDestroy, PendingChangesComponent {
+  readonly ArrowLeftIcon = ArrowLeftIcon;
+  readonly BookOpenTextIcon = BookOpenTextIcon;
+  readonly EyeIcon = EyeIcon;
+  readonly FileTextIcon = FileTextIcon;
+  readonly LanguagesIcon = LanguagesIcon;
+  readonly SaveIcon = SaveIcon;
+  readonly ScaleIcon = ScaleIcon;
+  readonly ShieldCheckIcon = ShieldCheckIcon;
+
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;

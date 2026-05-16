@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          CV
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="FileTextIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            CV
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Gestion du CV
         </h2>
 
@@ -17,8 +23,9 @@
 
       <a
         routerLink="/admin/dashboard"
-        class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       >
+        <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4"></lucide-icon>
         Retour au dashboard
       </a>
     </div>
@@ -53,11 +60,17 @@
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-              Fichier publié
-            </p>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="EyeIcon" class="h-5 w-5"></lucide-icon>
+              </span>
 
-            <h3 class="mt-2 text-xl font-bold">
+              <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+                Fichier publié
+              </p>
+            </div>
+
+            <h3 class="mt-4 text-xl font-bold">
               CV actuel
             </h3>
 
@@ -71,19 +84,26 @@
             [href]="resumeUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
+            <lucide-icon [img]="DownloadIcon" class="h-4 w-4"></lucide-icon>
             Ouvrir le CV actuel
           </a>
         </div>
 
         <div *ngIf="hasResume; else noResume" class="space-y-5">
           <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-            <p class="text-sm opacity-70">
-              Nom du fichier
-            </p>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-primary">
+                <lucide-icon [img]="FileTextIcon" class="h-4 w-4"></lucide-icon>
+              </span>
 
-            <p class="mt-2 break-words text-lg font-bold">
+              <p class="text-sm opacity-70">
+                Nom du fichier
+              </p>
+            </div>
+
+            <p class="mt-3 break-words text-lg font-bold">
               {{ currentFileName }}
             </p>
 
@@ -94,9 +114,15 @@
 
           <div class="rounded-3xl border border-border/70 bg-background/60 p-4 space-y-3">
             <div class="flex items-center justify-between gap-4">
-              <p class="text-sm font-semibold">
-                Miniature du CV
-              </p>
+              <div class="flex items-center gap-3">
+                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-primary">
+                  <lucide-icon [img]="ImageIcon" class="h-4 w-4"></lucide-icon>
+                </span>
+
+                <p class="text-sm font-semibold">
+                  Miniature du CV
+                </p>
+              </div>
 
               <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 PDF
@@ -134,8 +160,8 @@
 
         <ng-template #noResume>
           <div class="rounded-3xl border border-dashed border-border/70 bg-background/60 p-8 text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl text-primary">
-              PDF
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <lucide-icon [img]="FileTextIcon" class="h-6 w-6"></lucide-icon>
             </div>
 
             <h3 class="mt-4 text-lg font-bold">
@@ -162,11 +188,17 @@
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between xl:flex-col">
           <div>
-            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-              Remplacement
-            </p>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="UploadCloudIcon" class="h-5 w-5"></lucide-icon>
+              </span>
 
-            <h3 class="mt-2 text-xl font-bold">
+              <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+                Remplacement
+              </p>
+            </div>
+
+            <h3 class="mt-4 text-xl font-bold">
               Remplacer le CV
             </h3>
 
@@ -186,9 +218,15 @@
 
         <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
           <div class="rounded-2xl border border-border/70 bg-card/40 p-4">
-            <p class="text-sm font-semibold">
-              Format attendu
-            </p>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="InfoIcon" class="h-4 w-4"></lucide-icon>
+              </span>
+
+              <p class="text-sm font-semibold">
+                Format attendu
+              </p>
+            </div>
 
             <ul class="mt-3 space-y-2 text-sm opacity-75">
               <li>• Fichier PDF uniquement.</li>
@@ -199,8 +237,9 @@
 
           <div class="flex flex-wrap gap-3">
             <label
-              class="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-95 focus-within:ring-2 focus-within:ring-primary/40"
+              class="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-95 focus-within:ring-2 focus-within:ring-primary/40"
             >
+              <lucide-icon [img]="UploadCloudIcon" class="h-4 w-4"></lucide-icon>
               Sélectionner un PDF
 
               <input
@@ -215,10 +254,11 @@
 
             <button
               type="button"
-              class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               [disabled]="isSubmitting || !selectedFile"
               (click)="clearSelection(fileInput)"
             >
+              <lucide-icon [img]="RotateCcwIcon" class="h-4 w-4"></lucide-icon>
               Retirer
             </button>
           </div>

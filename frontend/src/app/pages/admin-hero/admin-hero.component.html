@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          Hero
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="SparklesIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            Hero
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Gestion de la section Hero
         </h2>
 
@@ -17,8 +23,9 @@
 
       <a
         routerLink="/admin/dashboard"
-        class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       >
+        <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4"></lucide-icon>
         Retour au dashboard
       </a>
     </div>
@@ -27,11 +34,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Contenu principal
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="SparklesIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h3 class="mt-2 text-xl font-bold">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Contenu principal
+          </p>
+        </div>
+
+        <h3 class="mt-4 text-xl font-bold">
           Textes et badges du Hero
         </h3>
 
@@ -84,9 +97,15 @@
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h4 class="text-lg font-bold">
-              Textes principaux
-            </h4>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+                <lucide-icon [img]="LanguagesIcon" class="h-5 w-5"></lucide-icon>
+              </span>
+
+              <h4 class="text-lg font-bold">
+                Textes principaux
+              </h4>
+            </div>
 
             <p class="mt-1 text-sm opacity-75">
               Le bouton traduit les champs FR remplis et remplace les champs EN correspondants.
@@ -135,9 +154,15 @@
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-4">
-        <h4 class="text-lg font-bold">
-          Disponibilité
-        </h4>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+            <lucide-icon [img]="BadgeCheckIcon" class="h-5 w-5"></lucide-icon>
+          </span>
+
+          <h4 class="text-lg font-bold">
+            Disponibilité
+          </h4>
+        </div>
 
         <label class="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm cursor-pointer">
           <input
@@ -155,9 +180,15 @@
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h4 class="text-lg font-bold">
-              Badges technos
-            </h4>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+                <lucide-icon [img]="StarIcon" class="h-5 w-5"></lucide-icon>
+              </span>
+
+              <h4 class="text-lg font-bold">
+                Badges technos
+              </h4>
+            </div>
 
             <p class="mt-1 text-sm opacity-75">
               Ces badges sont affichés sous le contenu principal du hero.
@@ -166,9 +197,10 @@
 
           <button
             type="button"
-            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addTechBadge()"
           >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
             Ajouter un badge
           </button>
         </div>
@@ -187,7 +219,7 @@
 
           <button
             type="button"
-            class="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addTechBadge()"
           >
             Ajouter le premier badge
@@ -218,16 +250,18 @@
                 <button
                   type="button"
                   cdkDragHandle
-                  class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
+                  <lucide-icon [img]="GripVerticalIcon" class="h-4 w-4"></lucide-icon>
                   Déplacer
                 </button>
 
                 <button
                   type="button"
-                  class="inline-flex h-11 items-center justify-center rounded-full border border-red-500 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                  class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-500 px-4 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                   (click)="removeTechBadge(i)"
                 >
+                  <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
                   Supprimer
                 </button>
               </div>
@@ -247,7 +281,10 @@
             [loading]="isSubmittingHero"
             [disabled]="isSubmittingHero || isTranslatingHero"
           >
-            <span *ngIf="!isSubmittingHero">Enregistrer le hero</span>
+            <span *ngIf="!isSubmittingHero" class="inline-flex items-center gap-2">
+              <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
+              Enregistrer le hero
+            </span>
             <span *ngIf="isSubmittingHero">Enregistrement...</span>
           </app-primary-button>
         </div>
@@ -258,11 +295,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/60 p-5 space-y-5">
     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Carte Hero
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="StarIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h3 class="mt-2 text-xl font-bold">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Carte Hero
+          </p>
+        </div>
+
+        <h3 class="mt-4 text-xl font-bold">
           Carte à droite du Hero
         </h3>
 
@@ -380,9 +423,15 @@
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
-        <h4 class="text-lg font-bold">
-          Points forts
-        </h4>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+            <lucide-icon [img]="SparklesIcon" class="h-5 w-5"></lucide-icon>
+          </span>
+
+          <h4 class="text-lg font-bold">
+            Points forts
+          </h4>
+        </div>
 
         <div class="grid gap-5 md:grid-cols-2">
           <app-text-field
@@ -430,9 +479,15 @@
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
-        <h4 class="text-lg font-bold">
-          Statistiques
-        </h4>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+            <lucide-icon [img]="BadgeCheckIcon" class="h-5 w-5"></lucide-icon>
+          </span>
+
+          <h4 class="text-lg font-bold">
+            Statistiques
+          </h4>
+        </div>
 
         <div class="space-y-5">
           <div class="rounded-2xl border border-border/60 bg-card/40 p-4">
@@ -535,7 +590,10 @@
             [loading]="isSubmittingHeroCard"
             [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
           >
-            <span *ngIf="!isSubmittingHeroCard">Enregistrer la carte</span>
+            <span *ngIf="!isSubmittingHeroCard" class="inline-flex items-center gap-2">
+              <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
+              Enregistrer la carte
+            </span>
             <span *ngIf="isSubmittingHeroCard">Enregistrement...</span>
           </app-primary-button>
         </div>

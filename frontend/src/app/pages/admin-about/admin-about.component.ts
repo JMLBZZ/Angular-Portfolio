@@ -9,6 +9,20 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import {
+  ArrowLeftIcon,
+  BookOpenIcon,
+  BriefcaseBusinessIcon,
+  HeartHandshakeIcon,
+  InfoIcon,
+  LanguagesIcon,
+  PlusIcon,
+  SaveIcon,
+  SparklesIcon,
+  UserRoundIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
+
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
@@ -37,10 +51,22 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
     TextFieldComponent,
     TextAreaComponent,
     PrimaryButtonComponent,
+    LucideAngularModule,
   ],
   templateUrl: './admin-about.component.html',
 })
 export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesComponent {
+  readonly ArrowLeftIcon = ArrowLeftIcon;
+  readonly BookOpenIcon = BookOpenIcon;
+  readonly BriefcaseBusinessIcon = BriefcaseBusinessIcon;
+  readonly HeartHandshakeIcon = HeartHandshakeIcon;
+  readonly InfoIcon = InfoIcon;
+  readonly LanguagesIcon = LanguagesIcon;
+  readonly PlusIcon = PlusIcon;
+  readonly SaveIcon = SaveIcon;
+  readonly SparklesIcon = SparklesIcon;
+  readonly UserRoundIcon = UserRoundIcon;
+
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;

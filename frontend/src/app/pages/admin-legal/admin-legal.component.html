@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          Légal
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="ScaleIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            Légal
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Mentions légales / Confidentialité
         </h2>
 
@@ -20,15 +26,17 @@
         <a
           routerLink="/legal"
           target="_blank"
-          class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
+          <lucide-icon [img]="EyeIcon" class="h-4 w-4"></lucide-icon>
           Voir la page
         </a>
 
         <a
           routerLink="/admin/dashboard"
-          class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
+          <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4"></lucide-icon>
           Retour au dashboard
         </a>
 
@@ -80,11 +88,17 @@
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Contenu général
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="LanguagesIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Contenu général
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Titre et traduction
           </h3>
 
@@ -139,11 +153,17 @@
     <div class="grid gap-6 xl:grid-cols-2">
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Français
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="FileTextIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Français
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Contenu riche FR
           </h3>
 
@@ -171,11 +191,17 @@
 
       <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-4">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Anglais
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="BookOpenTextIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Anglais
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Contenu riche EN
           </h3>
 
@@ -204,11 +230,17 @@
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div>
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Aide
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="ShieldCheckIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h3 class="mt-2 text-xl font-bold">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Aide
+          </p>
+        </div>
+
+        <h3 class="mt-4 text-xl font-bold">
           Aide au contenu RGPD/CNIL
         </h3>
 

@@ -9,6 +9,21 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CopyIcon,
+  EyeIcon,
+  FileDownIcon,
+  FileTextIcon,
+  FolderKanbanIcon,
+  GripVerticalIcon,
+  PencilIcon,
+  PlusIcon,
+  RotateCcwIcon,
+  SearchIcon,
+  StarIcon,
+  Trash2Icon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminProject, AdminProjectPayload } from '../../core/auth/auth.models';
@@ -28,10 +43,24 @@ type ProjectFeaturedFilter = 'all' | 'featured' | 'not-featured';
     RouterLink,
     TextFieldComponent,
     DragDropModule,
+    LucideAngularModule,
   ],
   templateUrl: './admin-projects.component.html',
 })
 export class AdminProjectsComponent implements OnInit, AfterViewInit {
+  readonly FolderKanbanIcon = FolderKanbanIcon;
+  readonly EyeIcon = EyeIcon;
+  readonly FileTextIcon = FileTextIcon;
+  readonly StarIcon = StarIcon;
+  readonly PlusIcon = PlusIcon;
+  readonly Trash2Icon = Trash2Icon;
+  readonly RotateCcwIcon = RotateCcwIcon;
+  readonly SearchIcon = SearchIcon;
+  readonly GripVerticalIcon = GripVerticalIcon;
+  readonly CopyIcon = CopyIcon;
+  readonly PencilIcon = PencilIcon;
+  readonly FileDownIcon = FileDownIcon;
+
   projects: AdminProject[] = [];
   isLoading = true;
   errorMessage = '';

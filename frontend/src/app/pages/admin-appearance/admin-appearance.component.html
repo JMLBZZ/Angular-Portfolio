@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          Apparence
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="PaletteIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            Apparence
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Centre de configuration visuelle
         </h2>
 
@@ -23,54 +29,92 @@
 
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Réglages actifs
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Réglages actifs
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        {{ activeOptionsCount }}
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            {{ activeOptionsCount }}
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="CheckCircle2Icon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Réglages prévus
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Réglages prévus
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        {{ plannedOptionsCount }}
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            {{ plannedOptionsCount }}
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="Settings2Icon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Design public
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Design public
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        Conservé
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            Conservé
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="EyeIcon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <p class="text-sm opacity-70">
-        Admin UI
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Admin UI
+          </p>
 
-      <p class="mt-2 text-3xl font-bold">
-        En cours
-      </p>
+          <p class="mt-2 text-3xl font-bold">
+            En cours
+          </p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="LayoutDashboardIcon" class="h-5 w-5"></lucide-icon>
+        </span>
+      </div>
     </div>
   </div>
 
   <div class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div>
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Paramètres
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="Settings2Icon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h3 class="mt-2 text-xl font-bold">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Paramètres
+          </p>
+        </div>
+
+        <h3 class="mt-4 text-xl font-bold">
           Suivi des réglages visuels
         </h3>
 
@@ -85,14 +129,20 @@
           class="rounded-2xl border border-border/70 bg-background/60 p-4"
         >
           <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h4 class="font-bold">
-                {{ option.title }}
-              </h4>
+            <div class="flex gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+                <lucide-icon [img]="option.icon" class="h-5 w-5"></lucide-icon>
+              </span>
 
-              <p class="mt-1 text-sm opacity-75">
-                {{ option.description }}
-              </p>
+              <div>
+                <h4 class="font-bold">
+                  {{ option.title }}
+                </h4>
+
+                <p class="mt-1 text-sm opacity-75">
+                  {{ option.description }}
+                </p>
+              </div>
             </div>
 
             <span
@@ -112,11 +162,17 @@
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div>
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Identité
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="SparklesIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h3 class="mt-2 text-xl font-bold">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Identité
+          </p>
+        </div>
+
+        <h3 class="mt-4 text-xl font-bold">
           Charte actuelle
         </h3>
 
@@ -161,11 +217,17 @@
 
   <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
     <div>
-      <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-        Prochaines évolutions possibles
-      </p>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="WandSparklesIcon" class="h-5 w-5"></lucide-icon>
+        </span>
 
-      <h3 class="mt-2 text-xl font-bold">
+        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+          Prochaines évolutions possibles
+        </p>
+      </div>
+
+      <h3 class="mt-4 text-xl font-bold">
         Fonctionnalités futures
       </h3>
     </div>

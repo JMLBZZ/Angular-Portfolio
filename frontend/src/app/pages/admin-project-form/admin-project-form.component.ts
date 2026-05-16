@@ -4,6 +4,25 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, from, concatMap, finalize, toArray } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  ArrowLeftIcon,
+  EyeIcon,
+  FileTextIcon,
+  GithubIcon,
+  GripVerticalIcon,
+  ImageIcon,
+  ImagesIcon,
+  InfoIcon,
+  LanguagesIcon,
+  LinkIcon,
+  SaveIcon,
+  Settings2Icon,
+  StarIcon,
+  UploadCloudIcon,
+  XIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
+
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
@@ -44,12 +63,29 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
     PrimaryButtonComponent,
     FallbackImageDirective,
     DragDropModule,
+    LucideAngularModule,
   ],
   templateUrl: './admin-project-form.component.html',
 })
 export class AdminProjectFormComponent
   implements OnInit, OnDestroy, PendingChangesComponent
 {
+  readonly ArrowLeftIcon = ArrowLeftIcon;
+  readonly EyeIcon = EyeIcon;
+  readonly FileTextIcon = FileTextIcon;
+  readonly GithubIcon = GithubIcon;
+  readonly GripVerticalIcon = GripVerticalIcon;
+  readonly ImageIcon = ImageIcon;
+  readonly ImagesIcon = ImagesIcon;
+  readonly InfoIcon = InfoIcon;
+  readonly LanguagesIcon = LanguagesIcon;
+  readonly LinkIcon = LinkIcon;
+  readonly SaveIcon = SaveIcon;
+  readonly Settings2Icon = Settings2Icon;
+  readonly StarIcon = StarIcon;
+  readonly UploadCloudIcon = UploadCloudIcon;
+  readonly XIcon = XIcon;
+
   isEditMode = false;
   projectId: string | null = null;
 

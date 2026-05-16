@@ -1,5 +1,17 @@
 import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import {
+  ArrowLeftIcon,
+  DownloadIcon,
+  EyeIcon,
+  FileTextIcon,
+  ImageIcon,
+  InfoIcon,
+  RotateCcwIcon,
+  UploadCloudIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
@@ -21,11 +33,22 @@ GlobalWorkerOptions.workerSrc = new URL(
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     PrimaryButtonComponent,
+    LucideAngularModule,
   ],
   templateUrl: './admin-resume.component.html',
 })
 export class AdminResumeComponent implements OnInit, OnDestroy {
+  readonly ArrowLeftIcon = ArrowLeftIcon;
+  readonly DownloadIcon = DownloadIcon;
+  readonly EyeIcon = EyeIcon;
+  readonly FileTextIcon = FileTextIcon;
+  readonly ImageIcon = ImageIcon;
+  readonly InfoIcon = InfoIcon;
+  readonly RotateCcwIcon = RotateCcwIcon;
+  readonly UploadCloudIcon = UploadCloudIcon;
+
   isLoading = false;
   isSubmitting = false;
   isGeneratingThumbnail = false;

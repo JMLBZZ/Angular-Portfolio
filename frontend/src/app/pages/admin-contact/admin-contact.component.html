@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          Contact
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="MailIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            Contact
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Gestion de la section Contact
         </h2>
 
@@ -17,8 +23,9 @@
 
       <a
         routerLink="/admin/dashboard"
-        class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       >
+        <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4"></lucide-icon>
         Retour au dashboard
       </a>
     </div>
@@ -59,11 +66,17 @@
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Contenu
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="MessageSquareTextIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Contenu
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Contenu de section
           </h3>
 
@@ -131,11 +144,17 @@
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div>
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Coordonnées
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="AtSignIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h3 class="mt-2 text-xl font-bold">
+          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+            Coordonnées
+          </p>
+        </div>
+
+        <h3 class="mt-4 text-xl font-bold">
           Informations de contact
         </h3>
 
@@ -146,41 +165,101 @@
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
         <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="contact-email"
-            type="email"
-            label="Email"
-            placeholder="contact@monsite.dev"
-            [control]="form.controls.email"
-          ></app-text-field>
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="MailIcon" class="h-4 w-4"></lucide-icon>
+              </span>
 
-          <app-text-field
-            id="contact-phone"
-            label="Téléphone"
-            placeholder="+33 6 00 00 00 00"
-            [control]="form.controls.phone"
-          ></app-text-field>
+              <p class="text-sm font-semibold">
+                Email
+              </p>
+            </div>
 
-          <app-text-field
-            id="contact-location"
-            label="Localisation"
-            placeholder="Paris, France"
-            [control]="form.controls.location"
-          ></app-text-field>
+            <app-text-field
+              id="contact-email"
+              type="email"
+              label="Email"
+              placeholder="contact@monsite.dev"
+              [control]="form.controls.email"
+            ></app-text-field>
+          </div>
 
-          <app-text-field
-            id="contact-linkedin"
-            label="Lien LinkedIn"
-            placeholder="https://www.linkedin.com/in/..."
-            [control]="form.controls.linkedinUrl"
-          ></app-text-field>
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="PhoneIcon" class="h-4 w-4"></lucide-icon>
+              </span>
 
-          <app-text-field
-            id="contact-github"
-            label="Lien GitHub"
-            placeholder="https://github.com/..."
-            [control]="form.controls.githubUrl"
-          ></app-text-field>
+              <p class="text-sm font-semibold">
+                Téléphone
+              </p>
+            </div>
+
+            <app-text-field
+              id="contact-phone"
+              label="Téléphone"
+              placeholder="+33 6 00 00 00 00"
+              [control]="form.controls.phone"
+            ></app-text-field>
+          </div>
+
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="MapPinIcon" class="h-4 w-4"></lucide-icon>
+              </span>
+
+              <p class="text-sm font-semibold">
+                Localisation
+              </p>
+            </div>
+
+            <app-text-field
+              id="contact-location"
+              label="Localisation"
+              placeholder="Paris, France"
+              [control]="form.controls.location"
+            ></app-text-field>
+          </div>
+
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="LinkedinIcon" class="h-4 w-4"></lucide-icon>
+              </span>
+
+              <p class="text-sm font-semibold">
+                LinkedIn
+              </p>
+            </div>
+
+            <app-text-field
+              id="contact-linkedin"
+              label="Lien LinkedIn"
+              placeholder="https://www.linkedin.com/in/..."
+              [control]="form.controls.linkedinUrl"
+            ></app-text-field>
+          </div>
+
+          <div class="rounded-3xl border border-border/70 bg-card/40 p-4 md:col-span-2">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/70 text-primary">
+                <lucide-icon [img]="GithubIcon" class="h-4 w-4"></lucide-icon>
+              </span>
+
+              <p class="text-sm font-semibold">
+                GitHub
+              </p>
+            </div>
+
+            <app-text-field
+              id="contact-github"
+              label="Lien GitHub"
+              placeholder="https://github.com/..."
+              [control]="form.controls.githubUrl"
+            ></app-text-field>
+          </div>
         </div>
       </div>
     </div>

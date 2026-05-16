@@ -1,5 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import {
+  ArchiveIcon,
+  CheckCheckIcon,
+  InboxIcon,
+  MailIcon,
+  MailOpenIcon,
+  MessageSquareTextIcon,
+  SendIcon,
+  UserRoundIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 type MessageStatus = 'unread' | 'read' | 'archived';
 
@@ -17,10 +28,22 @@ type AdminMessage = {
 @Component({
   selector: 'app-admin-messages',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+  ],
   templateUrl: './admin-messages.component.html',
 })
 export class AdminMessagesComponent {
+  readonly InboxIcon = InboxIcon;
+  readonly MailIcon = MailIcon;
+  readonly MailOpenIcon = MailOpenIcon;
+  readonly ArchiveIcon = ArchiveIcon;
+  readonly MessageSquareTextIcon = MessageSquareTextIcon;
+  readonly UserRoundIcon = UserRoundIcon;
+  readonly SendIcon = SendIcon;
+  readonly CheckCheckIcon = CheckCheckIcon;
+
   readonly messages: AdminMessage[] = [
     {
       id: 1,

@@ -9,6 +9,18 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  ArrowLeftIcon,
+  BadgeCheckIcon,
+  GripVerticalIcon,
+  LanguagesIcon,
+  PlusIcon,
+  SaveIcon,
+  SparklesIcon,
+  StarIcon,
+  Trash2Icon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
@@ -43,10 +55,21 @@ type HeroTechBadgeFormGroup = FormGroup<{
     DragDropModule,
     TextFieldComponent,
     PrimaryButtonComponent,
+    LucideAngularModule,
   ],
   templateUrl: './admin-hero.component.html',
 })
 export class AdminHeroComponent implements OnInit, OnDestroy {
+  readonly ArrowLeftIcon = ArrowLeftIcon;
+  readonly BadgeCheckIcon = BadgeCheckIcon;
+  readonly GripVerticalIcon = GripVerticalIcon;
+  readonly LanguagesIcon = LanguagesIcon;
+  readonly PlusIcon = PlusIcon;
+  readonly SaveIcon = SaveIcon;
+  readonly SparklesIcon = SparklesIcon;
+  readonly StarIcon = StarIcon;
+  readonly Trash2Icon = Trash2Icon;
+
   isLoadingHero = false;
   isSubmittingHero = false;
   isTranslatingHero = false;

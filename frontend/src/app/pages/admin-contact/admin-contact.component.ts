@@ -3,6 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import {
+  ArrowLeftIcon,
+  AtSignIcon,
+  GithubIcon,
+  LanguagesIcon,
+  LinkedinIcon,
+  MailIcon,
+  MapPinIcon,
+  MessageSquareTextIcon,
+  PhoneIcon,
+  SaveIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
@@ -28,10 +41,22 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
     RouterLink,
     TextFieldComponent,
     PrimaryButtonComponent,
+    LucideAngularModule,
   ],
   templateUrl: './admin-contact.component.html',
 })
 export class AdminContactComponent implements OnInit, OnDestroy {
+  readonly ArrowLeftIcon = ArrowLeftIcon;
+  readonly AtSignIcon = AtSignIcon;
+  readonly GithubIcon = GithubIcon;
+  readonly LanguagesIcon = LanguagesIcon;
+  readonly LinkedinIcon = LinkedinIcon;
+  readonly MailIcon = MailIcon;
+  readonly MapPinIcon = MapPinIcon;
+  readonly MessageSquareTextIcon = MessageSquareTextIcon;
+  readonly PhoneIcon = PhoneIcon;
+  readonly SaveIcon = SaveIcon;
+
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;

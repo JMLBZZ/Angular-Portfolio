@@ -2,11 +2,17 @@
   <div class="rounded-3xl border border-border/70 bg-card/70 p-6">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          About
-        </p>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <lucide-icon [img]="UserRoundIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-        <h2 class="mt-2 text-2xl font-bold">
+          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+            About
+          </p>
+        </div>
+
+        <h2 class="mt-4 text-2xl font-bold">
           Gestion de la section About
         </h2>
 
@@ -18,8 +24,9 @@
       <div class="flex flex-wrap items-center gap-3">
         <a
           routerLink="/admin/dashboard"
-          class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
+          <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4"></lucide-icon>
           Retour au dashboard
         </a>
 
@@ -29,7 +36,10 @@
           [disabled]="isSubmitting || isTranslating"
           (pressed)="save()"
         >
-          <span *ngIf="!isSubmitting">Enregistrer</span>
+          <span *ngIf="!isSubmitting" class="inline-flex items-center gap-2">
+            <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
+            Enregistrer
+          </span>
           <span *ngIf="isSubmitting">Enregistrement...</span>
         </app-primary-button>
       </div>
@@ -71,11 +81,17 @@
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Présentation
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="InfoIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Présentation
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Informations générales
           </h3>
 
@@ -103,7 +119,10 @@
             [disabled]="isSubmitting || isTranslating"
             (pressed)="translateAllToEnglish()"
           >
-            Tout traduire en anglais
+            <span class="inline-flex items-center gap-2">
+              <lucide-icon [img]="LanguagesIcon" class="h-4 w-4"></lucide-icon>
+              Tout traduire en anglais
+            </span>
           </app-primary-button>
         </div>
       </div>
@@ -180,9 +199,15 @@
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
-        <h4 class="text-lg font-bold">
-          Biographie
-        </h4>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
+            <lucide-icon [img]="BookOpenIcon" class="h-5 w-5"></lucide-icon>
+          </span>
+
+          <h4 class="text-lg font-bold">
+            Biographie
+          </h4>
+        </div>
 
         <div class="grid gap-5 md:grid-cols-2">
           <app-text-area
@@ -205,11 +230,17 @@
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Parcours
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="BriefcaseBusinessIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Parcours
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Timeline
           </h3>
 
@@ -220,9 +251,10 @@
 
         <button
           type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           (click)="addTimelineItem()"
         >
+          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
           Ajouter une étape
         </button>
       </div>
@@ -258,9 +290,10 @@
 
           <button
             type="button"
-            class="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addTimelineItem()"
           >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
             Ajouter la première étape
           </button>
         </div>
@@ -392,11 +425,17 @@
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Compétences
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="SparklesIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Compétences
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Compétences techniques
           </h3>
 
@@ -407,9 +446,10 @@
 
         <button
           type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           (click)="addSkillGroup()"
         >
+          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
           Ajouter un groupe
         </button>
       </div>
@@ -445,9 +485,10 @@
 
           <button
             type="button"
-            class="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addSkillGroup()"
           >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
             Ajouter le premier groupe
           </button>
         </div>
@@ -511,11 +552,12 @@
             <div class="flex justify-end">
               <button
                 type="button"
-                class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 (click)="addSkillItem(gi)"
               >
-                Ajouter une compétence
-              </button>
+                  <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+                  Ajouter une compétence
+                </button>
             </div>
 
             <div
@@ -532,11 +574,12 @@
 
               <button
                 type="button"
-                class="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                class="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 (click)="addSkillItem(gi)"
               >
-                Ajouter la première compétence
-              </button>
+                  <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+                  Ajouter la première compétence
+                </button>
             </div>
 
             <div formArrayName="items" class="space-y-3" *ngIf="hasSkillItems(gi)">
@@ -609,11 +652,17 @@
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Qualités
-          </p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="HeartHandshakeIcon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <h3 class="mt-2 text-xl font-bold">
+            <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
+              Qualités
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
             Soft skills
           </h3>
 
@@ -624,9 +673,10 @@
 
         <button
           type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           (click)="addSoftSkill()"
         >
+          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
           Ajouter une soft skill
         </button>
       </div>
@@ -662,9 +712,10 @@
 
           <button
             type="button"
-            class="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            class="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             (click)="addSoftSkill()"
           >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
             Ajouter la première soft skill
           </button>
         </div>
@@ -738,7 +789,10 @@
           [loading]="isSubmitting"
           [disabled]="isSubmitting || isTranslating"
         >
-          <span *ngIf="!isSubmitting">Enregistrer</span>
+          <span *ngIf="!isSubmitting" class="inline-flex items-center gap-2">
+            <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
+            Enregistrer
+          </span>
           <span *ngIf="isSubmitting">Enregistrement...</span>
         </app-primary-button>
       </div>
