@@ -17,14 +17,20 @@
         </h2>
 
         <p class="mt-2 max-w-3xl text-sm opacity-75">
-          Interface préparée pour consulter les futurs messages envoyés depuis le formulaire de contact.
-          Pour l’instant, les données affichées sont temporaires côté frontend.
+          Consulte les messages envoyés depuis le formulaire de contact public, avec filtres backend,
+          pagination, lecture, archivage et suppression sécurisés.
         </p>
       </div>
 
-      <div class="rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm opacity-80">
-        Backend à connecter plus tard
-      </div>
+      <button
+        type="button"
+        class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 bg-background/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="isLoading || isActionLocked"
+        (click)="loadMessages()"
+      >
+        <lucide-icon [img]="RefreshCwIcon" class="h-4 w-4"></lucide-icon>
+        Actualiser
+      </button>
     </div>
   </div>
 
@@ -82,59 +88,87 @@
     </div>
   </div>
 
+  <div *ngIf="errorMessage" class="rounded-3xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700">
+    {{ errorMessage }}
+  </div>
+
   <div class="rounded-3xl border border-border/70 bg-card/60 p-4">
-    <div class="flex flex-wrap gap-2">
-      <button
-        type="button"
-        class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        [class.border-primary]="selectedStatus === 'all'"
-        [class.bg-primary]="selectedStatus === 'all'"
-        [class.text-primary-foreground]="selectedStatus === 'all'"
-        [class.border-border]="selectedStatus !== 'all'"
-        (click)="selectStatus('all')"
-      >
-        Tous
-      </button>
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+          [class.border-primary]="selectedStatus === 'all'"
+          [class.bg-primary]="selectedStatus === 'all'"
+          [class.text-primary-foreground]="selectedStatus === 'all'"
+          [class.border-border]="selectedStatus !== 'all'"
+          [disabled]="isLoading"
+          (click)="selectStatus('all')"
+        >
+          Tous
+        </button>
 
-      <button
-        type="button"
-        class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        [class.border-primary]="selectedStatus === 'unread'"
-        [class.bg-primary]="selectedStatus === 'unread'"
-        [class.text-primary-foreground]="selectedStatus === 'unread'"
-        [class.border-border]="selectedStatus !== 'unread'"
-        (click)="selectStatus('unread')"
-      >
-        Non lus
-      </button>
+        <button
+          type="button"
+          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+          [class.border-primary]="selectedStatus === 'unread'"
+          [class.bg-primary]="selectedStatus === 'unread'"
+          [class.text-primary-foreground]="selectedStatus === 'unread'"
+          [class.border-border]="selectedStatus !== 'unread'"
+          [disabled]="isLoading"
+          (click)="selectStatus('unread')"
+        >
+          Non lus
+        </button>
 
-      <button
-        type="button"
-        class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        [class.border-primary]="selectedStatus === 'read'"
-        [class.bg-primary]="selectedStatus === 'read'"
-        [class.text-primary-foreground]="selectedStatus === 'read'"
-        [class.border-border]="selectedStatus !== 'read'"
-        (click)="selectStatus('read')"
-      >
-        Lus
-      </button>
+        <button
+          type="button"
+          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+          [class.border-primary]="selectedStatus === 'read'"
+          [class.bg-primary]="selectedStatus === 'read'"
+          [class.text-primary-foreground]="selectedStatus === 'read'"
+          [class.border-border]="selectedStatus !== 'read'"
+          [disabled]="isLoading"
+          (click)="selectStatus('read')"
+        >
+          Lus
+        </button>
 
-      <button
-        type="button"
-        class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        [class.border-primary]="selectedStatus === 'archived'"
-        [class.bg-primary]="selectedStatus === 'archived'"
-        [class.text-primary-foreground]="selectedStatus === 'archived'"
-        [class.border-border]="selectedStatus !== 'archived'"
-        (click)="selectStatus('archived')"
-      >
-        Archivés
-      </button>
+        <button
+          type="button"
+          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+          [class.border-primary]="selectedStatus === 'archived'"
+          [class.bg-primary]="selectedStatus === 'archived'"
+          [class.text-primary-foreground]="selectedStatus === 'archived'"
+          [class.border-border]="selectedStatus !== 'archived'"
+          [disabled]="isLoading"
+          (click)="selectStatus('archived')"
+        >
+          Archivés
+        </button>
+      </div>
+
+      <p class="text-sm opacity-70">
+        {{ totalElements }} résultat(s) pour le filtre actif
+      </p>
     </div>
   </div>
 
-  <div class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+  <div *ngIf="isLoading" class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-4">
+      <div class="space-y-3">
+        <div class="h-24 animate-pulse rounded-2xl bg-background/70"></div>
+        <div class="h-24 animate-pulse rounded-2xl bg-background/70"></div>
+        <div class="h-24 animate-pulse rounded-2xl bg-background/70"></div>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
+      <div class="h-80 animate-pulse rounded-3xl bg-background/70"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading" class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-4">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
@@ -149,12 +183,12 @@
           </div>
 
           <p class="mt-2 text-sm opacity-70">
-            {{ filteredMessages.length }} message(s) affiché(s)
+            {{ messages.length }} message(s) affiché(s) sur cette page
           </p>
         </div>
       </div>
 
-      <div *ngIf="filteredMessages.length === 0" class="rounded-2xl border border-dashed border-border/70 p-6 text-center">
+      <div *ngIf="messages.length === 0" class="rounded-2xl border border-dashed border-border/70 p-6 text-center">
         <p class="font-semibold">
           Aucun message
         </p>
@@ -164,9 +198,9 @@
         </p>
       </div>
 
-      <div *ngIf="filteredMessages.length > 0" class="space-y-3">
+      <div *ngIf="messages.length > 0" class="space-y-3">
         <button
-          *ngFor="let message of filteredMessages"
+          *ngFor="let message of messages; trackBy: trackByMessageId"
           type="button"
           class="w-full rounded-2xl border p-4 text-left transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           [class.border-primary]="selectedMessageId === message.id"
@@ -174,6 +208,7 @@
           [class.text-primary-foreground]="selectedMessageId === message.id"
           [class.border-border]="selectedMessageId !== message.id"
           [class.bg-background]="selectedMessageId !== message.id"
+          [class.font-semibold]="message.status === 'unread'"
           (click)="selectMessage(message)"
         >
           <div class="flex items-start justify-between gap-3">
@@ -201,14 +236,40 @@
           </p>
 
           <p class="mt-3 text-xs opacity-60">
-            Reçu le {{ message.receivedAt }}
+            Reçu le {{ formatDate(message.receivedAt) }}
           </p>
         </button>
+      </div>
+
+      <div class="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm opacity-70">
+          Page {{ currentPageDisplay }} sur {{ totalPages }}
+        </p>
+
+        <div class="flex gap-2">
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="!hasPreviousPage || isLoading"
+            (click)="previousPage()"
+          >
+            Précédent
+          </button>
+
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="!hasNextPage || isLoading"
+            (click)="nextPage()"
+          >
+            Suivant
+          </button>
+        </div>
       </div>
     </div>
 
     <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
-      <ng-container *ngIf="selectedMessage; else noSelectedMessage">
+      <ng-container *ngIf="selectedMessage as message; else noSelectedMessage">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div class="flex items-center gap-3">
@@ -222,53 +283,49 @@
             </div>
 
             <h3 class="mt-4 text-2xl font-bold">
-              {{ selectedMessage.subject }}
+              {{ message.subject }}
             </h3>
 
             <p class="mt-2 text-sm opacity-75">
-              Message reçu le {{ selectedMessage.receivedAt }}
+              Message reçu le {{ formatDate(message.receivedAt) }}
             </p>
           </div>
 
           <span class="w-fit rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
-            {{ getStatusLabel(selectedMessage.status) }}
+            {{ getStatusLabel(message.status) }}
           </span>
+        </div>
+
+        <div *ngIf="isLoadingDetail" class="mt-4 rounded-2xl border border-border/70 bg-background/60 p-3 text-sm opacity-75">
+          Chargement du détail du message...
         </div>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2">
           <div class="rounded-2xl border border-border/70 bg-background/60 p-4">
-            <div class="flex items-center gap-3">
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-primary">
-                <lucide-icon [img]="UserRoundIcon" class="h-4 w-4"></lucide-icon>
-              </span>
-
-              <p class="text-xs uppercase tracking-[0.16em] opacity-60">
-                Expéditeur
-              </p>
-            </div>
+            <p class="text-xs uppercase tracking-[0.16em] opacity-60">
+              Expéditeur
+            </p>
 
             <p class="mt-3 font-semibold">
-              {{ selectedMessage.senderName }}
+              {{ message.senderName }}
             </p>
 
             <p class="mt-1 break-words text-sm opacity-75">
-              {{ selectedMessage.senderEmail }}
+              {{ message.senderEmail }}
             </p>
           </div>
 
           <div class="rounded-2xl border border-border/70 bg-background/60 p-4">
-            <div class="flex items-center gap-3">
-              <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-primary">
-                <lucide-icon [img]="CheckCheckIcon" class="h-4 w-4"></lucide-icon>
-              </span>
-
-              <p class="text-xs uppercase tracking-[0.16em] opacity-60">
-                Type de projet
-              </p>
-            </div>
+            <p class="text-xs uppercase tracking-[0.16em] opacity-60">
+              Suivi
+            </p>
 
             <p class="mt-3 font-semibold">
-              {{ selectedMessage.projectType }}
+              {{ getStatusLabel(message.status) }}
+            </p>
+
+            <p *ngIf="message.readAt" class="mt-1 text-sm opacity-75">
+              Lu le {{ formatDate(message.readAt) }}
             </p>
           </div>
         </div>
@@ -279,25 +336,91 @@
           </p>
 
           <p class="mt-4 whitespace-pre-line text-sm leading-7 opacity-85">
-            {{ selectedMessage.message }}
+            {{ message.message }}
           </p>
         </div>
 
-        <div class="mt-6 rounded-3xl border border-dashed border-border/80 bg-background/40 p-5">
-          <div class="flex items-start gap-3">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
-              <lucide-icon [img]="SendIcon" class="h-5 w-5"></lucide-icon>
-            </span>
+        <div class="mt-6 rounded-3xl border border-border/70 bg-background/60 p-5">
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="isActionLocked || message.status === 'read'"
+              (click)="markSelectedAsRead()"
+            >
+              <lucide-icon [img]="MailOpenIcon" class="h-4 w-4"></lucide-icon>
+              Marquer lu
+            </button>
 
-            <div>
-              <p class="font-semibold">
-                Actions futures
-              </p>
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="isActionLocked || message.status === 'unread'"
+              (click)="markSelectedAsUnread()"
+            >
+              <lucide-icon [img]="MailIcon" class="h-4 w-4"></lucide-icon>
+              Marquer non lu
+            </button>
 
-              <p class="mt-2 text-sm opacity-75">
-                Quand le backend messages sera ajouté, cette zone pourra permettre de marquer comme lu,
-                archiver, supprimer ou répondre directement par email.
-              </p>
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="isActionLocked || message.status === 'archived'"
+              (click)="archiveSelectedMessage()"
+            >
+              <lucide-icon [img]="ArchiveIcon" class="h-4 w-4"></lucide-icon>
+              Archiver
+            </button>
+
+            <a
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              [href]="getReplyLink(message)"
+            >
+              <lucide-icon [img]="SendIcon" class="h-4 w-4"></lucide-icon>
+              Répondre
+            </a>
+
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/30 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="isActionLocked"
+              (click)="requestDeleteSelectedMessage()"
+            >
+              <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+              Supprimer
+            </button>
+          </div>
+
+          <div
+            *ngIf="confirmDeleteMessageId === message.id"
+            class="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4"
+          >
+            <p class="font-semibold text-red-700">
+              Confirmer la suppression ?
+            </p>
+
+            <p class="mt-1 text-sm opacity-75">
+              Cette action supprimera définitivement le message de la base de données.
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-full bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="isActionLocked"
+                (click)="confirmDeleteSelectedMessage()"
+              >
+                Oui, supprimer
+              </button>
+
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="isActionLocked"
+                (click)="cancelDelete()"
+              >
+                Annuler
+              </button>
             </div>
           </div>
         </div>

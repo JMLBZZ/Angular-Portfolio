@@ -10,6 +10,7 @@ import {
   GlobeIcon,
   LayoutDashboardIcon,
   MailIcon,
+  MessageSquareTextIcon,
   PaletteIcon,
   PlusIcon,
   ScaleIcon,
@@ -18,11 +19,14 @@ import {
   UserRoundIcon,
   LucideAngularModule,
 } from 'lucide-angular';
+import { forkJoin } from 'rxjs';
 
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
+import { AdminMessagesApiService } from '../../core/api/admin-messages-api.service';
 import { AdminProject } from '../../core/auth/auth.models';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { ToastService } from '../../shared/services/toast.service';
+import { ContactMessageStats } from '../../shared/models/contact-message.model';
 
 type DashboardShortcut = {
   title: string;
@@ -52,8 +56,17 @@ export class AdminDashboardComponent implements OnInit {
   readonly ActivityIcon = ActivityIcon;
   readonly PlusIcon = PlusIcon;
   readonly GlobeIcon = GlobeIcon;
+  readonly MailIcon = MailIcon;
+  readonly MessageSquareTextIcon = MessageSquareTextIcon;
 
   projects: AdminProject[] = [];
+  messageStats: ContactMessageStats = {
+    total: 0,
+    unread: 0,
+    read: 0,
+    archived: 0,
+  };
+
   isLoading = true;
   errorMessage = '';
 
@@ -102,10 +115,10 @@ export class AdminDashboardComponent implements OnInit {
     },
     {
       title: 'Messages',
-      description: 'Préparer la future gestion des messages reçus depuis le formulaire.',
+      description: 'Consulter, lire, archiver ou supprimer les messages reçus depuis le formulaire.',
       path: '/admin/messages',
       label: 'Voir les messages',
-      icon: MailIcon,
+      icon: MessageSquareTextIcon,
     },
     {
       title: 'Apparence',
@@ -118,6 +131,7 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private adminProjectsApi: AdminProjectsApiService,
+    private adminMessagesApi: AdminMessagesApiService,
     private toastService: ToastService
   ) {}
 
@@ -129,13 +143,23 @@ export class AdminDashboardComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.adminProjectsApi.getAll().subscribe({
-      next: (response) => {
-        this.projects = response.data;
+    forkJoin({
+      projects: this.adminProjectsApi.getAll(),
+      messageStats: this.adminMessagesApi.getStats(),
+    }).subscribe({
+      next: ({ projects, messageStats }) => {
+        this.projects = projects.data;
+        this.messageStats = messageStats;
         this.isLoading = false;
       },
       error: (error) => {
         this.projects = [];
+        this.messageStats = {
+          total: 0,
+          unread: 0,
+          read: 0,
+          archived: 0,
+        };
         this.errorMessage = extractApiErrorMessage(
           error,
           'Impossible de charger les données du dashboard.'
@@ -160,6 +184,14 @@ export class AdminDashboardComponent implements OnInit {
 
   get featuredCount(): number {
     return this.projects.filter((project) => project.featured).length;
+  }
+
+  get unreadMessagesCount(): number {
+    return this.messageStats.unread;
+  }
+
+  get totalMessagesCount(): number {
+    return this.messageStats.total;
   }
 
   get recentProjects(): AdminProject[] {
@@ -191,6 +223,22 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     return 'Portfolio à jour';
+  }
+
+  get messageTreatmentLabel(): string {
+    if (this.totalMessagesCount === 0) {
+      return 'Aucun message reçu';
+    }
+
+    if (this.unreadMessagesCount === 0) {
+      return 'Tous les messages sont traités';
+    }
+
+    if (this.unreadMessagesCount === 1) {
+      return '1 message non lu à traiter';
+    }
+
+    return `${this.unreadMessagesCount} messages non lus à traiter`;
   }
 
   get publicationRate(): number {

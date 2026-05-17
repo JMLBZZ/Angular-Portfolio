@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   ArchiveIcon,
   CheckCheckIcon,
@@ -7,23 +7,25 @@ import {
   MailIcon,
   MailOpenIcon,
   MessageSquareTextIcon,
+  RefreshCwIcon,
   SendIcon,
+  Trash2Icon,
   UserRoundIcon,
   LucideAngularModule,
 } from 'lucide-angular';
+import { forkJoin, Observable } from 'rxjs';
 
-type MessageStatus = 'unread' | 'read' | 'archived';
-
-type AdminMessage = {
-  id: number;
-  senderName: string;
-  senderEmail: string;
-  subject: string;
-  message: string;
-  receivedAt: string;
-  status: MessageStatus;
-  projectType: string;
-};
+import {
+  AdminMessagesApiService,
+  ContactMessageFilter,
+} from '../../core/api/admin-messages-api.service';
+import { extractApiErrorMessage } from '../../core/api/api-error.utils';
+import {
+  ContactMessage,
+  ContactMessageStats,
+  ContactMessageStatus,
+} from '../../shared/models/contact-message.model';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-admin-messages',
@@ -34,7 +36,7 @@ type AdminMessage = {
   ],
   templateUrl: './admin-messages.component.html',
 })
-export class AdminMessagesComponent {
+export class AdminMessagesComponent implements OnInit {
   readonly InboxIcon = InboxIcon;
   readonly MailIcon = MailIcon;
   readonly MailOpenIcon = MailOpenIcon;
@@ -43,87 +45,235 @@ export class AdminMessagesComponent {
   readonly UserRoundIcon = UserRoundIcon;
   readonly SendIcon = SendIcon;
   readonly CheckCheckIcon = CheckCheckIcon;
+  readonly Trash2Icon = Trash2Icon;
+  readonly RefreshCwIcon = RefreshCwIcon;
 
-  readonly messages: AdminMessage[] = [
-    {
-      id: 1,
-      senderName: 'Exemple Client',
-      senderEmail: 'client@example.com',
-      subject: 'Demande de création de site vitrine',
-      message:
-        'Bonjour, je souhaite échanger avec vous au sujet de la création d’un site vitrine professionnel. Pouvez-vous me recontacter pour discuter du besoin ?',
-      receivedAt: '2026-05-14',
-      status: 'unread',
-      projectType: 'Site vitrine',
-    },
-    {
-      id: 2,
-      senderName: 'Startup Demo',
-      senderEmail: 'contact@startup-demo.com',
-      subject: 'Application web sur mesure',
-      message:
-        'Nous cherchons un développeur full-stack pour créer une application métier avec tableau de bord administrateur. Votre profil semble correspondre à notre besoin.',
-      receivedAt: '2026-05-12',
-      status: 'read',
-      projectType: 'Application web',
-    },
-    {
-      id: 3,
-      senderName: 'Association Locale',
-      senderEmail: 'asso@example.org',
-      subject: 'Refonte d’un site existant',
-      message:
-        'Notre association possède déjà un site, mais il est ancien et difficile à maintenir. Nous aimerions moderniser son design et améliorer son référencement.',
-      receivedAt: '2026-05-08',
-      status: 'archived',
-      projectType: 'Refonte',
-    },
-  ];
+  messages: ContactMessage[] = [];
+  stats: ContactMessageStats = {
+    total: 0,
+    unread: 0,
+    read: 0,
+    archived: 0,
+  };
 
-  selectedStatus: MessageStatus | 'all' = 'all';
-  selectedMessageId: number | null = this.messages[0]?.id ?? null;
+  selectedStatus: ContactMessageFilter = 'all';
+  selectedMessageId: string | null = null;
+  selectedMessage: ContactMessage | null = null;
 
-  get filteredMessages(): AdminMessage[] {
-    if (this.selectedStatus === 'all') {
-      return this.messages;
-    }
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+  totalPages = 0;
 
-    return this.messages.filter((message) => message.status === this.selectedStatus);
-  }
+  isLoading = true;
+  isLoadingDetail = false;
+  errorMessage = '';
 
-  get selectedMessage(): AdminMessage | undefined {
-    return this.messages.find((message) => message.id === this.selectedMessageId);
+  actionMessageId: string | null = null;
+  confirmDeleteMessageId: string | null = null;
+
+  constructor(
+    private adminMessagesApi: AdminMessagesApiService,
+    private toastService: ToastService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadMessages();
   }
 
   get totalMessages(): number {
-    return this.messages.length;
+    return this.stats.total;
   }
 
   get unreadMessages(): number {
-    return this.messages.filter((message) => message.status === 'unread').length;
+    return this.stats.unread;
   }
 
   get readMessages(): number {
-    return this.messages.filter((message) => message.status === 'read').length;
+    return this.stats.read;
   }
 
   get archivedMessages(): number {
-    return this.messages.filter((message) => message.status === 'archived').length;
+    return this.stats.archived;
   }
 
-  selectStatus(status: MessageStatus | 'all'): void {
+  get currentPageDisplay(): number {
+    if (this.totalPages === 0) {
+      return 0;
+    }
+
+    return this.currentPage + 1;
+  }
+
+  get hasPreviousPage(): boolean {
+    return this.currentPage > 0;
+  }
+
+  get hasNextPage(): boolean {
+    return this.currentPage + 1 < this.totalPages;
+  }
+
+  get isActionLocked(): boolean {
+    return this.actionMessageId !== null || this.isLoading || this.isLoadingDetail;
+  }
+
+  loadMessages(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    forkJoin({
+      page: this.adminMessagesApi.getAll(this.selectedStatus, this.currentPage, this.pageSize),
+      stats: this.adminMessagesApi.getStats(),
+    }).subscribe({
+      next: ({ page, stats }) => {
+        this.messages = page.data ?? [];
+        this.stats = stats;
+        this.totalElements = page.meta?.totalElements ?? this.messages.length;
+        this.totalPages = page.meta?.totalPages ?? 1;
+        this.currentPage = page.meta?.page ?? this.currentPage;
+        this.pageSize = page.meta?.size ?? this.pageSize;
+        this.isLoading = false;
+        this.syncSelectionAfterListChange();
+      },
+      error: (error) => {
+        this.messages = [];
+        this.selectedMessageId = null;
+        this.selectedMessage = null;
+        this.totalElements = 0;
+        this.totalPages = 0;
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger les messages de contact.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  selectStatus(status: ContactMessageFilter): void {
+    if (this.selectedStatus === status && !this.isLoading) {
+      return;
+    }
+
     this.selectedStatus = status;
-
-    const firstFilteredMessage = this.filteredMessages[0];
-
-    this.selectedMessageId = firstFilteredMessage ? firstFilteredMessage.id : null;
+    this.currentPage = 0;
+    this.confirmDeleteMessageId = null;
+    this.selectedMessageId = null;
+    this.selectedMessage = null;
+    this.loadMessages();
   }
 
-  selectMessage(message: AdminMessage): void {
+  previousPage(): void {
+    if (!this.hasPreviousPage || this.isLoading) {
+      return;
+    }
+
+    this.currentPage -= 1;
+    this.confirmDeleteMessageId = null;
+    this.loadMessages();
+  }
+
+  nextPage(): void {
+    if (!this.hasNextPage || this.isLoading) {
+      return;
+    }
+
+    this.currentPage += 1;
+    this.confirmDeleteMessageId = null;
+    this.loadMessages();
+  }
+
+  selectMessage(message: ContactMessage): void {
     this.selectedMessageId = message.id;
+    this.selectedMessage = message;
+    this.confirmDeleteMessageId = null;
+    this.loadMessageDetail(message.id);
   }
 
-  getStatusLabel(status: MessageStatus): string {
+  markSelectedAsRead(): void {
+    if (!this.selectedMessage || this.selectedMessage.status === 'read' || this.isActionLocked) {
+      return;
+    }
+
+    this.updateSelectedMessageStatus(
+      this.selectedMessage.id,
+      this.adminMessagesApi.markAsRead(this.selectedMessage.id),
+      'Message marqué comme lu.'
+    );
+  }
+
+  markSelectedAsUnread(): void {
+    if (!this.selectedMessage || this.selectedMessage.status === 'unread' || this.isActionLocked) {
+      return;
+    }
+
+    this.updateSelectedMessageStatus(
+      this.selectedMessage.id,
+      this.adminMessagesApi.markAsUnread(this.selectedMessage.id),
+      'Message marqué comme non lu.'
+    );
+  }
+
+  archiveSelectedMessage(): void {
+    if (!this.selectedMessage || this.selectedMessage.status === 'archived' || this.isActionLocked) {
+      return;
+    }
+
+    this.updateSelectedMessageStatus(
+      this.selectedMessage.id,
+      this.adminMessagesApi.archive(this.selectedMessage.id),
+      'Message archivé.'
+    );
+  }
+
+  requestDeleteSelectedMessage(): void {
+    if (!this.selectedMessage || this.isActionLocked) {
+      return;
+    }
+
+    this.confirmDeleteMessageId = this.selectedMessage.id;
+  }
+
+  cancelDelete(): void {
+    if (this.isActionLocked) {
+      return;
+    }
+
+    this.confirmDeleteMessageId = null;
+  }
+
+  confirmDeleteSelectedMessage(): void {
+    if (!this.selectedMessage || this.confirmDeleteMessageId !== this.selectedMessage.id || this.isActionLocked) {
+      return;
+    }
+
+    const id = this.selectedMessage.id;
+
+    this.actionMessageId = id;
+    this.errorMessage = '';
+
+    this.adminMessagesApi.delete(id).subscribe({
+      next: () => {
+        this.actionMessageId = null;
+        this.confirmDeleteMessageId = null;
+        this.selectedMessageId = null;
+        this.selectedMessage = null;
+        this.toastService.success('Message supprimé.');
+        this.reloadCurrentPageAfterDelete();
+      },
+      error: (error) => {
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'La suppression du message a échoué.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.actionMessageId = null;
+      },
+    });
+  }
+
+  getStatusLabel(status: ContactMessageStatus): string {
     if (status === 'unread') {
       return 'Non lu';
     }
@@ -133,5 +283,129 @@ export class AdminMessagesComponent {
     }
 
     return 'Archivé';
+  }
+
+  formatDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'Date inconnue';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('fr-FR', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date);
+  }
+
+  getReplyLink(message: ContactMessage): string {
+    const subject = encodeURIComponent(`Re: ${message.subject}`);
+    return `mailto:${message.senderEmail}?subject=${subject}`;
+  }
+
+  trackByMessageId(_: number, message: ContactMessage): string {
+    return message.id;
+  }
+
+  private loadMessageDetail(id: string): void {
+    this.isLoadingDetail = true;
+    this.errorMessage = '';
+
+    this.adminMessagesApi.getById(id).subscribe({
+      next: (message) => {
+        this.upsertMessage(message);
+
+        if (this.selectedMessageId === message.id) {
+          this.selectedMessage = message;
+        }
+
+        this.isLoadingDetail = false;
+      },
+      error: (error) => {
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible de charger le détail du message.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.isLoadingDetail = false;
+      },
+    });
+  }
+
+  private updateSelectedMessageStatus(
+    id: string,
+    request$: Observable<ContactMessage>,
+    successMessage: string
+  ): void {
+    this.actionMessageId = id;
+    this.errorMessage = '';
+
+    request$.subscribe({
+      next: () => {
+        this.actionMessageId = null;
+        this.confirmDeleteMessageId = null;
+        this.toastService.success(successMessage);
+        this.loadMessages();
+      },
+      error: (error) => {
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'La mise à jour du message a échoué.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.actionMessageId = null;
+      },
+    });
+  }
+
+  private upsertMessage(updatedMessage: ContactMessage): void {
+    const index = this.messages.findIndex((message) => message.id === updatedMessage.id);
+
+    if (index === -1) {
+      this.messages = [updatedMessage, ...this.messages];
+      return;
+    }
+
+    this.messages = this.messages.map((message) =>
+      message.id === updatedMessage.id ? updatedMessage : message
+    );
+  }
+
+  private syncSelectionAfterListChange(): void {
+    if (
+      this.selectedMessageId &&
+      this.messages.some((message) => message.id === this.selectedMessageId)
+    ) {
+      this.selectedMessage = this.messages.find((message) => message.id === this.selectedMessageId) ?? null;
+      return;
+    }
+
+    const firstMessage = this.messages[0];
+
+    if (firstMessage) {
+      this.selectedMessageId = firstMessage.id;
+      this.selectedMessage = firstMessage;
+      return;
+    }
+
+    this.selectedMessageId = null;
+    this.selectedMessage = null;
+  }
+
+  private reloadCurrentPageAfterDelete(): void {
+    const remainingElements = Math.max(this.totalElements - 1, 0);
+    const maxPageAfterDelete = remainingElements === 0
+      ? 0
+      : Math.ceil(remainingElements / this.pageSize) - 1;
+
+    if (this.currentPage > maxPageAfterDelete) {
+      this.currentPage = maxPageAfterDelete;
+    }
+
+    this.loadMessages();
   }
 }

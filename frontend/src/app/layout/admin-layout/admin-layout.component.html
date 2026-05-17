@@ -86,6 +86,14 @@
           <span class="truncate">
             {{ item.label }}
           </span>
+
+          <span
+            *ngIf="getNavBadge(item) as badge"
+            class="ml-auto inline-flex min-w-7 items-center justify-center rounded-full bg-primary px-2 py-1 text-xs font-bold text-primary-foreground transition group-[.bg-primary]:bg-primary-foreground group-[.bg-primary]:text-primary"
+            aria-label="Messages non lus"
+          >
+            {{ badge }}
+          </span>
         </a>
       </nav>
 

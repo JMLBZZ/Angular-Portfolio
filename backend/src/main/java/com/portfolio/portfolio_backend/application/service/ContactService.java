@@ -35,6 +35,7 @@ public class ContactService {
 
     private final JavaMailSender mailSender;
     private final ContactRepositoryPort contactRepositoryPort;
+    private final ContactMessageService contactMessageService;
 
     @Value("${app.contact.to}")
     private String to;
@@ -46,10 +47,12 @@ public class ContactService {
 
     public ContactService(
             JavaMailSender mailSender,
-            ContactRepositoryPort contactRepositoryPort
+            ContactRepositoryPort contactRepositoryPort,
+            ContactMessageService contactMessageService
     ) {
         this.mailSender = mailSender;
         this.contactRepositoryPort = contactRepositoryPort;
+        this.contactMessageService = contactMessageService;
     }
 
     public void send(ContactRequestDTO dto, String clientIp) {
@@ -74,6 +77,8 @@ public class ContactService {
                 .atZone(PARIS_ZONE)
                 .format(CONTACT_DATE_FORMATTER);
 
+        contactMessageService.saveIncomingMessage(name, email, subject, message);
+
         String htmlBody = buildHtmlBody(name, email, subject, message, sentAt, safeIp);
 
         try {
@@ -90,8 +95,17 @@ public class ContactService {
 
             logger.info("Contact email successfully sent for IP={}", safeIp);
         } catch (MessagingException e) {
-            logger.error("Failed to build contact email for IP={}", safeIp, e);
-            throw new IllegalStateException("Unable to send contact email", e);
+            logger.error(
+                    "Contact message was saved, but email notification could not be built for IP={}",
+                    safeIp,
+                    e
+            );
+        } catch (RuntimeException e) {
+            logger.error(
+                    "Contact message was saved, but email notification could not be sent for IP={}",
+                    safeIp,
+                    e
+            );
         }
     }
 

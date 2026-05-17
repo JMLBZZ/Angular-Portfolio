@@ -22,12 +22,14 @@ import {
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { AdminMessagesApiService } from '../../core/api/admin-messages-api.service';
 
 type AdminNavItem = {
   label: string;
   path: string;
   icon: any;
   exact?: boolean;
+  badge?: 'unreadMessages';
 };
 
 @Component({
@@ -51,6 +53,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   readonly LogOutIcon = LogOutIcon;
 
   isMobileMenuOpen = false;
+  unreadMessages = 0;
 
   readonly navItems: AdminNavItem[] = [
     {
@@ -93,6 +96,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       label: 'Messages',
       path: '/admin/messages',
       icon: MessageSquareTextIcon,
+      badge: 'unreadMessages',
     },
     {
       label: 'Apparence',
@@ -106,11 +110,13 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     private router: Router,
     private toastService: ToastService,
     private seoService: SeoService,
+    private adminMessagesApi: AdminMessagesApiService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
     this.updateSeo(this.router.url);
+    this.loadUnreadMessagesCount();
 
     this.subscription.add(
       this.router.events
@@ -118,6 +124,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         .subscribe((event) => {
           this.isMobileMenuOpen = false;
           this.updateSeo(event.urlAfterRedirects);
+          this.loadUnreadMessagesCount();
         })
     );
   }
@@ -134,6 +141,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     return this.getAdminPageTitle(this.router.url);
   }
 
+  getNavBadge(item: AdminNavItem): string | null {
+    if (item.badge === 'unreadMessages' && this.unreadMessages > 0) {
+      return this.unreadMessages > 99 ? '99+' : String(this.unreadMessages);
+    }
+
+    return null;
+  }
+
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
@@ -146,6 +161,19 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.authService.logout();
     this.toastService.info('Vous avez été déconnecté.');
     this.router.navigate(['/admin/login']);
+  }
+
+  private loadUnreadMessagesCount(): void {
+    this.subscription.add(
+      this.adminMessagesApi.getStats().subscribe({
+        next: (stats) => {
+          this.unreadMessages = stats.unread;
+        },
+        error: () => {
+          this.unreadMessages = 0;
+        },
+      })
+    );
   }
 
   private updateSeo(currentUrl: string): void {
