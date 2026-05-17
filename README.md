@@ -1,2 +1,2 @@
 # Angular-Portfolio
-validation déploiement render
+Configuration cron-job anti-sleep (https://cron-job.org)
