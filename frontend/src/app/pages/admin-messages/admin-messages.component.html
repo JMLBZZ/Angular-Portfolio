@@ -17,8 +17,8 @@
         </h2>
 
         <p class="mt-2 max-w-3xl text-sm opacity-75">
-          Consulte les messages envoyés depuis le formulaire de contact public, avec filtres backend,
-          pagination, lecture, archivage et suppression sécurisés.
+          Consulte les messages envoyés depuis le formulaire de contact public, avec recherche backend,
+          sélection multiple, actions groupées, pagination et suppression sécurisée.
         </p>
       </div>
 
@@ -88,68 +88,129 @@
     </div>
   </div>
 
-  <div *ngIf="errorMessage" class="rounded-3xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700">
+  <div *ngIf="errorMessage" class="rounded-3xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
     {{ errorMessage }}
   </div>
 
   <div class="rounded-3xl border border-border/70 bg-card/60 p-4">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-      <div class="flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-          [class.border-primary]="selectedStatus === 'all'"
-          [class.bg-primary]="selectedStatus === 'all'"
-          [class.text-primary-foreground]="selectedStatus === 'all'"
-          [class.border-border]="selectedStatus !== 'all'"
-          [disabled]="isLoading"
-          (click)="selectStatus('all')"
-        >
-          Tous
-        </button>
+    <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [class.border-primary]="selectedStatus === 'all'"
+            [class.bg-primary]="selectedStatus === 'all'"
+            [class.text-primary-foreground]="selectedStatus === 'all'"
+            [class.border-border]="selectedStatus !== 'all'"
+            [disabled]="isLoading || isBulkActionRunning"
+            (click)="selectStatus('all')"
+          >
+            Tous
+          </button>
 
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-          [class.border-primary]="selectedStatus === 'unread'"
-          [class.bg-primary]="selectedStatus === 'unread'"
-          [class.text-primary-foreground]="selectedStatus === 'unread'"
-          [class.border-border]="selectedStatus !== 'unread'"
-          [disabled]="isLoading"
-          (click)="selectStatus('unread')"
-        >
-          Non lus
-        </button>
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [class.border-primary]="selectedStatus === 'unread'"
+            [class.bg-primary]="selectedStatus === 'unread'"
+            [class.text-primary-foreground]="selectedStatus === 'unread'"
+            [class.border-border]="selectedStatus !== 'unread'"
+            [disabled]="isLoading || isBulkActionRunning"
+            (click)="selectStatus('unread')"
+          >
+            Non lus
+          </button>
 
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-          [class.border-primary]="selectedStatus === 'read'"
-          [class.bg-primary]="selectedStatus === 'read'"
-          [class.text-primary-foreground]="selectedStatus === 'read'"
-          [class.border-border]="selectedStatus !== 'read'"
-          [disabled]="isLoading"
-          (click)="selectStatus('read')"
-        >
-          Lus
-        </button>
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [class.border-primary]="selectedStatus === 'read'"
+            [class.bg-primary]="selectedStatus === 'read'"
+            [class.text-primary-foreground]="selectedStatus === 'read'"
+            [class.border-border]="selectedStatus !== 'read'"
+            [disabled]="isLoading || isBulkActionRunning"
+            (click)="selectStatus('read')"
+          >
+            Lus
+          </button>
 
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-          [class.border-primary]="selectedStatus === 'archived'"
-          [class.bg-primary]="selectedStatus === 'archived'"
-          [class.text-primary-foreground]="selectedStatus === 'archived'"
-          [class.border-border]="selectedStatus !== 'archived'"
-          [disabled]="isLoading"
-          (click)="selectStatus('archived')"
-        >
-          Archivés
-        </button>
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [class.border-primary]="selectedStatus === 'archived'"
+            [class.bg-primary]="selectedStatus === 'archived'"
+            [class.text-primary-foreground]="selectedStatus === 'archived'"
+            [class.border-border]="selectedStatus !== 'archived'"
+            [disabled]="isLoading || isBulkActionRunning"
+            (click)="selectStatus('archived')"
+          >
+            Archivés
+          </button>
+        </div>
+
+        <p class="text-sm opacity-70">
+          {{ totalElements }} résultat(s) pour le filtre « {{ getFilterLabel(selectedStatus) }} »
+        </p>
       </div>
 
-      <p class="text-sm opacity-70">
-        {{ totalElements }} résultat(s) pour le filtre actif
+      <form class="flex flex-col gap-3 lg:flex-row lg:items-center" (ngSubmit)="applySearch()">
+        <label class="sr-only" for="admin-message-search">
+          Rechercher dans les messages
+        </label>
+
+        <div class="relative flex-1">
+          <span class="pointer-events-none absolute left-4 top-1/2 inline-flex -translate-y-1/2 text-primary">
+            <lucide-icon [img]="SearchIcon" class="h-4 w-4"></lucide-icon>
+          </span>
+
+          <input
+            id="admin-message-search"
+            name="admin-message-search"
+            type="search"
+            class="h-11 w-full rounded-full border border-border/70 bg-background/70 pl-11 pr-11 text-sm outline-none transition placeholder:opacity-60 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+            placeholder="Rechercher par nom, email, sujet, message ou date..."
+            [(ngModel)]="searchDraft"
+            [disabled]="isLoading || isBulkActionRunning"
+          />
+
+          <button
+            *ngIf="searchDraft"
+            type="button"
+            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Effacer le champ de recherche"
+            [disabled]="isLoading || isBulkActionRunning"
+            (click)="searchDraft = ''"
+          >
+            <lucide-icon [img]="XIcon" class="h-4 w-4"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="submit"
+            class="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="isLoading || isBulkActionRunning"
+          >
+            <lucide-icon [img]="SearchIcon" class="h-4 w-4"></lucide-icon>
+            Rechercher
+          </button>
+
+          <button
+            *ngIf="isSearchActive"
+            type="button"
+            class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 bg-background/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="isLoading || isBulkActionRunning"
+            (click)="clearSearch()"
+          >
+            <lucide-icon [img]="XIcon" class="h-4 w-4"></lucide-icon>
+            Réinitialiser
+          </button>
+        </div>
+      </form>
+
+      <p *ngIf="isSearchActive" class="text-sm opacity-70">
+        Recherche active : <span class="font-semibold text-foreground">{{ searchQuery }}</span>
       </p>
     </div>
   </div>
@@ -170,7 +231,7 @@
 
   <div *ngIf="!isLoading" class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-4">
-      <div class="mb-4 flex items-center justify-between gap-3">
+      <div class="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div class="flex items-center gap-3">
             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
@@ -186,6 +247,107 @@
             {{ messages.length }} message(s) affiché(s) sur cette page
           </p>
         </div>
+
+        <button
+          type="button"
+          class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 bg-background/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="messages.length === 0 || isActionLocked"
+          (click)="toggleSelectCurrentPage()"
+        >
+          {{ areAllCurrentPageMessagesSelected ? 'Désélectionner la page' : 'Tout sélectionner la page' }}
+        </button>
+      </div>
+
+      <div
+        *ngIf="messages.length > 0"
+        class="mb-4 rounded-3xl border border-border/70 bg-background/50 p-4"
+      >
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm font-semibold">
+              {{ selectedBulkCount }} message(s) sélectionné(s)
+            </p>
+
+            <p class="text-xs opacity-65">
+              Les actions groupées s’appliquent aux messages cochés sur la page courante.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="!hasBulkSelection || isActionLocked"
+              (click)="bulkMarkAsRead()"
+            >
+              <lucide-icon [img]="MailOpenIcon" class="h-4 w-4"></lucide-icon>
+              Marquer lu
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="!hasBulkSelection || isActionLocked"
+              (click)="bulkMarkAsUnread()"
+            >
+              <lucide-icon [img]="MailIcon" class="h-4 w-4"></lucide-icon>
+              Marquer non lu
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="!hasBulkSelection || isActionLocked"
+              (click)="bulkArchive()"
+            >
+              <lucide-icon [img]="ArchiveIcon" class="h-4 w-4"></lucide-icon>
+              Archiver
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/30 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
+              [disabled]="!hasBulkSelection || isActionLocked"
+              (click)="requestBulkDelete()"
+            >
+              <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+              Supprimer
+            </button>
+          </div>
+
+          <div
+            *ngIf="confirmBulkDelete"
+            class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4"
+          >
+            <p class="font-semibold text-red-700 dark:text-red-300">
+              Confirmer la suppression groupée ?
+            </p>
+
+            <p class="mt-1 text-sm opacity-75">
+              Cette action supprimera définitivement {{ selectedBulkCount }} message(s) de la base de données.
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-full bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="isActionLocked"
+                (click)="confirmBulkDeleteSelectedMessages()"
+              >
+                Oui, supprimer la sélection
+              </button>
+
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="isActionLocked"
+                (click)="cancelBulkDelete()"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="messages.length === 0" class="rounded-2xl border border-dashed border-border/70 p-6 text-center">
@@ -194,51 +356,73 @@
         </p>
 
         <p class="mt-1 text-sm opacity-70">
-          Aucun message ne correspond au filtre actuel.
+          Aucun message ne correspond au filtre ou à la recherche actuelle.
         </p>
       </div>
 
       <div *ngIf="messages.length > 0" class="space-y-3">
-        <button
+        <article
           *ngFor="let message of messages; trackBy: trackByMessageId"
-          type="button"
-          class="w-full rounded-2xl border p-4 text-left transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          [class.border-primary]="selectedMessageId === message.id"
-          [class.bg-primary]="selectedMessageId === message.id"
-          [class.text-primary-foreground]="selectedMessageId === message.id"
-          [class.border-border]="selectedMessageId !== message.id"
-          [class.bg-background]="selectedMessageId !== message.id"
+          role="button"
+          tabindex="0"
+          class="w-full cursor-pointer rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          [ngClass]="getMessageCardClasses(message)"
           [class.font-semibold]="message.status === 'unread'"
+          [attr.aria-label]="'Ouvrir le message de ' + message.senderName"
+          [attr.aria-selected]="selectedMessageId === message.id"
           (click)="selectMessage(message)"
+          (keydown.enter)="selectMessage(message)"
+          (keydown.space)="selectMessage(message); $event.preventDefault()"
         >
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="truncate font-semibold">
-                {{ message.senderName }}
-              </p>
-
-              <p class="mt-1 truncate text-xs opacity-70">
-                {{ message.senderEmail }}
-              </p>
+          <div class="flex items-start gap-3">
+            <div class="pt-1">
+              <input
+                type="checkbox"
+                class="h-5 w-5 rounded border-border text-primary focus:ring-primary/40"
+                [checked]="isMessageChecked(message.id)"
+                [attr.aria-label]="'Sélectionner le message de ' + message.senderName"
+                [disabled]="isActionLocked"
+                (click)="toggleMessageSelection(message.id, $event)"
+              />
             </div>
 
-            <span class="shrink-0 rounded-full border border-current px-3 py-1 text-xs font-semibold">
-              {{ getStatusLabel(message.status) }}
-            </span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="truncate font-semibold">
+                    {{ message.senderName }}
+                  </p>
+
+                  <p class="mt-1 truncate text-xs opacity-70">
+                    {{ message.senderEmail }}
+                  </p>
+                </div>
+
+                <span class="shrink-0 rounded-full border border-current px-3 py-1 text-xs font-semibold">
+                  {{ getStatusLabel(message.status) }}
+                </span>
+              </div>
+
+              <p class="mt-3 line-clamp-1 text-sm font-semibold">
+                {{ message.subject }}
+              </p>
+
+              <p class="mt-2 line-clamp-2 text-sm opacity-75">
+                {{ message.message }}
+              </p>
+
+              <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs opacity-60">
+                <p>
+                  Reçu le {{ formatDate(message.receivedAt) }}
+                </p>
+
+                <p *ngIf="isMessageChecked(message.id)" class="font-semibold text-primary opacity-100">
+                  Sélectionné
+                </p>
+              </div>
+            </div>
           </div>
-
-          <p class="mt-3 line-clamp-1 text-sm font-semibold">
-            {{ message.subject }}
-          </p>
-
-          <p class="mt-2 line-clamp-2 text-sm opacity-75">
-            {{ message.message }}
-          </p>
-
-          <p class="mt-3 text-xs opacity-60">
-            Reçu le {{ formatDate(message.receivedAt) }}
-          </p>
-        </button>
+        </article>
       </div>
 
       <div class="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -250,7 +434,7 @@
           <button
             type="button"
             class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-            [disabled]="!hasPreviousPage || isLoading"
+            [disabled]="!hasPreviousPage || isLoading || isBulkActionRunning"
             (click)="previousPage()"
           >
             Précédent
@@ -259,7 +443,7 @@
           <button
             type="button"
             class="inline-flex h-10 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-            [disabled]="!hasNextPage || isLoading"
+            [disabled]="!hasNextPage || isLoading || isBulkActionRunning"
             (click)="nextPage()"
           >
             Suivant
@@ -382,7 +566,7 @@
 
             <button
               type="button"
-              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/30 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/30 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
               [disabled]="isActionLocked"
               (click)="requestDeleteSelectedMessage()"
             >
@@ -395,7 +579,7 @@
             *ngIf="confirmDeleteMessageId === message.id"
             class="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4"
           >
-            <p class="font-semibold text-red-700">
+            <p class="font-semibold text-red-700 dark:text-red-300">
               Confirmer la suppression ?
             </p>
 

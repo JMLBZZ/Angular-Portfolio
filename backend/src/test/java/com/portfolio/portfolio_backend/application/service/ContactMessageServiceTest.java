@@ -24,7 +24,11 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ContactMessageServiceTest {
@@ -128,45 +132,79 @@ class ContactMessageServiceTest {
     }
 
     @Test
-    void shouldReturnAllMessagesWhenStatusIsAll() {
+    void shouldReturnAllMessagesWhenStatusIsAllAndQueryIsEmpty() {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<ContactMessage> expectedPage = new PageImpl<>(List.of(unreadMessage), pageable, 1);
 
-        when(repository.findAll(pageable)).thenReturn(expectedPage);
+        when(repository.search(null, "", pageable)).thenReturn(expectedPage);
 
-        Page<ContactMessage> result = service.getAll("all", pageable);
+        Page<ContactMessage> result = service.getAll("all", "", pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getStatus()).isEqualTo(ContactMessageStatus.UNREAD);
 
-        verify(repository, times(1)).findAll(pageable);
+        verify(repository, times(1)).search(null, "", pageable);
+        verify(repository, never()).findAll(any());
         verify(repository, never()).findByStatus(any(), any());
     }
 
     @Test
-    void shouldReturnMessagesByStatus() {
+    void shouldReturnMessagesByStatusWithEmptyQuery() {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<ContactMessage> expectedPage = new PageImpl<>(List.of(unreadMessage), pageable, 1);
 
-        when(repository.findByStatus(ContactMessageStatus.UNREAD, pageable)).thenReturn(expectedPage);
+        when(repository.search(ContactMessageStatus.UNREAD, "", pageable)).thenReturn(expectedPage);
 
-        Page<ContactMessage> result = service.getAll("unread", pageable);
+        Page<ContactMessage> result = service.getAll("unread", null, pageable);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getStatus()).isEqualTo(ContactMessageStatus.UNREAD);
 
-        verify(repository, times(1)).findByStatus(ContactMessageStatus.UNREAD, pageable);
+        verify(repository, times(1)).search(ContactMessageStatus.UNREAD, "", pageable);
         verify(repository, never()).findAll(any());
+        verify(repository, never()).findByStatus(any(), any());
+    }
+
+    @Test
+    void shouldReturnMessagesByStatusAndSearchQuery() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<ContactMessage> expectedPage = new PageImpl<>(List.of(unreadMessage), pageable, 1);
+
+        when(repository.search(ContactMessageStatus.UNREAD, "Jean Dupont", pageable)).thenReturn(expectedPage);
+
+        Page<ContactMessage> result = service.getAll("unread", "  Jean   Dupont  ", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getSenderName()).isEqualTo("Jean Dupont");
+
+        verify(repository, times(1)).search(ContactMessageStatus.UNREAD, "Jean Dupont", pageable);
+    }
+
+    @Test
+    void shouldLimitSearchQueryLengthBeforeSearching() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        String longQuery = "A".repeat(180);
+        String expectedQuery = "A".repeat(120);
+        Page<ContactMessage> expectedPage = new PageImpl<>(List.of(unreadMessage), pageable, 1);
+
+        when(repository.search(null, expectedQuery, pageable)).thenReturn(expectedPage);
+
+        Page<ContactMessage> result = service.getAll("all", longQuery, pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+
+        verify(repository, times(1)).search(null, expectedQuery, pageable);
     }
 
     @Test
     void shouldThrowWhenStatusIsInvalid() {
         PageRequest pageable = PageRequest.of(0, 10);
 
-        assertThatThrownBy(() -> service.getAll("invalid-status", pageable))
+        assertThatThrownBy(() -> service.getAll("invalid-status", "", pageable))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid message status");
 
+        verify(repository, never()).search(any(), any(), any());
         verify(repository, never()).findAll(any());
         verify(repository, never()).findByStatus(any(), any());
     }
@@ -279,6 +317,81 @@ class ContactMessageServiceTest {
     }
 
     @Test
+    void shouldMarkMultipleMessagesAsRead() {
+        UUID secondId = UUID.randomUUID();
+        ContactMessage secondUnreadMessage = buildMessage(secondId, ContactMessageStatus.UNREAD, null);
+
+        when(repository.findAllByIds(List.of(messageId, secondId)))
+                .thenReturn(List.of(unreadMessage, secondUnreadMessage));
+        when(repository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<ContactMessage> result = service.markAsRead(List.of(messageId, secondId));
+
+        assertThat(result).hasSize(2);
+        assertThat(result).allMatch(message -> message.getStatus() == ContactMessageStatus.READ);
+        assertThat(result).allMatch(message -> message.getReadAt() != null);
+
+        verify(repository, times(1)).findAllByIds(List.of(messageId, secondId));
+        verify(repository, times(1)).saveAll(any());
+    }
+
+    @Test
+    void shouldRemoveDuplicateIdsBeforeBulkUpdate() {
+        when(repository.findAllByIds(List.of(messageId)))
+                .thenReturn(List.of(unreadMessage));
+        when(repository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<ContactMessage> result = service.markAsRead(List.of(messageId, messageId));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getStatus()).isEqualTo(ContactMessageStatus.READ);
+
+        verify(repository, times(1)).findAllByIds(List.of(messageId));
+        verify(repository, times(1)).saveAll(any());
+    }
+
+    @Test
+    void shouldThrowWhenBulkUpdateReceivesEmptyIds() {
+        assertThatThrownBy(() -> service.archive(List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("At least one message id is required");
+
+        verify(repository, never()).findAllByIds(any());
+        verify(repository, never()).saveAll(any());
+    }
+
+    @Test
+    void shouldThrowWhenBulkUpdateReceivesTooManyIds() {
+        List<UUID> ids = java.util.stream.IntStream.range(0, 101)
+                .mapToObj(index -> UUID.randomUUID())
+                .toList();
+
+        assertThatThrownBy(() -> service.markAsUnread(ids))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Too many messages selected");
+
+        verify(repository, never()).findAllByIds(any());
+        verify(repository, never()).saveAll(any());
+    }
+
+    @Test
+    void shouldThrowWhenBulkUpdateContainsMissingMessage() {
+        UUID secondId = UUID.randomUUID();
+
+        when(repository.findAllByIds(List.of(messageId, secondId)))
+                .thenReturn(List.of(unreadMessage));
+
+        assertThatThrownBy(() -> service.markAsRead(List.of(messageId, secondId)))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("One or more contact messages were not found");
+
+        verify(repository, times(1)).findAllByIds(List.of(messageId, secondId));
+        verify(repository, never()).saveAll(any());
+    }
+
+    @Test
     void shouldDeleteExistingMessage() {
         when(repository.findById(messageId)).thenReturn(Optional.of(archivedMessage));
 
@@ -298,5 +411,51 @@ class ContactMessageServiceTest {
 
         verify(repository, times(1)).findById(messageId);
         verify(repository, never()).deleteById(any());
+    }
+
+    @Test
+    void shouldDeleteMultipleExistingMessages() {
+        UUID secondId = UUID.randomUUID();
+        ContactMessage secondArchivedMessage = buildMessage(secondId, ContactMessageStatus.ARCHIVED, Instant.parse("2026-05-17T10:10:00Z"));
+
+        when(repository.findAllByIds(List.of(messageId, secondId)))
+                .thenReturn(List.of(archivedMessage, secondArchivedMessage));
+
+        service.delete(List.of(messageId, secondId));
+
+        verify(repository, times(1)).findAllByIds(List.of(messageId, secondId));
+        verify(repository, times(1)).deleteAllByIds(List.of(messageId, secondId));
+    }
+
+    @Test
+    void shouldThrowWhenBulkDeleteContainsMissingMessage() {
+        UUID secondId = UUID.randomUUID();
+
+        when(repository.findAllByIds(List.of(messageId, secondId)))
+                .thenReturn(List.of(archivedMessage));
+
+        assertThatThrownBy(() -> service.delete(List.of(messageId, secondId)))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("One or more contact messages were not found");
+
+        verify(repository, times(1)).findAllByIds(List.of(messageId, secondId));
+        verify(repository, never()).deleteAllByIds(any());
+    }
+
+    private ContactMessage buildMessage(
+            UUID id,
+            ContactMessageStatus status,
+            Instant readAt
+    ) {
+        return new ContactMessage(
+                id,
+                "Jean Dupont",
+                "jean.dupont@example.com",
+                "Demande de contact",
+                "Bonjour, je souhaite vous contacter.",
+                status,
+                Instant.parse("2026-05-17T10:00:00Z"),
+                readAt
+        );
     }
 }

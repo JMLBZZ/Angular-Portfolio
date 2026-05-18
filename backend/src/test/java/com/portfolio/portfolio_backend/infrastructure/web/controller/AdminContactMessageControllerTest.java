@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -52,7 +53,7 @@ class AdminContactMessageControllerTest {
 
         ContactMessage message = buildMessage(id, ContactMessageStatus.UNREAD, null);
 
-        when(service.getAll(eq("unread"), any()))
+        when(service.getAll(eq("unread"), eq("jean"), any()))
                 .thenReturn(new PageImpl<>(
                         List.of(message),
                         PageRequest.of(0, 10),
@@ -62,6 +63,7 @@ class AdminContactMessageControllerTest {
         mockMvc.perform(
                         get("/api/admin/messages")
                                 .param("status", "unread")
+                                .param("q", "jean")
                                 .param("page", "0")
                                 .param("size", "10")
                 )
@@ -78,7 +80,34 @@ class AdminContactMessageControllerTest {
                 .andExpect(jsonPath("$.meta.totalElements").value(1))
                 .andExpect(jsonPath("$.meta.totalPages").value(1));
 
-        verify(service).getAll(eq("unread"), any());
+        verify(service).getAll(eq("unread"), eq("jean"), any());
+    }
+
+    @Test
+    void shouldReturnPagedMessagesWithoutSearchQuery() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        ContactMessage message = buildMessage(id, ContactMessageStatus.UNREAD, null);
+
+        when(service.getAll(eq("all"), eq(null), any()))
+                .thenReturn(new PageImpl<>(
+                        List.of(message),
+                        PageRequest.of(0, 10),
+                        1
+                ));
+
+        mockMvc.perform(
+                        get("/api/admin/messages")
+                                .param("status", "all")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].id").value(id.toString()))
+                .andExpect(jsonPath("$.data[0].status").value("unread"));
+
+        verify(service).getAll(eq("all"), eq(null), any());
     }
 
     @Test
@@ -163,6 +192,111 @@ class AdminContactMessageControllerTest {
     }
 
     @Test
+    void shouldBulkMarkMessagesAsRead() throws Exception {
+        UUID firstId = UUID.randomUUID();
+        UUID secondId = UUID.randomUUID();
+        List<UUID> ids = List.of(firstId, secondId);
+
+        when(service.markAsRead(eq(ids)))
+                .thenReturn(List.of(
+                        buildMessage(firstId, ContactMessageStatus.READ, Instant.parse("2026-05-17T10:05:00Z")),
+                        buildMessage(secondId, ContactMessageStatus.READ, Instant.parse("2026-05-17T10:06:00Z"))
+                ));
+
+        mockMvc.perform(
+                        patch("/api/admin/messages/bulk/read")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(buildBulkRequestBody(firstId, secondId))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(firstId.toString()))
+                .andExpect(jsonPath("$[0].status").value("read"))
+                .andExpect(jsonPath("$[1].id").value(secondId.toString()))
+                .andExpect(jsonPath("$[1].status").value("read"));
+
+        verify(service).markAsRead(eq(ids));
+    }
+
+    @Test
+    void shouldBulkMarkMessagesAsUnread() throws Exception {
+        UUID firstId = UUID.randomUUID();
+        UUID secondId = UUID.randomUUID();
+        List<UUID> ids = List.of(firstId, secondId);
+
+        when(service.markAsUnread(eq(ids)))
+                .thenReturn(List.of(
+                        buildMessage(firstId, ContactMessageStatus.UNREAD, null),
+                        buildMessage(secondId, ContactMessageStatus.UNREAD, null)
+                ));
+
+        mockMvc.perform(
+                        patch("/api/admin/messages/bulk/unread")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(buildBulkRequestBody(firstId, secondId))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(firstId.toString()))
+                .andExpect(jsonPath("$[0].status").value("unread"))
+                .andExpect(jsonPath("$[0].readAt").doesNotExist())
+                .andExpect(jsonPath("$[1].id").value(secondId.toString()))
+                .andExpect(jsonPath("$[1].status").value("unread"));
+
+        verify(service).markAsUnread(eq(ids));
+    }
+
+    @Test
+    void shouldBulkArchiveMessages() throws Exception {
+        UUID firstId = UUID.randomUUID();
+        UUID secondId = UUID.randomUUID();
+        List<UUID> ids = List.of(firstId, secondId);
+
+        when(service.archive(eq(ids)))
+                .thenReturn(List.of(
+                        buildMessage(firstId, ContactMessageStatus.ARCHIVED, Instant.parse("2026-05-17T10:10:00Z")),
+                        buildMessage(secondId, ContactMessageStatus.ARCHIVED, Instant.parse("2026-05-17T10:11:00Z"))
+                ));
+
+        mockMvc.perform(
+                        patch("/api/admin/messages/bulk/archive")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(buildBulkRequestBody(firstId, secondId))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(firstId.toString()))
+                .andExpect(jsonPath("$[0].status").value("archived"))
+                .andExpect(jsonPath("$[1].id").value(secondId.toString()))
+                .andExpect(jsonPath("$[1].status").value("archived"));
+
+        verify(service).archive(eq(ids));
+    }
+
+    @Test
+    void shouldBulkDeleteMessages() throws Exception {
+        UUID firstId = UUID.randomUUID();
+        UUID secondId = UUID.randomUUID();
+        List<UUID> ids = List.of(firstId, secondId);
+
+        mockMvc.perform(
+                        delete("/api/admin/messages/bulk")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(buildBulkRequestBody(firstId, secondId))
+                )
+                .andExpect(status().isOk());
+
+        verify(service).delete(eq(ids));
+    }
+
+    @Test
+    void shouldRejectBulkActionWithoutIds() throws Exception {
+        mockMvc.perform(
+                        patch("/api/admin/messages/bulk/read")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"ids\":[]}")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldDeleteMessage() throws Exception {
         UUID id = UUID.randomUUID();
 
@@ -187,5 +321,9 @@ class AdminContactMessageControllerTest {
                 Instant.parse("2026-05-17T10:00:00Z"),
                 readAt
         );
+    }
+
+    private String buildBulkRequestBody(UUID firstId, UUID secondId) {
+        return "{\"ids\":[\"" + firstId + "\",\"" + secondId + "\"]}";
     }
 }

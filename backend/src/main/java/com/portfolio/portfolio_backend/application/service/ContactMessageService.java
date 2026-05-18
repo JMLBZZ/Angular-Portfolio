@@ -11,11 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class ContactMessageService {
+
+    private static final int MAX_BULK_IDS = 100;
 
     private final ContactMessageRepositoryPort repository;
 
@@ -45,14 +50,10 @@ public class ContactMessageService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ContactMessage> getAll(String status, Pageable pageable) {
+    public Page<ContactMessage> getAll(String status, String query, Pageable pageable) {
         ContactMessageStatus parsedStatus = parseStatus(status);
 
-        if (parsedStatus == null) {
-            return repository.findAll(pageable);
-        }
-
-        return repository.findByStatus(parsedStatus, pageable);
+        return repository.search(parsedStatus, sanitizeSearchQuery(query), pageable);
     }
 
     @Transactional(readOnly = true)
@@ -75,16 +76,7 @@ public class ContactMessageService {
     public ContactMessage markAsRead(UUID id) {
         ContactMessage existing = getById(id);
 
-        ContactMessage updated = new ContactMessage(
-                existing.getId(),
-                existing.getSenderName(),
-                existing.getSenderEmail(),
-                existing.getSubject(),
-                existing.getMessage(),
-                ContactMessageStatus.READ,
-                existing.getReceivedAt(),
-                existing.getReadAt() != null ? existing.getReadAt() : Instant.now()
-        );
+        ContactMessage updated = buildUpdatedMessage(existing, ContactMessageStatus.READ);
 
         return repository.save(updated);
     }
@@ -93,16 +85,7 @@ public class ContactMessageService {
     public ContactMessage markAsUnread(UUID id) {
         ContactMessage existing = getById(id);
 
-        ContactMessage updated = new ContactMessage(
-                existing.getId(),
-                existing.getSenderName(),
-                existing.getSenderEmail(),
-                existing.getSubject(),
-                existing.getMessage(),
-                ContactMessageStatus.UNREAD,
-                existing.getReceivedAt(),
-                null
-        );
+        ContactMessage updated = buildUpdatedMessage(existing, ContactMessageStatus.UNREAD);
 
         return repository.save(updated);
     }
@@ -111,18 +94,24 @@ public class ContactMessageService {
     public ContactMessage archive(UUID id) {
         ContactMessage existing = getById(id);
 
-        ContactMessage updated = new ContactMessage(
-                existing.getId(),
-                existing.getSenderName(),
-                existing.getSenderEmail(),
-                existing.getSubject(),
-                existing.getMessage(),
-                ContactMessageStatus.ARCHIVED,
-                existing.getReceivedAt(),
-                existing.getReadAt() != null ? existing.getReadAt() : Instant.now()
-        );
+        ContactMessage updated = buildUpdatedMessage(existing, ContactMessageStatus.ARCHIVED);
 
         return repository.save(updated);
+    }
+
+    @Transactional
+    public List<ContactMessage> markAsRead(List<UUID> ids) {
+        return updateStatus(ids, ContactMessageStatus.READ);
+    }
+
+    @Transactional
+    public List<ContactMessage> markAsUnread(List<UUID> ids) {
+        return updateStatus(ids, ContactMessageStatus.UNREAD);
+    }
+
+    @Transactional
+    public List<ContactMessage> archive(List<UUID> ids) {
+        return updateStatus(ids, ContactMessageStatus.ARCHIVED);
     }
 
     @Transactional
@@ -132,6 +121,75 @@ public class ContactMessageService {
         }
 
         repository.deleteById(id);
+    }
+
+    @Transactional
+    public void delete(List<UUID> ids) {
+        List<UUID> normalizedIds = normalizeBulkIds(ids);
+        ensureAllMessagesExist(normalizedIds);
+
+        repository.deleteAllByIds(normalizedIds);
+    }
+
+    private List<ContactMessage> updateStatus(List<UUID> ids, ContactMessageStatus status) {
+        List<UUID> normalizedIds = normalizeBulkIds(ids);
+        List<ContactMessage> existingMessages = findExistingMessagesOrThrow(normalizedIds);
+
+        List<ContactMessage> updatedMessages = existingMessages.stream()
+                .map(message -> buildUpdatedMessage(message, status))
+                .toList();
+
+        return repository.saveAll(updatedMessages);
+    }
+
+    private List<ContactMessage> findExistingMessagesOrThrow(List<UUID> ids) {
+        List<ContactMessage> messages = repository.findAllByIds(ids);
+
+        if (messages.size() != ids.size()) {
+            throw new ResourceNotFoundException("One or more contact messages were not found");
+        }
+
+        return messages;
+    }
+
+    private void ensureAllMessagesExist(List<UUID> ids) {
+        findExistingMessagesOrThrow(ids);
+    }
+
+    private List<UUID> normalizeBulkIds(List<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("At least one message id is required");
+        }
+
+        Set<UUID> uniqueIds = new LinkedHashSet<>(ids);
+
+        if (uniqueIds.contains(null)) {
+            throw new IllegalArgumentException("Message ids cannot contain null values");
+        }
+
+        if (uniqueIds.size() > MAX_BULK_IDS) {
+            throw new IllegalArgumentException("Too many messages selected");
+        }
+
+        return uniqueIds.stream().toList();
+    }
+
+    private ContactMessage buildUpdatedMessage(ContactMessage existing, ContactMessageStatus status) {
+        Instant readAt = switch (status) {
+            case READ, ARCHIVED -> existing.getReadAt() != null ? existing.getReadAt() : Instant.now();
+            case UNREAD -> null;
+        };
+
+        return new ContactMessage(
+                existing.getId(),
+                existing.getSenderName(),
+                existing.getSenderEmail(),
+                existing.getSubject(),
+                existing.getMessage(),
+                status,
+                existing.getReceivedAt(),
+                readAt
+        );
     }
 
     private ContactMessageStatus parseStatus(String status) {
@@ -160,5 +218,9 @@ public class ContactMessageService {
         }
 
         return sanitized;
+    }
+
+    private String sanitizeSearchQuery(String input) {
+        return sanitize(input, 120).replaceAll("\\s+", " ");
     }
 }

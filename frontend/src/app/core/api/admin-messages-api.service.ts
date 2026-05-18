@@ -21,7 +21,8 @@ export class AdminMessagesApiService {
   getAll(
     status: ContactMessageFilter,
     page: number,
-    size: number
+    size: number,
+    query = ''
   ): Observable<AdminApiResult<ContactMessage[]>> {
     let params = new HttpParams()
       .set('page', page)
@@ -30,6 +31,12 @@ export class AdminMessagesApiService {
 
     if (status !== 'all') {
       params = params.set('status', status);
+    }
+
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length > 0) {
+      params = params.set('q', normalizedQuery);
     }
 
     return this.http.get<AdminApiResult<ContactMessage[]>>(
@@ -60,5 +67,32 @@ export class AdminMessagesApiService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/api/admin/messages/${id}`);
+  }
+
+  bulkMarkAsRead(ids: string[]): Observable<ContactMessage[]> {
+    return this.http.patch<ContactMessage[]>(
+      `${this.baseUrl}/api/admin/messages/bulk/read`,
+      { ids }
+    );
+  }
+
+  bulkMarkAsUnread(ids: string[]): Observable<ContactMessage[]> {
+    return this.http.patch<ContactMessage[]>(
+      `${this.baseUrl}/api/admin/messages/bulk/unread`,
+      { ids }
+    );
+  }
+
+  bulkArchive(ids: string[]): Observable<ContactMessage[]> {
+    return this.http.patch<ContactMessage[]>(
+      `${this.baseUrl}/api/admin/messages/bulk/archive`,
+      { ids }
+    );
+  }
+
+  bulkDelete(ids: string[]): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/admin/messages/bulk`, {
+      body: { ids },
+    });
   }
 }
