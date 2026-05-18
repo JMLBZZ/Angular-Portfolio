@@ -11,9 +11,12 @@ import {
   MailIcon,
   MenuIcon,
   MessageSquareTextIcon,
+  MonitorIcon,
+  MoonIcon,
   PaletteIcon,
   ScaleIcon,
   SparklesIcon,
+  SunIcon,
   UserRoundIcon,
   XIcon,
   LucideAngularModule,
@@ -23,6 +26,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SeoService } from '../../core/seo/seo.service';
 import { AdminMessagesApiService } from '../../core/api/admin-messages-api.service';
+import { ThemeService } from '../../core/theme/theme.service';
 
 type AdminNavItem = {
   label: string;
@@ -51,6 +55,9 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   readonly XIcon = XIcon;
   readonly ExternalLinkIcon = ExternalLinkIcon;
   readonly LogOutIcon = LogOutIcon;
+  readonly SunIcon = SunIcon;
+  readonly MoonIcon = MoonIcon;
+  readonly MonitorIcon = MonitorIcon;
 
   isMobileMenuOpen = false;
   unreadMessages = 0;
@@ -111,6 +118,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private seoService: SeoService,
     private adminMessagesApi: AdminMessagesApiService,
+    public themeService: ThemeService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
@@ -141,12 +149,44 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     return this.getAdminPageTitle(this.router.url);
   }
 
+  get themeModeLabel(): string {
+    if (this.themeService.mode === 'dark') {
+      return 'Sombre';
+    }
+
+    if (this.themeService.mode === 'light') {
+      return 'Clair';
+    }
+
+    return 'Auto';
+  }
+
+  get themeModeAriaLabel(): string {
+    return `Changer le thème. Mode actuel : ${this.themeModeLabel}.`;
+  }
+
+  get themeModeIcon(): any {
+    if (this.themeService.mode === 'dark') {
+      return this.MoonIcon;
+    }
+
+    if (this.themeService.mode === 'light') {
+      return this.SunIcon;
+    }
+
+    return this.MonitorIcon;
+  }
+
   getNavBadge(item: AdminNavItem): string | null {
     if (item.badge === 'unreadMessages' && this.unreadMessages > 0) {
       return this.unreadMessages > 99 ? '99+' : String(this.unreadMessages);
     }
 
     return null;
+  }
+
+  toggleThemeMode(): void {
+    this.themeService.toggle();
   }
 
   toggleMobileMenu(): void {

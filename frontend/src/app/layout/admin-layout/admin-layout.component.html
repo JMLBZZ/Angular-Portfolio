@@ -11,25 +11,40 @@
         </h1>
       </div>
 
-      <button
-        type="button"
-        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-card/70 transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        (click)="toggleMobileMenu()"
-        [attr.aria-expanded]="isMobileMenuOpen"
-        aria-label="Ouvrir ou fermer le menu administrateur"
-      >
-        <lucide-icon
-          *ngIf="!isMobileMenuOpen"
-          [img]="MenuIcon"
-          class="h-5 w-5"
-        ></lucide-icon>
+      <div class="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-card/70 transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          (click)="toggleThemeMode()"
+          [attr.aria-label]="themeModeAriaLabel"
+          [title]="'Mode actuel : ' + themeModeLabel"
+        >
+          <lucide-icon
+            [img]="themeModeIcon"
+            class="h-5 w-5"
+          ></lucide-icon>
+        </button>
 
-        <lucide-icon
-          *ngIf="isMobileMenuOpen"
-          [img]="XIcon"
-          class="h-5 w-5"
-        ></lucide-icon>
-      </button>
+        <button
+          type="button"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-card/70 transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="isMobileMenuOpen"
+          aria-label="Ouvrir ou fermer le menu administrateur"
+        >
+          <lucide-icon
+            *ngIf="!isMobileMenuOpen"
+            [img]="MenuIcon"
+            class="h-5 w-5"
+          ></lucide-icon>
+
+          <lucide-icon
+            *ngIf="isMobileMenuOpen"
+            [img]="XIcon"
+            class="h-5 w-5"
+          ></lucide-icon>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -153,17 +168,21 @@
             </h1>
           </div>
 
-          <div
-            class="flex w-full flex-col gap-2 rounded-2xl border border-border/70 bg-card/70 px-4 py-3 text-sm md:w-auto"
+          <button
+            type="button"
+            class="hidden h-12 items-center justify-center gap-2 rounded-2xl border border-border/70 bg-card/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 md:inline-flex"
+            (click)="toggleThemeMode()"
+            [attr.aria-label]="themeModeAriaLabel"
           >
-            <span class="text-xs uppercase tracking-[0.16em] opacity-60">
-              Connecté
-            </span>
+            <lucide-icon
+              [img]="themeModeIcon"
+              class="h-4 w-4"
+            ></lucide-icon>
 
-            <span class="truncate font-semibold">
-              {{ email }}
+            <span>
+              {{ themeModeLabel }}
             </span>
-          </div>
+          </button>
         </div>
       </div>
 
