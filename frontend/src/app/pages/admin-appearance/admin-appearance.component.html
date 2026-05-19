@@ -7,36 +7,109 @@
             <lucide-icon [img]="PaletteIcon" class="h-5 w-5"></lucide-icon>
           </span>
 
-          <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             Apparence
           </p>
         </div>
 
         <h2 class="mt-4 text-2xl font-bold">
-          Centre de configuration visuelle
+          Couleurs du portfolio
         </h2>
 
         <p class="mt-2 max-w-3xl text-sm opacity-75">
-          Cette page sert de base pour suivre et préparer les réglages visuels du portfolio et de l’espace administrateur.
+          Modifie la couleur principale utilisée par le portfolio. Cette couleur est sauvegardée en base et appliquée côté public.
         </p>
       </div>
 
-      <div class="rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm opacity-80">
-        Configuration évolutive
+      <div class="rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm">
+        <span
+          class="inline-flex items-center gap-2 font-semibold"
+          [class.text-primary]="!isLoading"
+          [class.opacity-70]="isLoading"
+        >
+          <span
+            class="h-3 w-3 rounded-full border border-border/70"
+            [style.backgroundColor]="savedAccentColor"
+          ></span>
+
+          <span *ngIf="!isLoading">
+            Couleur active : {{ savedAccentColor }}
+          </span>
+
+          <span *ngIf="isLoading">
+            Chargement...
+          </span>
+        </span>
       </div>
     </div>
   </div>
 
-  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="grid gap-4 md:grid-cols-3">
     <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-sm opacity-70">
-            Réglages actifs
+            Couleur enregistrée
           </p>
 
           <p class="mt-2 text-3xl font-bold">
-            {{ activeOptionsCount }}
+            {{ savedAccentColor }}
+          </p>
+        </div>
+
+        <span
+          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70"
+          [style.backgroundColor]="savedAccentColor"
+        >
+          <span class="sr-only">
+            Aperçu de la couleur enregistrée
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            Couleur d’origine
+          </p>
+
+          <p class="mt-2 text-3xl font-bold">
+            {{ defaultAccentColor }}
+          </p>
+        </div>
+
+        <span
+          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70"
+          [style.backgroundColor]="defaultAccentColor"
+        >
+          <span class="sr-only">
+            Aperçu de la couleur d’origine
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm opacity-70">
+            État
+          </p>
+
+          <p class="mt-2 text-3xl font-bold">
+            <span *ngIf="hasUnsavedChanges">
+              Modifié
+            </span>
+
+            <span *ngIf="!hasUnsavedChanges && !isDefaultColorSaved">
+              Sauvegardé
+            </span>
+
+            <span *ngIf="!hasUnsavedChanges && isDefaultColorSaved">
+              Par défaut
+            </span>
           </p>
         </div>
 
@@ -45,222 +118,306 @@
         </span>
       </div>
     </div>
-
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-sm opacity-70">
-            Réglages prévus
-          </p>
-
-          <p class="mt-2 text-3xl font-bold">
-            {{ plannedOptionsCount }}
-          </p>
-        </div>
-
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-          <lucide-icon [img]="Settings2Icon" class="h-5 w-5"></lucide-icon>
-        </span>
-      </div>
-    </div>
-
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-sm opacity-70">
-            Design public
-          </p>
-
-          <p class="mt-2 text-3xl font-bold">
-            Conservé
-          </p>
-        </div>
-
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-          <lucide-icon [img]="EyeIcon" class="h-5 w-5"></lucide-icon>
-        </span>
-      </div>
-    </div>
-
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-5">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-sm opacity-70">
-            Admin UI
-          </p>
-
-          <p class="mt-2 text-3xl font-bold">
-            En cours
-          </p>
-        </div>
-
-        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-          <lucide-icon [img]="LayoutDashboardIcon" class="h-5 w-5"></lucide-icon>
-        </span>
-      </div>
-    </div>
   </div>
 
-  <div class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <div>
-        <div class="flex items-center gap-3">
-          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-            <lucide-icon [img]="Settings2Icon" class="h-5 w-5"></lucide-icon>
-          </span>
+  <div class="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
+    <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+              <lucide-icon [img]="Settings2Icon" class="h-5 w-5"></lucide-icon>
+            </span>
 
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Paramètres
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Configuration
+            </p>
+          </div>
+
+          <h3 class="mt-4 text-xl font-bold">
+            Couleur principale
+          </h3>
+
+          <p class="mt-1 text-sm opacity-75">
+            Choisis une couleur au format hexadécimal. Elle sera appliquée aux éléments utilisant la couleur principale du design.
           </p>
         </div>
 
-        <h3 class="mt-4 text-xl font-bold">
-          Suivi des réglages visuels
-        </h3>
+        <span
+          class="w-fit rounded-full border px-3 py-1 text-xs font-semibold"
+          [class.border-primary]="hasUnsavedChanges"
+          [class.bg-primary]="hasUnsavedChanges"
+          [class.text-primary-foreground]="hasUnsavedChanges"
+          [class.border-border]="!hasUnsavedChanges"
+          [class.opacity-70]="!hasUnsavedChanges"
+        >
+          <span *ngIf="hasUnsavedChanges">
+            Modifications non sauvegardées
+          </span>
 
-        <p class="mt-1 text-sm opacity-75">
-          Pour l’instant, ces éléments servent de repère visuel. Plus tard, ils pourront être reliés au backend.
-        </p>
+          <span *ngIf="!hasUnsavedChanges">
+            À jour
+          </span>
+        </span>
       </div>
 
-      <div class="space-y-3">
-        <article
-          *ngFor="let option of options"
-          class="rounded-2xl border border-border/70 bg-background/60 p-4"
-        >
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div class="flex gap-3">
-              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-card/70 text-primary">
-                <lucide-icon [img]="option.icon" class="h-5 w-5"></lucide-icon>
-              </span>
+      <form class="mt-6 space-y-5" (ngSubmit)="save()">
+        <div class="grid gap-4 md:grid-cols-[auto_1fr] md:items-start">
+          <label
+            for="accentColorPicker"
+            class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-3xl border border-border/70 bg-background/70 p-2"
+            [style.backgroundColor]="colorPickerValue"
+          >
+            <span class="sr-only">
+              Sélecteur de couleur principale
+            </span>
 
-              <div>
-                <h4 class="font-bold">
-                  {{ option.title }}
-                </h4>
+            <input
+              id="accentColorPicker"
+              type="color"
+              class="h-full w-full cursor-pointer opacity-0"
+              [ngModel]="colorPickerValue"
+              (ngModelChange)="onAccentColorChange($event)"
+              name="accentColorPicker"
+              [disabled]="isBusy"
+            />
+          </label>
 
-                <p class="mt-1 text-sm opacity-75">
-                  {{ option.description }}
-                </p>
-              </div>
+          <div class="space-y-2">
+            <label for="accentColor" class="text-sm font-semibold">
+              Couleur principale
+            </label>
+
+            <input
+              id="accentColor"
+              type="text"
+              class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+              placeholder="#c5a567"
+              [ngModel]="accentColor"
+              (ngModelChange)="onAccentColorChange($event)"
+              name="accentColor"
+              autocomplete="off"
+              [disabled]="isBusy"
+              [class.border-red-500]="accentColorError"
+              [attr.aria-invalid]="accentColorError ? 'true' : 'false'"
+              aria-describedby="accentColorHelp accentColorError"
+            />
+
+            <p id="accentColorHelp" class="text-xs opacity-70">
+              Format attendu : <span class="font-semibold">#RRGGBB</span>. Exemple : {{ defaultAccentColor }}.
+            </p>
+
+            <p
+              *ngIf="accentColorError"
+              id="accentColorError"
+              class="text-xs font-semibold text-red-600 dark:text-red-400"
+            >
+              {{ accentColorError }}
+            </p>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+              <lucide-icon [img]="EyeIcon" class="h-5 w-5"></lucide-icon>
+            </span>
+
+            <div>
+              <p class="font-semibold">
+                Prévisualisation
+              </p>
+
+              <p class="text-sm opacity-70">
+                L’aperçu est appliqué immédiatement sur cette page avant sauvegarde.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-border/70 bg-card/70 p-4">
+              <p class="text-sm font-semibold">
+                Bouton principal
+              </p>
+
+              <button
+                type="button"
+                class="mt-4 rounded-2xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90"
+              >
+                Exemple bouton
+              </button>
             </div>
 
-            <span
-              class="w-fit rounded-full border px-3 py-1 text-xs font-semibold"
-              [class.border-primary]="option.status === 'active'"
-              [class.bg-primary]="option.status === 'active'"
-              [class.text-primary-foreground]="option.status === 'active'"
-              [class.border-border]="option.status === 'planned'"
-              [class.opacity-70]="option.status === 'planned'"
-            >
-              {{ getStatusLabel(option.status) }}
+            <div class="rounded-2xl border border-border/70 bg-card/70 p-4">
+              <p class="text-sm font-semibold">
+                Badge actif
+              </p>
+
+              <span class="mt-4 inline-flex rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                Exemple badge
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="text-sm opacity-75">
+            <span *ngIf="hasUnsavedChanges">
+              Tu prévisualises une couleur non sauvegardée.
+            </span>
+
+            <span *ngIf="!hasUnsavedChanges">
+              La couleur affichée correspond à la couleur enregistrée.
             </span>
           </div>
-        </article>
-      </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              class="rounded-2xl border border-border/70 bg-background/70 px-4 py-2 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              (click)="restoreSavedColor()"
+              [disabled]="isBusy || !hasUnsavedChanges"
+            >
+              Annuler l’aperçu
+            </button>
+
+            <button
+              type="button"
+              class="rounded-2xl border border-border/70 bg-background/70 px-4 py-2 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              (click)="resetToDefault()"
+              [disabled]="isBusy"
+            >
+              <span *ngIf="!isResetting">
+                Réinitialiser
+              </span>
+
+              <span *ngIf="isResetting">
+                Réinitialisation...
+              </span>
+            </button>
+
+            <button
+              type="submit"
+              class="rounded-2xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="isBusy || !isAccentColorValid || !hasUnsavedChanges"
+            >
+              <span *ngIf="!isSaving">
+                Sauvegarder
+              </span>
+
+              <span *ngIf="isSaving">
+                Sauvegarde...
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
 
-    <div class="rounded-3xl border border-border/70 bg-card/60 p-6 space-y-5">
-      <div>
+    <div class="space-y-6">
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
         <div class="flex items-center gap-3">
           <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
             <lucide-icon [img]="SparklesIcon" class="h-5 w-5"></lucide-icon>
           </span>
 
-          <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-            Identité
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Couleur d’origine
           </p>
         </div>
 
         <h3 class="mt-4 text-xl font-bold">
-          Charte actuelle
+          Réinitialisation
         </h3>
 
-        <p class="mt-1 text-sm opacity-75">
-          Rappel de la direction visuelle à conserver pendant les prochaines évolutions.
+        <p class="mt-2 text-sm opacity-75">
+          Le bouton “Réinitialiser” remet la couleur dorée actuelle du portfolio :
         </p>
+
+        <div class="mt-5 rounded-3xl border border-border/70 bg-background/60 p-5">
+          <div class="flex items-center gap-4">
+            <span
+              class="h-14 w-14 rounded-2xl border border-border/70"
+              [style.backgroundColor]="defaultAccentColor"
+            ></span>
+
+            <div>
+              <p class="font-semibold">
+                {{ defaultAccentColor }}
+              </p>
+
+              <p class="text-sm opacity-70">
+                Couleur officielle par défaut
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="space-y-4">
-        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-          <p class="text-sm font-semibold">
-            Style général
-          </p>
+      <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+            <lucide-icon [img]="BrushIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-          <p class="mt-2 text-sm opacity-75">
-            Moderne, arrondi, clair, lisible, avec cartes et espacements généreux.
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Impact
           </p>
         </div>
 
-        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-          <p class="text-sm font-semibold">
-            Design public
-          </p>
+        <h3 class="mt-4 text-xl font-bold">
+          Ce qui change
+        </h3>
 
-          <p class="mt-2 text-sm opacity-75">
-            Le portfolio public doit rester visuellement cohérent avec l’existant.
-          </p>
+        <div class="mt-5 space-y-3">
+          <div class="rounded-2xl border border-border/70 bg-background/60 p-4">
+            <p class="font-semibold">
+              Côté admin
+            </p>
+
+            <p class="mt-1 text-sm opacity-75">
+              La couleur est visible immédiatement pour prévisualiser le résultat.
+            </p>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 bg-background/60 p-4">
+            <p class="font-semibold">
+              Côté public
+            </p>
+
+            <p class="mt-1 text-sm opacity-75">
+              Après sauvegarde, le portfolio public récupère cette couleur via l’API publique.
+            </p>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 bg-background/60 p-4">
+            <p class="font-semibold">
+              Thème clair / sombre
+            </p>
+
+            <p class="mt-1 text-sm opacity-75">
+              Le système actuel light / dark / auto reste indépendant.
+            </p>
+          </div>
         </div>
+      </div>
 
-        <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-          <p class="text-sm font-semibold">
-            Design admin
-          </p>
+      <div class="rounded-3xl border border-border/70 bg-primary/10 p-6 text-primary">
+        <div class="flex items-start gap-3">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+            <lucide-icon [img]="WandSparklesIcon" class="h-5 w-5"></lucide-icon>
+          </span>
 
-          <p class="mt-2 text-sm opacity-75">
-            L’admin doit rester simple, fluide, responsive et intuitif.
-          </p>
+          <div>
+            <p class="font-semibold">
+              Évolution future
+            </p>
+
+            <p class="mt-1 text-sm opacity-80">
+              Le logo pourra être ajouté plus tard sans modifier la logique actuelle des couleurs.
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="rounded-3xl border border-border/70 bg-card/60 p-6">
-    <div>
-      <div class="flex items-center gap-3">
-        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-          <lucide-icon [img]="WandSparklesIcon" class="h-5 w-5"></lucide-icon>
-        </span>
-
-        <p class="text-xs uppercase tracking-[0.18em] text-primary font-semibold">
-          Prochaines évolutions possibles
-        </p>
-      </div>
-
-      <h3 class="mt-4 text-xl font-bold">
-        Fonctionnalités futures
-      </h3>
-    </div>
-
-    <div class="mt-6 grid gap-4 md:grid-cols-3">
-      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-        <p class="font-semibold">
-          Couleurs dynamiques
-        </p>
-
-        <p class="mt-2 text-sm opacity-75">
-          Permettre plus tard de changer certaines couleurs depuis l’admin.
-        </p>
-      </div>
-
-      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-        <p class="font-semibold">
-          Préférences utilisateur
-        </p>
-
-        <p class="mt-2 text-sm opacity-75">
-          Mémoriser les préférences d’affichage de l’administrateur.
-        </p>
-      </div>
-
-      <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
-        <p class="font-semibold">
-          Prévisualisation
-        </p>
-
-        <p class="mt-2 text-sm opacity-75">
-          Afficher un aperçu avant d’appliquer des changements visuels globaux.
-        </p>
       </div>
     </div>
   </div>
