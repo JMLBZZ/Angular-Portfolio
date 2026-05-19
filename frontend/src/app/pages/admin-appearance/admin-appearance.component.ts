@@ -76,7 +76,7 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy {
     }
 
     if (!this.isAccentColorValid) {
-      return 'Utilise le format hexadécimal #RRGGBB, par exemple #c5a567.';
+      return 'Utilise le format hexadécimal #RRGGBB, par exemple$ {this.defaultAccentColor}.';
     }
 
     return null;

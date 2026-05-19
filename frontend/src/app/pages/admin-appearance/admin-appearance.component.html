@@ -17,7 +17,8 @@
         </h2>
 
         <p class="mt-2 max-w-3xl text-sm opacity-75">
-          Modifie la couleur principale utilisée par le portfolio. Cette couleur est sauvegardée en base et appliquée côté public.
+          Modifie la couleur principale utilisée par le portfolio. <br>
+          Cette couleur est sauvegardée en base et appliquée côté public.
         </p>
       </div>
 
@@ -192,7 +193,7 @@
               id="accentColor"
               type="text"
               class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
-              placeholder="#c5a567"
+              placeholder="defaultAccentColor"
               [ngModel]="accentColor"
               (ngModelChange)="onAccentColorChange($event)"
               name="accentColor"
