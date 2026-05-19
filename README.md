@@ -1,4 +1,4 @@
-# Portfolio Full-Stack
+# Portfolio Full-Stack Java / Angular
 
 Portfolio professionnel full-stack permettant de présenter des projets, gérer dynamiquement le contenu depuis un espace administrateur sécurisé, recevoir des messages de contact, gérer un CV en ligne, administrer les contenus légaux, personnaliser l’apparence du site et déployer l’ensemble automatiquement via GitHub et Render.
 
@@ -18,12 +18,15 @@ Le projet est conçu avec une séparation claire entre le frontend public, l’i
 - [Sécurité](#sécurité)
 - [SEO, performance et accessibilité](#seo-performance-et-accessibilité)
 - [Internationalisation](#internationalisation)
+- [Apparence dynamique](#apparence-dynamique)
 - [Déploiement](#déploiement)
 - [Variables d’environnement](#variables-denvironnement)
 - [Installation locale](#installation-locale)
 - [Scripts utiles](#scripts-utiles)
 - [Tests](#tests)
+- [Bonnes pratiques respectées](#bonnes-pratiques-respectées)
 - [Évolutions possibles](#évolutions-possibles)
+- [État du projet](#état-du-projet)
 - [Auteur](#auteur)
 
 ---
@@ -117,36 +120,43 @@ Le projet respecte une logique full-stack moderne avec un frontend Angular stand
 
 ### Frontend
 
-- Angular standalone
-- TailwindCSS
-- ngx-translate
-- Angular CDK
-- Lucide Angular
-- SSR / prerender
-- pdfjs-dist
-- jsPDF
-- html2canvas
+- Angular standalone : 17.3.x
+- Angular CLI : 17.3.17
+- Angular CDK : 17.3.10
+- Angular SSR / prerender : 17.3.17
+- TailwindCSS : 3.4.19
+- ngx-translate : 17.0.0
+- Lucide Angular : 1.0.0
+- RxJS : 7.8.x
+- TypeScript : 5.4.x
+- Zone.js : 0.14.x
+- pdfjs-dist : 5.5.207
+- jsPDF : 2.5.x
+- html2canvas : 1.4.1
+- Express : 4.18.x, utilisé pour le serveur SSR Angular
 
 ### Backend
 
-- Java
-- Spring Boot
-- Spring Security
-- JWT
-- Architecture hexagonale
-- Spring Data JPA
-- PostgreSQL
-- JavaMailSender
-- SMTP Brevo
-- Cloudinary
-- DeepL API
-- JSoup
-- JUnit
-- Mockito
+- Java : 17
+- Spring Boot : 3.5.10
+- Spring Security : version gérée par Spring Boot 3.5.10
+- Spring Data JPA : version gérée par Spring Boot 3.5.10
+- Spring Validation : version gérée par Spring Boot 3.5.10
+- Spring Mail / JavaMailSender : version gérée par Spring Boot 3.5.10
+- JWT avec JJWT : 0.12.5
+- PostgreSQL JDBC Driver : version gérée par Spring Boot 3.5.10
+- Springdoc OpenAPI : 2.7.0
+- Cloudinary Java SDK : 2.3.2
+- DeepL Java SDK : 1.16.0
+- JSoup : 1.17.2
+- JUnit / Mockito / Spring Boot Test : versions gérées par Spring Boot 3.5.10
+- Maven : utilisé pour la compilation, les tests et le packaging backend
 
 ### Base de données
 
 - PostgreSQL via Neon
+- Persistance avec Spring Data JPA / Hibernate
+- Création et mise à jour du schéma via la configuration JPA du projet
 
 ### Hébergement
 
@@ -162,8 +172,8 @@ Le projet respecte une logique full-stack moderne avec un frontend Angular stand
 
 ### Services externes
 
-- Brevo SMTP
-- DeepL API
+- Brevo SMTP pour l’envoi des emails
+- DeepL API pour la traduction automatique
 - cron-job.org pour le cron anti-sleep Render
 
 ---
@@ -605,7 +615,7 @@ ADMIN_PASSWORD=
 
 ### Frontend
 
-Exemples :
+Exemple :
 
 ```env
 API_BASE_URL=
@@ -621,7 +631,7 @@ Selon la configuration réelle du projet, certaines valeurs peuvent être géré
 
 - Node.js
 - npm
-- Java
+- Java 17
 - Maven
 - PostgreSQL ou accès Neon
 - Compte Cloudinary
@@ -810,5 +820,3 @@ Fonctionnalités principales terminées :
 Projet développé par Jamel BOUAZZA.
 
 Objectif : créer un portfolio full-stack professionnel, maintenable, sécurisé et évolutif, en appliquant une architecture propre et des pratiques modernes de développement web.
-
-(Texte Readme généré par OpenAI 5.5 étendu)
