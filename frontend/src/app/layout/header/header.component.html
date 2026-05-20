@@ -71,34 +71,51 @@
       <!-- Admin -->
       <button
         type="button"
-        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         aria-label="Accéder à l’espace administrateur"
         title="Admin"
         (click)="goToAdminLogin()"
       >
-        <span aria-hidden="true">🔒</span>
+        <lucide-icon
+          [img]="LogInIcon"
+          class="h-4 w-4"
+          aria-hidden="true"
+        ></lucide-icon>
       </button>
 
       <!-- Langue -->
       <button
         type="button"
-        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center text-xs font-semibold tracking-wide hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         [attr.aria-label]="getLanguageButtonLabel()"
-        title="Language"
+        [title]="getLanguageButtonLabel()"
         (click)="lang.toggle()"
       >
         {{ lang.current | uppercase }}
       </button>
 
-      <!-- Dark/Light -->
+      <!-- Thème -->
       <button
         type="button"
-        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         [attr.aria-label]="getThemeButtonLabel()"
-        title="Theme"
+        [title]="getThemeButtonLabel()"
         (click)="theme.toggle()"
       >
-        <span aria-hidden="true">🌓</span>
+        <span
+          class="text-[10px] font-bold tracking-wide"
+          [class.hidden]="theme.mode !== 'auto'"
+          aria-hidden="true"
+        >
+          AUTO
+        </span>
+
+        <lucide-icon
+          [img]="themeModeIcon"
+          class="h-4 w-4"
+          [class.hidden]="theme.mode === 'auto'"
+          aria-hidden="true"
+        ></lucide-icon>
       </button>
     </div>
   </div>

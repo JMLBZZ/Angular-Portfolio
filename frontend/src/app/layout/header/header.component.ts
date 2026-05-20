@@ -2,20 +2,29 @@ import { isPlatformBrowser, UpperCasePipe } from '@angular/common';
 import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  LogInIcon,
+  MoonIcon,
+  SunIcon,
+  LucideAngularModule,
+} from 'lucide-angular';
 
 import { ThemeService } from '../../core/theme/theme.service';
 import { LanguageService } from '../../core/i18n/language.service';
-import { IconButtonComponent } from '../../shared/components/icon-button/icon-button.component';
 
 type SectionId = 'home' | 'projects' | 'about' | 'contact';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [TranslateModule, UpperCasePipe, IconButtonComponent],
+  imports: [TranslateModule, UpperCasePipe, LucideAngularModule],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit {
+  readonly LogInIcon = LogInIcon;
+  readonly SunIcon = SunIcon;
+  readonly MoonIcon = MoonIcon;
+
   activeSection: SectionId | null = 'home';
 
   private readonly offset = 90;
@@ -96,8 +105,28 @@ export class HeaderComponent implements OnInit {
       : 'Switch language to French';
   }
 
+  get themeModeLabel(): string {
+    if (this.theme.mode === 'light') {
+      return 'clair';
+    }
+
+    if (this.theme.mode === 'dark') {
+      return 'sombre';
+    }
+
+    return 'automatique';
+  }
+
+  get themeModeIcon() {
+    if (this.theme.mode === 'dark') {
+      return this.MoonIcon;
+    }
+
+    return this.SunIcon;
+  }
+
   getThemeButtonLabel(): string {
-    return 'Changer le thème (clair ou sombre)';
+    return `Changer le thème. Mode actuel : ${this.themeModeLabel}.`;
   }
 
   private updateActiveSection(): void {

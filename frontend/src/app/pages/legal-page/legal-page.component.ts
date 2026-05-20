@@ -1,5 +1,5 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -27,10 +27,12 @@ export class LegalPageComponent implements OnInit, OnDestroy {
     private legalContentApiService: LegalContentApiService,
     public lang: LanguageService,
     private seoService: SeoService,
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   ngOnInit(): void {
+    this.scrollToTop();
     this.updateSeo();
     this.loadLegalContent();
   }
@@ -98,6 +100,18 @@ export class LegalPageComponent implements OnInit, OnDestroy {
       type: 'website',
       robots: 'index, follow',
       lang: this.lang.current,
+    });
+  }
+
+  private scrollToTop(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.document.defaultView?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'auto',
     });
   }
 }
