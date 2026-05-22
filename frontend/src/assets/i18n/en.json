@@ -173,7 +173,12 @@
         "name": "Please enter your name.",
         "email": "Please enter a valid email.",
         "subject": "Please enter a subject.",
-        "message": "Please write a message (at least 10 characters)."
+        "message": "Please write a message (at least 10 characters).",
+        "messageMaxLength": "Your message cannot exceed 4000 characters."
+      },
+      "counter": {
+        "remaining": "{{count}} characters remaining",
+        "count": "{{current}} / {{max}}"
       },
       "alert": {
         "success": "Your message has been sent successfully.",

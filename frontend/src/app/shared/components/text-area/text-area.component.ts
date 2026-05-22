@@ -17,6 +17,7 @@ export class TextAreaComponent {
   @Input() disabled = false;
   @Input() rows = 6;
   @Input() id = '';
+  @Input() maxLength: number | null = null;
 
   get computedId(): string | null {
     return this.id || null;

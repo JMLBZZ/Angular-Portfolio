@@ -173,7 +173,12 @@
         "name": "Merci d’indiquer votre nom.",
         "email": "Merci d’indiquer un email valide.",
         "subject": "Merci d’indiquer un sujet.",
-        "message": "Merci d’écrire un message (au moins 10 caractères)."
+        "message": "Merci d’écrire un message (au moins 10 caractères).",
+        "messageMaxLength": "Votre message ne peut pas dépasser 4000 caractères."
+      },
+      "counter": {
+        "remaining": "{{count}} caractères restants",
+        "count": "{{current}} / {{max}}"
       },
       "alert": {
         "success": "Votre message a bien été envoyé.",

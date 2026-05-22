@@ -57,6 +57,11 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
   isLoading = true;
   hasError = false;
 
+  readonly messageMinLength = 10;
+  readonly messageMaxLength = 4000;
+
+  private readonly messageCounterWarningThreshold = 250;
+
   private contactContent: Contact | null = null;
   private subscriptions = new Subscription();
 
@@ -64,7 +69,11 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
     name: this.fb.control('', [Validators.required, Validators.minLength(2)]),
     email: this.fb.control('', [Validators.required, Validators.email]),
     subject: this.fb.control('', [Validators.required, Validators.minLength(3)]),
-    message: this.fb.control('', [Validators.required, Validators.minLength(10)]),
+    message: this.fb.control('', [
+      Validators.required,
+      Validators.minLength(this.messageMinLength),
+      Validators.maxLength(this.messageMaxLength),
+    ]),
     // honeyspot control
     website: this.fb.control(''),
   });
@@ -108,6 +117,18 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
     return this.form.get('message') as FormControl<string>;
   }
 
+  get messageLength(): number {
+    return (this.messageCtrl.value ?? '').length;
+  }
+
+  get messageRemaining(): number {
+    return Math.max(this.messageMaxLength - this.messageLength, 0);
+  }
+
+  get isMessageCounterWarning(): boolean {
+    return this.messageRemaining <= this.messageCounterWarningThreshold;
+  }
+
   control(name: 'name' | 'email' | 'subject' | 'message'): AbstractControl {
     return this.form.get(name)!;
   }
@@ -124,6 +145,7 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
 
     if (c.errors['required']) return `contact.form.errors.${name}`;
     if (name === 'email' && c.errors['email']) return 'contact.form.errors.email';
+    if (name === 'message' && c.errors['maxlength']) return 'contact.form.errors.messageMaxLength';
     if (c.errors['minlength']) return `contact.form.errors.${name}`;
 
     return `contact.form.errors.${name}`;

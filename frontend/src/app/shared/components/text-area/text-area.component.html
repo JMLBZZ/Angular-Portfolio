@@ -13,6 +13,7 @@
         [formControl]="control"
         [placeholder]="placeholder"
         [class]="textareaClasses"
+        [attr.maxlength]="maxLength"
         [attr.aria-invalid]="shouldShowError ? 'true' : 'false'"
         [attr.aria-describedby]="describedBy"
     ></textarea>
