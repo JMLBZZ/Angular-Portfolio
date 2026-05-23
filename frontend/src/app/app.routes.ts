@@ -69,6 +69,7 @@ export const routes: Routes = [
           import('./pages/admin-contact/admin-contact.component').then(
             (m) => m.AdminContactComponent
           ),
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'hero',
@@ -76,6 +77,7 @@ export const routes: Routes = [
           import('./pages/admin-hero/admin-hero.component').then(
             (m) => m.AdminHeroComponent
           ),
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'about',
@@ -91,6 +93,7 @@ export const routes: Routes = [
           import('./pages/admin-resume/admin-resume.component').then(
             (m) => m.AdminResumeComponent
           ),
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'legal',
@@ -113,6 +116,7 @@ export const routes: Routes = [
           import('./pages/admin-appearance/admin-appearance.component').then(
             (m) => m.AdminAppearanceComponent
           ),
+        canDeactivate: [pendingChangesGuard],
       },
       {
         path: '',

@@ -37,6 +37,7 @@ import {
   setupAdminFormErrorCleanup,
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
+import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 
 type HeroTechBadgeFormGroup = FormGroup<{
   id: FormControl<number | null>;
@@ -58,7 +59,7 @@ type HeroTechBadgeFormGroup = FormGroup<{
   ],
   templateUrl: './admin-hero.component.html',
 })
-export class AdminHeroComponent implements OnInit, OnDestroy {
+export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComponent {
   readonly BadgeCheckIcon = BadgeCheckIcon;
   readonly GripVerticalIcon = GripVerticalIcon;
   readonly LanguagesIcon = LanguagesIcon;
@@ -221,6 +222,20 @@ export class AdminHeroComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  canDeactivate(): boolean {
+  if (!this.hasUnsavedChanges || this.isSubmittingHero || this.isSubmittingHeroCard) {
+      return true;
+    }
+
+    return window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
+    );
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return this.heroForm.dirty || this.heroCardForm.dirty;
   }
 
   get techBadgesFormArray(): FormArray<HeroTechBadgeFormGroup> {

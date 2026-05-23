@@ -17,6 +17,7 @@ import { AdminAppearanceApiService } from '../../core/api/admin-appearance-api.s
 import { ThemeService } from '../../core/theme/theme.service';
 import { DEFAULT_ACCENT_COLOR } from '../../shared/models/appearance.model';
 import { ToastService } from '../../shared/services/toast.service';
+import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 
 @Component({
   selector: 'app-admin-appearance',
@@ -28,7 +29,7 @@ import { ToastService } from '../../shared/services/toast.service';
   ],
   templateUrl: './admin-appearance.component.html',
 })
-export class AdminAppearanceComponent implements OnInit, OnDestroy {
+export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChangesComponent {
   readonly PaletteIcon = PaletteIcon;
   readonly CheckCircle2Icon = CheckCircle2Icon;
   readonly EyeIcon = EyeIcon;
@@ -60,6 +61,16 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy {
     if (this.hasUnsavedChanges) {
       this.themeService.applyAccentColor(this.savedAccentColor);
     }
+  }
+
+  canDeactivate(): boolean {
+    if (!this.hasUnsavedChanges || this.isSaving || this.isResetting) {
+      return true;
+    }
+
+    return window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
+    );
   }
 
   get normalizedAccentColor(): string {

@@ -170,7 +170,13 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
   }
 
   canDeactivate(): boolean {
-    return !this.form.dirty || this.isSubmitting;
+    if (!this.form.dirty || this.isSubmitting) {
+      return true;
+    }
+
+    return window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
+    );
   }
 
   get timelineItems(): FormArray<FormGroup> {

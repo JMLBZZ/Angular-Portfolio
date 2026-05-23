@@ -30,6 +30,7 @@ import {
   setupAdminFormErrorCleanup,
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
+import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 
 @Component({
   selector: 'app-admin-contact',
@@ -44,7 +45,7 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
   ],
   templateUrl: './admin-contact.component.html',
 })
-export class AdminContactComponent implements OnInit, OnDestroy {
+export class AdminContactComponent implements OnInit, OnDestroy, PendingChangesComponent {
   readonly AtSignIcon = AtSignIcon;
   readonly GithubIcon = GithubIcon;
   readonly LanguagesIcon = LanguagesIcon;
@@ -122,6 +123,15 @@ export class AdminContactComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+  canDeactivate(): boolean {
+    if (!this.form.dirty || this.isSubmitting) {
+      return true;
+    }
+
+    return window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
+    );
   }
 
   loadContact(): void {

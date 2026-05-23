@@ -21,6 +21,7 @@ import { PrimaryButtonComponent } from '../../shared/components/primary-button/p
 import { ToastService } from '../../shared/services/toast.service';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { scrollToSelector } from '../../shared/utils/admin-form.utils';
+import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 
 GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
@@ -38,7 +39,7 @@ GlobalWorkerOptions.workerSrc = new URL(
   ],
   templateUrl: './admin-resume.component.html',
 })
-export class AdminResumeComponent implements OnInit, OnDestroy {
+export class AdminResumeComponent implements OnInit, OnDestroy, PendingChangesComponent {
   readonly DownloadIcon = DownloadIcon;
   readonly EyeIcon = EyeIcon;
   readonly FileTextIcon = FileTextIcon;
@@ -78,6 +79,16 @@ export class AdminResumeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.thumbnailRenderVersion++;
+  }
+
+  canDeactivate(): boolean {
+    if (!this.selectedFile || this.isSubmitting) {
+      return true;
+    }
+
+    return window.confirm(
+      'Vous avez sélectionné un fichier non envoyé. Voulez-vous vraiment quitter cette page ?'
+    );
   }
 
   get hasResume(): boolean {
