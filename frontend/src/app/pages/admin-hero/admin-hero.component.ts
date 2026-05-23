@@ -10,7 +10,6 @@ import {
 import { RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
-  ArrowLeftIcon,
   BadgeCheckIcon,
   GripVerticalIcon,
   LanguagesIcon,
@@ -60,7 +59,6 @@ type HeroTechBadgeFormGroup = FormGroup<{
   templateUrl: './admin-hero.component.html',
 })
 export class AdminHeroComponent implements OnInit, OnDestroy {
-  readonly ArrowLeftIcon = ArrowLeftIcon;
   readonly BadgeCheckIcon = BadgeCheckIcon;
   readonly GripVerticalIcon = GripVerticalIcon;
   readonly LanguagesIcon = LanguagesIcon;

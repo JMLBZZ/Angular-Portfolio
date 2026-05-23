@@ -20,14 +20,6 @@
           Ici, tu gères uniquement le contenu affiché dans la colonne de gauche de la section contact.
         </p>
       </div>
-
-      <a
-        routerLink="/admin/dashboard"
-        class="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 px-5 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-      >
-        <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4"></lucide-icon>
-        Retour au dashboard
-      </a>
     </div>
   </div>
 
@@ -182,6 +174,7 @@
               label="Email"
               placeholder="contact@monsite.dev"
               [control]="form.controls.email"
+              [hideLabelVisually]="true"
             ></app-text-field>
           </div>
 
@@ -201,6 +194,7 @@
               label="Téléphone"
               placeholder="+33 6 00 00 00 00"
               [control]="form.controls.phone"
+              [hideLabelVisually]="true"
             ></app-text-field>
           </div>
 
@@ -220,6 +214,7 @@
               label="Localisation"
               placeholder="Paris, France"
               [control]="form.controls.location"
+              [hideLabelVisually]="true"
             ></app-text-field>
           </div>
 
@@ -239,6 +234,7 @@
               label="Lien LinkedIn"
               placeholder="https://www.linkedin.com/in/..."
               [control]="form.controls.linkedinUrl"
+              [hideLabelVisually]="true"
             ></app-text-field>
           </div>
 
@@ -258,6 +254,7 @@
               label="Lien GitHub"
               placeholder="https://github.com/..."
               [control]="form.controls.githubUrl"
+              [hideLabelVisually]="true"
             ></app-text-field>
           </div>
         </div>

@@ -9,7 +9,6 @@ import {
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import {
-  ArrowLeftIcon,
   BookOpenTextIcon,
   EyeIcon,
   FileTextIcon,
@@ -54,7 +53,6 @@ import { LegalContent } from '../../shared/models/legal.model';
   templateUrl: './admin-legal.component.html',
 })
 export class AdminLegalComponent implements OnInit, OnDestroy, PendingChangesComponent {
-  readonly ArrowLeftIcon = ArrowLeftIcon;
   readonly BookOpenTextIcon = BookOpenTextIcon;
   readonly EyeIcon = EyeIcon;
   readonly FileTextIcon = FileTextIcon;

@@ -10,7 +10,6 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  ArrowLeftIcon,
   BookOpenIcon,
   BriefcaseBusinessIcon,
   HeartHandshakeIcon,
@@ -56,7 +55,6 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
   templateUrl: './admin-about.component.html',
 })
 export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesComponent {
-  readonly ArrowLeftIcon = ArrowLeftIcon;
   readonly BookOpenIcon = BookOpenIcon;
   readonly BriefcaseBusinessIcon = BriefcaseBusinessIcon;
   readonly HeartHandshakeIcon = HeartHandshakeIcon;

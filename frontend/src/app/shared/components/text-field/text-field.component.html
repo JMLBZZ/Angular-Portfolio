@@ -1,10 +1,18 @@
 <div class="space-y-2">
   <label
     *ngIf="label"
-    class="text-sm font-semibold"
+    [class]="labelClasses"
     [attr.for]="computedId"
   >
     {{ label }}
+
+    <span
+      *ngIf="shouldShowRequiredStar"
+      class="ml-1 text-red-500"
+      aria-hidden="true"
+    >
+      *
+    </span>
   </label>
 
   <input
@@ -13,6 +21,7 @@
     [formControl]="control"
     [placeholder]="placeholder"
     [class]="inputClasses"
+    [attr.aria-required]="isRequired ? 'true' : null"
     [attr.aria-invalid]="shouldShowError ? 'true' : 'false'"
     [attr.aria-describedby]="describedBy"
   />

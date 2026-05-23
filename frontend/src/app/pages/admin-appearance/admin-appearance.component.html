@@ -155,10 +155,6 @@
           <span *ngIf="hasUnsavedChanges">
             Modifications non sauvegardées
           </span>
-
-          <span *ngIf="!hasUnsavedChanges">
-            À jour
-          </span>
         </span>
       </div>
 
@@ -193,7 +189,7 @@
               id="accentColor"
               type="text"
               class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
-              placeholder="defaultAccentColor"
+              [placeholder]="defaultAccentColor"
               [ngModel]="accentColor"
               (ngModelChange)="onAccentColorChange($event)"
               name="accentColor"

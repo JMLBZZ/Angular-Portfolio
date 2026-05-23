@@ -164,6 +164,7 @@
                 [control]="nameCtrl"
                 [showError]="showError('name')"
                 [errorText]="(errorKey('name') | translate)"
+                [hideRequiredStar]="true"
               ></app-text-field>
 
               <!-- Email -->
@@ -174,6 +175,7 @@
                 [label]="'contact.form.email' | translate"
                 [placeholder]="'contact.form.placeholders.email' | translate"
                 [control]="emailCtrl"
+                [hideRequiredStar]="true"
                 [showError]="showError('email')"
                 [errorText]="(errorKey('email') | translate)"
               ></app-text-field>
@@ -185,6 +187,7 @@
                 [label]="'contact.form.subject' | translate"
                 [placeholder]="'contact.form.placeholders.subject' | translate"
                 [control]="subjectCtrl"
+                [hideRequiredStar]="true"
                 [showError]="showError('subject')"
                 [errorText]="(errorKey('subject') | translate)"
               ></app-text-field>
@@ -199,6 +202,7 @@
                   [control]="messageCtrl"
                   [rows]="6"
                   [maxLength]="messageMaxLength"
+                  [hideRequiredStar]="true"
                   [showError]="showError('message')"
                   [errorText]="(errorKey('message') | translate)"
                 ></app-text-area>

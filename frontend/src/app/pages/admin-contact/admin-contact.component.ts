@@ -4,7 +4,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import {
-  ArrowLeftIcon,
   AtSignIcon,
   GithubIcon,
   LanguagesIcon,
@@ -46,7 +45,6 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
   templateUrl: './admin-contact.component.html',
 })
 export class AdminContactComponent implements OnInit, OnDestroy {
-  readonly ArrowLeftIcon = ArrowLeftIcon;
   readonly AtSignIcon = AtSignIcon;
   readonly GithubIcon = GithubIcon;
   readonly LanguagesIcon = LanguagesIcon;

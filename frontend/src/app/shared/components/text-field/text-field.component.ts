@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-text-field',
@@ -21,6 +21,8 @@ export class TextFieldComponent {
   @Input() showError: boolean | null = null;
   @Input() disabled = false;
   @Input() id = '';
+  @Input() hideLabelVisually = false;
+  @Input() hideRequiredStar = false;
 
   get computedId(): string | null {
     return this.id || null;
@@ -28,6 +30,20 @@ export class TextFieldComponent {
 
   get errorId(): string | null {
     return this.id ? `${this.id}-error` : null;
+  }
+
+  get isRequired(): boolean {
+    return !!this.control?.hasValidator(Validators.required);
+  }
+
+  get shouldShowRequiredStar(): boolean {
+    return this.isRequired && !this.hideRequiredStar;
+  }
+
+  get labelClasses(): string {
+    return this.hideLabelVisually
+      ? 'sr-only'
+      : 'text-sm font-semibold';
   }
 
   get shouldShowError(): boolean {

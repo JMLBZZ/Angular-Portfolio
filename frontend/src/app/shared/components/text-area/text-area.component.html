@@ -1,28 +1,37 @@
 <div class="space-y-2">
-    <label
-        *ngIf="label"
-        class="text-sm font-semibold"
-        [attr.for]="computedId"
-    >
-        {{ label }}
-    </label>
+  <label
+    *ngIf="label"
+    class="text-sm font-semibold"
+    [attr.for]="computedId"
+  >
+    {{ label }}
 
-    <textarea
-        [id]="computedId"
-        [rows]="rows"
-        [formControl]="control"
-        [placeholder]="placeholder"
-        [class]="textareaClasses"
-        [attr.maxlength]="maxLength"
-        [attr.aria-invalid]="shouldShowError ? 'true' : 'false'"
-        [attr.aria-describedby]="describedBy"
-    ></textarea>
-
-    <p
-        *ngIf="shouldShowError && computedErrorText"
-        class="text-xs text-red-500"
-        [id]="errorId"
+    <span
+      *ngIf="shouldShowRequiredStar"
+      class="ml-1 text-red-500"
+      aria-hidden="true"
     >
-        {{ computedErrorText }}
-    </p>
+      *
+    </span>
+  </label>
+
+  <textarea
+    [id]="computedId"
+    [rows]="rows"
+    [formControl]="control"
+    [placeholder]="placeholder"
+    [class]="textareaClasses"
+    [attr.maxlength]="maxLength"
+    [attr.aria-required]="isRequired ? 'true' : null"
+    [attr.aria-invalid]="shouldShowError ? 'true' : 'false'"
+    [attr.aria-describedby]="describedBy"
+  ></textarea>
+
+  <p
+    *ngIf="shouldShowError && computedErrorText"
+    class="text-xs text-red-500"
+    [id]="errorId"
+  >
+    {{ computedErrorText }}
+  </p>
 </div>

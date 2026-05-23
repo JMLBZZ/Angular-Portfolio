@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-text-area',
@@ -18,6 +18,7 @@ export class TextAreaComponent {
   @Input() rows = 6;
   @Input() id = '';
   @Input() maxLength: number | null = null;
+  @Input() hideRequiredStar = false;
 
   get computedId(): string | null {
     return this.id || null;
@@ -25,6 +26,14 @@ export class TextAreaComponent {
 
   get errorId(): string | null {
     return this.id ? `${this.id}-error` : null;
+  }
+
+  get isRequired(): boolean {
+    return !!this.control?.hasValidator(Validators.required);
+  }
+
+  get shouldShowRequiredStar(): boolean {
+    return this.isRequired && !this.hideRequiredStar;
   }
 
   get shouldShowError(): boolean {

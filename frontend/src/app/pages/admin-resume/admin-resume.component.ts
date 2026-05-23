@@ -2,7 +2,6 @@ import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
-  ArrowLeftIcon,
   DownloadIcon,
   EyeIcon,
   FileTextIcon,
@@ -40,7 +39,6 @@ GlobalWorkerOptions.workerSrc = new URL(
   templateUrl: './admin-resume.component.html',
 })
 export class AdminResumeComponent implements OnInit, OnDestroy {
-  readonly ArrowLeftIcon = ArrowLeftIcon;
   readonly DownloadIcon = DownloadIcon;
   readonly EyeIcon = EyeIcon;
   readonly FileTextIcon = FileTextIcon;

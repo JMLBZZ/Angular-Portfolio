@@ -26,6 +26,7 @@
           type="email"
           placeholder="admin@email.com"
           [control]="emailControl"
+          [hideRequiredStar]="true"
           [showError]="emailControl.invalid && emailControl.touched"
           errorText="Veuillez saisir un email valide.">
         </app-text-field>
@@ -37,6 +38,7 @@
           type="password"
           placeholder="••••••••"
           [control]="passwordControl"
+          [hideRequiredStar]="true"
           [showError]="passwordControl.invalid && passwordControl.touched"
           errorText="Le mot de passe est obligatoire.">
         </app-text-field>

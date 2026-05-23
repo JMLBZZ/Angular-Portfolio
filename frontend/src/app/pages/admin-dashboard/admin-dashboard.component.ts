@@ -6,7 +6,6 @@ import {
   EyeIcon,
   FileTextIcon,
   FolderKanbanIcon,
-  GaugeIcon,
   GlobeIcon,
   LayoutDashboardIcon,
   MailIcon,
@@ -15,7 +14,6 @@ import {
   PlusIcon,
   ScaleIcon,
   SparklesIcon,
-  StarIcon,
   UserRoundIcon,
   LucideAngularModule,
 } from 'lucide-angular';
@@ -26,7 +24,10 @@ import { AdminMessagesApiService } from '../../core/api/admin-messages-api.servi
 import { AdminProject } from '../../core/auth/auth.models';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { ToastService } from '../../shared/services/toast.service';
-import { ContactMessageStats } from '../../shared/models/contact-message.model';
+import {
+  ContactMessage,
+  ContactMessageStats,
+} from '../../shared/models/contact-message.model';
 
 type DashboardShortcut = {
   title: string;
@@ -51,8 +52,6 @@ export class AdminDashboardComponent implements OnInit {
   readonly FolderKanbanIcon = FolderKanbanIcon;
   readonly EyeIcon = EyeIcon;
   readonly FileTextIcon = FileTextIcon;
-  readonly StarIcon = StarIcon;
-  readonly GaugeIcon = GaugeIcon;
   readonly ActivityIcon = ActivityIcon;
   readonly PlusIcon = PlusIcon;
   readonly GlobeIcon = GlobeIcon;
@@ -60,6 +59,8 @@ export class AdminDashboardComponent implements OnInit {
   readonly MessageSquareTextIcon = MessageSquareTextIcon;
 
   projects: AdminProject[] = [];
+  recentUnreadMessages: ContactMessage[] = [];
+
   messageStats: ContactMessageStats = {
     total: 0,
     unread: 0,
@@ -146,14 +147,17 @@ export class AdminDashboardComponent implements OnInit {
     forkJoin({
       projects: this.adminProjectsApi.getAll(),
       messageStats: this.adminMessagesApi.getStats(),
+      unreadMessages: this.adminMessagesApi.getAll('unread', 0, 4),
     }).subscribe({
-      next: ({ projects, messageStats }) => {
+      next: ({ projects, messageStats, unreadMessages }) => {
         this.projects = projects.data;
         this.messageStats = messageStats;
+        this.recentUnreadMessages = unreadMessages.data ?? [];
         this.isLoading = false;
       },
       error: (error) => {
         this.projects = [];
+        this.recentUnreadMessages = [];
         this.messageStats = {
           total: 0,
           unread: 0,
@@ -182,10 +186,6 @@ export class AdminDashboardComponent implements OnInit {
     return this.projects.filter((project) => !project.published).length;
   }
 
-  get featuredCount(): number {
-    return this.projects.filter((project) => project.featured).length;
-  }
-
   get unreadMessagesCount(): number {
     return this.messageStats.unread;
   }
@@ -209,43 +209,32 @@ export class AdminDashboardComponent implements OnInit {
       .slice(0, 4);
   }
 
-  get portfolioStatusLabel(): string {
-    if (this.totalProjects === 0) {
-      return 'À compléter';
+  formatMessageDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'Date inconnue';
     }
 
-    if (this.publishedCount === 0) {
-      return 'Aucun projet publié';
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Date inconnue';
     }
 
-    if (this.draftCount > 0) {
-      return 'En cours de mise à jour';
-    }
-
-    return 'Portfolio à jour';
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
-  get messageTreatmentLabel(): string {
-    if (this.totalMessagesCount === 0) {
-      return 'Aucun message reçu';
+  getMessageExcerpt(message: string): string {
+    const normalizedMessage = String(message ?? '').trim().replace(/\s+/g, ' ');
+
+    if (normalizedMessage.length <= 95) {
+      return normalizedMessage;
     }
 
-    if (this.unreadMessagesCount === 0) {
-      return 'Tous les messages sont traités';
-    }
-
-    if (this.unreadMessagesCount === 1) {
-      return '1 message non lu à traiter';
-    }
-
-    return `${this.unreadMessagesCount} messages non lus à traiter`;
-  }
-
-  get publicationRate(): number {
-    if (this.totalProjects === 0) {
-      return 0;
-    }
-
-    return Math.round((this.publishedCount / this.totalProjects) * 100);
+    return `${normalizedMessage.slice(0, 95)}…`;
   }
 }
