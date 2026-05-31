@@ -24,10 +24,10 @@ public class ProjectRequestDTO {
 
     @Valid
     @NotNull(message = "La description est obligatoire")
-    private LocalizedTextDTO description;
+    private ProjectShortLocalizedTextDTO description;
 
     @Valid
-    private LocalizedTextDTO longDescription;
+    private ProjectLongLocalizedTextDTO longDescription;
 
     @NotEmpty(message = "La stack est obligatoire")
     private List<String> stack;
@@ -38,13 +38,13 @@ public class ProjectRequestDTO {
     private Boolean featured;
 
     @Valid
-    private LocalizedTextDTO role;
+    private ProjectDetailLocalizedTextDTO role;
 
     @Valid
-    private LocalizedTextDTO problem;
+    private ProjectDetailLocalizedTextDTO problem;
 
     @Valid
-    private LocalizedTextDTO solution;
+    private ProjectDetailLocalizedTextDTO solution;
 
     private String demoUrl;
 
@@ -82,11 +82,11 @@ public class ProjectRequestDTO {
         return images;
     }
 
-    public LocalizedTextDTO getDescription() {
+    public ProjectShortLocalizedTextDTO getDescription() {
         return description;
     }
 
-    public LocalizedTextDTO getLongDescription() {
+    public ProjectLongLocalizedTextDTO getLongDescription() {
         return longDescription;
     }
 
@@ -102,15 +102,15 @@ public class ProjectRequestDTO {
         return featured;
     }
 
-    public LocalizedTextDTO getRole() {
+    public ProjectDetailLocalizedTextDTO getRole() {
         return role;
     }
 
-    public LocalizedTextDTO getProblem() {
+    public ProjectDetailLocalizedTextDTO getProblem() {
         return problem;
     }
 
-    public LocalizedTextDTO getSolution() {
+    public ProjectDetailLocalizedTextDTO getSolution() {
         return solution;
     }
 

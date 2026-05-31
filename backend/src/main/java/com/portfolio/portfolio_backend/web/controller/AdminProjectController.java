@@ -5,9 +5,12 @@ import com.portfolio.portfolio_backend.domain.exception.ResourceNotFoundExceptio
 import com.portfolio.portfolio_backend.domain.model.LocalizedText;
 import com.portfolio.portfolio_backend.domain.model.Project;
 import com.portfolio.portfolio_backend.web.dto.LocalizedTextDTO;
+import com.portfolio.portfolio_backend.web.dto.ProjectDetailLocalizedTextDTO;
+import com.portfolio.portfolio_backend.web.dto.ProjectLongLocalizedTextDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectReorderRequestDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectRequestDTO;
 import com.portfolio.portfolio_backend.web.dto.ProjectResponseDTO;
+import com.portfolio.portfolio_backend.web.dto.ProjectShortLocalizedTextDTO;
 import com.portfolio.portfolio_backend.web.response.ApiResult;
 import com.portfolio.portfolio_backend.web.response.PageMetadata;
 
@@ -164,10 +167,27 @@ public class AdminProjectController {
         );
     }
 
-    private LocalizedText toDomainLocalized(LocalizedTextDTO dto) {
+    private LocalizedText toDomainLocalized(ProjectShortLocalizedTextDTO dto) {
         if (dto == null) {
             return null;
         }
+
+        return new LocalizedText(dto.getFr(), dto.getEn());
+    }
+
+    private LocalizedText toDomainLocalized(ProjectLongLocalizedTextDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        return new LocalizedText(dto.getFr(), dto.getEn());
+    }
+
+    private LocalizedText toDomainLocalized(ProjectDetailLocalizedTextDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
         return new LocalizedText(dto.getFr(), dto.getEn());
     }
 
@@ -175,6 +195,7 @@ public class AdminProjectController {
         if (text == null) {
             return null;
         }
+
         return new LocalizedTextDTO(text.getFr(), text.getEn());
     }
 }
