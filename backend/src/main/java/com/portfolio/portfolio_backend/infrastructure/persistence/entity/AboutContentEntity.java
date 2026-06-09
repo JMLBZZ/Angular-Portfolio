@@ -27,6 +27,9 @@ public class AboutContentEntity {
     @Column(nullable = false)
     private String profileName;
 
+    @Column(columnDefinition = "TEXT")
+    private String profileImageUrl;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String profileRoleFr;
 
@@ -82,6 +85,7 @@ public class AboutContentEntity {
             String subtitleFr,
             String subtitleEn,
             String profileName,
+            String profileImageUrl,
             String profileRoleFr,
             String profileRoleEn,
             String bioFr,
@@ -104,6 +108,7 @@ public class AboutContentEntity {
         this.subtitleFr = subtitleFr;
         this.subtitleEn = subtitleEn;
         this.profileName = profileName;
+        this.profileImageUrl = profileImageUrl;
         this.profileRoleFr = profileRoleFr;
         this.profileRoleEn = profileRoleEn;
         this.bioFr = bioFr;
@@ -143,6 +148,10 @@ public class AboutContentEntity {
 
     public String getProfileName() {
         return profileName;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public String getProfileRoleFr() {

@@ -7,6 +7,7 @@ public class AboutContentResponseDTO {
     private LocalizedTextDTO title;
     private LocalizedTextDTO subtitle;
     private String profileName;
+    private String profileImageUrl;
     private LocalizedTextDTO profileRole;
     private LocalizedTextDTO bio;
     private LocalizedTextDTO location;
@@ -21,6 +22,7 @@ public class AboutContentResponseDTO {
             LocalizedTextDTO title,
             LocalizedTextDTO subtitle,
             String profileName,
+            String profileImageUrl,
             LocalizedTextDTO profileRole,
             LocalizedTextDTO bio,
             LocalizedTextDTO location,
@@ -34,6 +36,7 @@ public class AboutContentResponseDTO {
         this.title = title;
         this.subtitle = subtitle;
         this.profileName = profileName;
+        this.profileImageUrl = profileImageUrl;
         this.profileRole = profileRole;
         this.bio = bio;
         this.location = location;
@@ -55,6 +58,10 @@ public class AboutContentResponseDTO {
 
     public String getProfileName() {
         return profileName;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public LocalizedTextDTO getProfileRole() {

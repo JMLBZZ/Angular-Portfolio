@@ -32,6 +32,7 @@ public class AboutContentService {
                 sanitizeLocalizedText(aboutContent.getTitle()),
                 sanitizeLocalizedText(aboutContent.getSubtitle()),
                 sanitize(aboutContent.getProfileName(), 120),
+                sanitize(aboutContent.getProfileImageUrl(), 1000),
                 sanitizeLocalizedText(aboutContent.getProfileRole()),
                 sanitizeLocalizedText(aboutContent.getBio(), 3000),
                 sanitizeLocalizedText(aboutContent.getLocation(), 255),
@@ -51,6 +52,7 @@ public class AboutContentService {
                 new LocalizedText("À propos", "About"),
                 new LocalizedText("Mon parcours et mes compétences", "My background and skills"),
                 "Jamel BOUAZZA",
+                "",
                 new LocalizedText("Développeur Full-Stack", "Full-Stack Developer"),
                 new LocalizedText(
                         "Passionné par le développement web, je conçois des applications performantes et des interfaces utilisateur intuitives. Mon approche combine rigueur technique, sens du détail et vision produit.",

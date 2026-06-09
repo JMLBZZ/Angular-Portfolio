@@ -26,7 +26,9 @@ import { LocalizedText } from '../../shared/models/project.model';
   templateUrl: './about-section.component.html',
 })
 export class AboutSectionComponent implements OnInit, OnDestroy {
-  avatarUrl = '/assets/about/avatar.png';
+  readonly fallbackAvatarUrl = '/assets/about/avatar.png';
+
+  avatarUrl = this.fallbackAvatarUrl;
 
   cvUrl?: string;
   aboutContent: AboutContent | null = null;
@@ -112,6 +114,17 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
     window.open(this.cvUrl, '_blank', 'noopener');
   }
 
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+
+    if (img.src.includes(this.fallbackAvatarUrl)) {
+      return;
+    }
+
+    this.avatarUrl = this.fallbackAvatarUrl;
+    img.src = this.fallbackAvatarUrl;
+  }
+
   private loadResume(): void {
     this.resumeContentApi.get().subscribe({
       next: (resume) => {
@@ -139,6 +152,7 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.hasError = true;
 
+        this.avatarUrl = this.fallbackAvatarUrl;
         this.sectionTitle = '';
         this.sectionSubtitle = '';
         this.profileName = '';
@@ -159,6 +173,9 @@ export class AboutSectionComponent implements OnInit, OnDestroy {
     if (!this.aboutContent) {
       return;
     }
+
+    this.avatarUrl =
+      resolveMediaUrl(this.aboutContent.profileImageUrl) ?? this.fallbackAvatarUrl;
 
     this.sectionTitle = this.localize(this.aboutContent.title);
     this.sectionSubtitle = this.localize(this.aboutContent.subtitle);

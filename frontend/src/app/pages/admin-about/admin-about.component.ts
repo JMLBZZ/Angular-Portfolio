@@ -13,11 +13,14 @@ import {
   BookOpenIcon,
   BriefcaseBusinessIcon,
   HeartHandshakeIcon,
+  ImageIcon,
   InfoIcon,
   LanguagesIcon,
   PlusIcon,
+  RotateCcwIcon,
   SaveIcon,
   SparklesIcon,
+  UploadCloudIcon,
   UserRoundIcon,
   LucideAngularModule,
 } from 'lucide-angular';
@@ -28,6 +31,7 @@ import { TextAreaComponent } from '../../shared/components/text-area/text-area.c
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { AdminAboutApiService } from '../../core/api/admin-about-api.service';
+import { resolveMediaUrl } from '../../core/api/media-url.utils';
 import { AboutContent } from '../../shared/models/about.model';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { applyApiErrorsToForm, clearApiErrorsFromForm } from '../../core/forms/apply-api-errors.util';
@@ -58,16 +62,23 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
   readonly BookOpenIcon = BookOpenIcon;
   readonly BriefcaseBusinessIcon = BriefcaseBusinessIcon;
   readonly HeartHandshakeIcon = HeartHandshakeIcon;
+  readonly ImageIcon = ImageIcon;
   readonly InfoIcon = InfoIcon;
   readonly LanguagesIcon = LanguagesIcon;
   readonly PlusIcon = PlusIcon;
+  readonly RotateCcwIcon = RotateCcwIcon;
   readonly SaveIcon = SaveIcon;
   readonly SparklesIcon = SparklesIcon;
+  readonly UploadCloudIcon = UploadCloudIcon;
   readonly UserRoundIcon = UserRoundIcon;
+
+  readonly fallbackAvatarUrl = '/assets/about/avatar.png';
+  readonly maxProfileImageSize = 5 * 1024 * 1024;
 
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;
+  isUploadingProfileImage = false;
   errorMessage = '';
 
   private subscriptions = new Subscription();
@@ -92,6 +103,10 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     profileName: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(120)],
+    }),
+    profileImageUrl: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(1000)],
     }),
     profileRoleFr: new FormControl('', {
       nonNullable: true,
@@ -203,6 +218,14 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return this.softSkills.length > 0;
   }
 
+  get profileImagePreviewUrl(): string {
+    return resolveMediaUrl(this.form.controls.profileImageUrl.value) ?? this.fallbackAvatarUrl;
+  }
+
+  get hasCustomProfileImage(): boolean {
+    return !!this.form.controls.profileImageUrl.value.trim();
+  }
+
   loadAbout(): void {
     this.isLoading = true;
     this.errorMessage = '';
@@ -228,7 +251,7 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
   }
 
   translateAllToEnglish(): void {
-    if (this.isSubmitting || this.isTranslating) {
+    if (this.isSubmitting || this.isTranslating || this.isUploadingProfileImage) {
       return;
     }
 
@@ -358,8 +381,86 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return index < length - 1;
   }
 
+  onProfileImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    this.errorMessage = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Seules les images sont autorisées.';
+      this.toastService.error(this.errorMessage);
+      this.scrollToGlobalError();
+      input.value = '';
+      return;
+    }
+
+    if (file.size > this.maxProfileImageSize) {
+      this.errorMessage = 'Le fichier dépasse la taille maximale autorisée de 5 MB.';
+      this.toastService.error(this.errorMessage);
+      this.scrollToGlobalError();
+      input.value = '';
+      return;
+    }
+
+    this.isUploadingProfileImage = true;
+
+    this.adminAboutApi.uploadProfileImage(file).subscribe({
+      next: (url) => {
+        this.form.controls.profileImageUrl.setValue(url);
+        this.form.controls.profileImageUrl.markAsDirty();
+        this.form.controls.profileImageUrl.markAsTouched();
+        this.form.markAsDirty();
+        this.isUploadingProfileImage = false;
+        this.toastService.success('Photo de profil uploadée. Pense à enregistrer la section About.');
+        input.value = '';
+      },
+      error: (error) => {
+        this.isUploadingProfileImage = false;
+        this.errorMessage = extractApiErrorMessage(
+          error,
+          'Impossible d’uploader la photo de profil.'
+        );
+        this.toastService.error(this.errorMessage);
+        this.scrollToGlobalError();
+        input.value = '';
+      },
+    });
+  }
+
+  resetProfileImage(fileInput?: HTMLInputElement): void {
+    this.form.controls.profileImageUrl.setValue('');
+    this.form.controls.profileImageUrl.markAsDirty();
+    this.form.controls.profileImageUrl.markAsTouched();
+    this.form.markAsDirty();
+
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  onProfilePreviewError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+
+    if (img.src.includes(this.fallbackAvatarUrl)) {
+      return;
+    }
+
+    img.src = this.fallbackAvatarUrl;
+  }
+
   save(): void {
     this.errorMessage = '';
+
+    if (this.isUploadingProfileImage) {
+      this.toastService.warning('Attends la fin de l’upload de la photo avant d’enregistrer.');
+      return;
+    }
+
     clearApiErrorsFromForm(this.form);
 
     if (this.form.invalid) {
@@ -385,6 +486,7 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
         en: this.form.controls.subtitleEn.value,
       },
       profileName: this.form.controls.profileName.value,
+      profileImageUrl: this.form.controls.profileImageUrl.value,
       profileRole: {
         fr: this.form.controls.profileRoleFr.value,
         en: this.form.controls.profileRoleEn.value,
@@ -681,6 +783,7 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
       subtitleFr: about.subtitle.fr,
       subtitleEn: about.subtitle.en,
       profileName: about.profileName,
+      profileImageUrl: about.profileImageUrl ?? '',
       profileRoleFr: about.profileRole.fr,
       profileRoleEn: about.profileRole.en,
       bioFr: about.bio.fr,

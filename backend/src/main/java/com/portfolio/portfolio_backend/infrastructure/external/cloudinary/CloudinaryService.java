@@ -35,6 +35,18 @@ public class CloudinaryService {
         return uploadResult.get("secure_url").toString();
     }
 
+    public String uploadProfileImage(byte[] fileBytes) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap(
+                "folder", "portfolio/Profile",
+                "resource_type", "image",
+                "public_id", "profile",
+                "overwrite", true,
+                "unique_filename", false
+        ));
+
+        return uploadResult.get("secure_url").toString();
+    }
+
     public String uploadPdf(byte[] fileBytes, String originalFilename) throws IOException {
 
         String fileNameWithoutExtension = originalFilename

@@ -63,6 +63,7 @@ class AboutContentServiceTest {
                 new LocalizedText("   À propos   ", "   About   "),
                 new LocalizedText("   Mon parcours   ", "   My journey   "),
                 "   Jamel Bouazza   ",
+                "   https://res.cloudinary.com/demo/image/upload/portfolio/Profile/profile.webp   ",
                 new LocalizedText("   Développeur Full-Stack   ", "   Full-Stack Developer   "),
                 new LocalizedText("   Bio FR   ", "   Bio EN   "),
                 new LocalizedText("   Paris, France   ", "   Paris, France   "),
@@ -107,6 +108,10 @@ class AboutContentServiceTest {
         assertEquals("À propos", saved.getTitle().getFr());
         assertEquals("About", saved.getTitle().getEn());
         assertEquals("Jamel Bouazza", saved.getProfileName());
+        assertEquals(
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Profile/profile.webp",
+                saved.getProfileImageUrl()
+        );
 
         assertEquals(1, saved.getTimelineItems().size());
         assertEquals("work", saved.getTimelineItems().get(0).getIcon());
@@ -130,6 +135,7 @@ class AboutContentServiceTest {
                 new LocalizedText("À propos", "About"),
                 new LocalizedText("Sous-titre", "Subtitle"),
                 "Jamel Bouazza",
+                "",
                 new LocalizedText("Développeur", "Developer"),
                 new LocalizedText("Bio FR", "Bio EN"),
                 new LocalizedText("Paris", "Paris"),
@@ -161,6 +167,7 @@ class AboutContentServiceTest {
                 new LocalizedText("À propos", "About"),
                 new LocalizedText("Mon parcours et mes compétences", "My background and skills"),
                 "Jamel Bouazza",
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Profile/profile.webp",
                 new LocalizedText("Développeur Full-Stack", "Full-Stack Developer"),
                 new LocalizedText("Bio FR", "Bio EN"),
                 new LocalizedText("Paris, France", "Paris, France"),

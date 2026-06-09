@@ -8,13 +8,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStorage = inject(AuthStorageService);
   const token = authStorage.getAccessToken();
 
-  const isLocalBackendRequest =
+  const isAbsoluteBackendRequest =
     API_BASE_URL !== '' && req.url.startsWith(API_BASE_URL);
 
-  const isRelativeApiRequest =
-    API_BASE_URL === '' && req.url.startsWith('/api/');
+  const isRelativeApiRequest = req.url.startsWith('/api/');
 
-  const isBackendRequest = isLocalBackendRequest || isRelativeApiRequest;
+  const isBackendRequest = isAbsoluteBackendRequest || isRelativeApiRequest;
 
   if (!isBackendRequest || !token) {
     return next(req);

@@ -21,6 +21,9 @@ public class AboutContentRequestDTO {
     @Size(max = 120, message = "Le nom du profil est trop long")
     private String profileName;
 
+    @Size(max = 1000, message = "L'URL de la photo de profil est trop longue")
+    private String profileImageUrl;
+
     @Valid
     @NotNull(message = "Le rôle du profil est obligatoire")
     private LocalizedTextDTO profileRole;
@@ -67,6 +70,10 @@ public class AboutContentRequestDTO {
 
     public String getProfileName() {
         return profileName;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public LocalizedTextDTO getProfileRole() {

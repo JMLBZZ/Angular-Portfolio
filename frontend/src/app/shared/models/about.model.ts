@@ -24,6 +24,7 @@ export interface AboutContent {
   title: LocalizedText;
   subtitle: LocalizedText;
   profileName: string;
+  profileImageUrl?: string | null;
   profileRole: LocalizedText;
   bio: LocalizedText;
   location: LocalizedText;

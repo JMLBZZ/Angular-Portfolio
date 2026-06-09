@@ -7,6 +7,7 @@ public class AboutContent {
     private LocalizedText title;
     private LocalizedText subtitle;
     private String profileName;
+    private String profileImageUrl;
     private LocalizedText profileRole;
     private LocalizedText bio;
     private LocalizedText location;
@@ -21,6 +22,7 @@ public class AboutContent {
             LocalizedText title,
             LocalizedText subtitle,
             String profileName,
+            String profileImageUrl,
             LocalizedText profileRole,
             LocalizedText bio,
             LocalizedText location,
@@ -34,6 +36,7 @@ public class AboutContent {
         this.title = title;
         this.subtitle = subtitle;
         this.profileName = profileName;
+        this.profileImageUrl = profileImageUrl;
         this.profileRole = profileRole;
         this.bio = bio;
         this.location = location;
@@ -55,6 +58,10 @@ public class AboutContent {
 
     public String getProfileName() {
         return profileName;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public LocalizedText getProfileRole() {

@@ -38,6 +38,7 @@ public class PublicAboutController {
                 toLocalizedTextDTO(aboutContent.getTitle()),
                 toLocalizedTextDTO(aboutContent.getSubtitle()),
                 aboutContent.getProfileName(),
+                aboutContent.getProfileImageUrl(),
                 toLocalizedTextDTO(aboutContent.getProfileRole()),
                 toLocalizedTextDTO(aboutContent.getBio()),
                 toLocalizedTextDTO(aboutContent.getLocation()),
