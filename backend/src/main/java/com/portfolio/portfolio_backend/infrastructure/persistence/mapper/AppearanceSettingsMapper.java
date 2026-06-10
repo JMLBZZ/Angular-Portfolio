@@ -14,7 +14,10 @@ public class AppearanceSettingsMapper {
 
         return new AppearanceSettingsEntity(
                 1L,
-                appearanceSettings.getAccentColor()
+                appearanceSettings.getAccentColor(),
+                appearanceSettings.getLogoImageUrl(),
+                appearanceSettings.getLogoSvgCode(),
+                appearanceSettings.isShowHeroLogo()
         );
     }
 
@@ -24,7 +27,10 @@ public class AppearanceSettingsMapper {
         }
 
         return new AppearanceSettings(
-                entity.getAccentColor()
+                entity.getAccentColor(),
+                entity.getLogoImageUrl(),
+                entity.getLogoSvgCode(),
+                entity.getShowHeroLogo() == null || entity.getShowHeroLogo()
         );
     }
 }

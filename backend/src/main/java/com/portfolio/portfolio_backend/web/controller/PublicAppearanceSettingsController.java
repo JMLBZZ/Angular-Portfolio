@@ -24,7 +24,10 @@ public class PublicAppearanceSettingsController {
 
     private AppearanceSettingsResponseDTO toResponse(AppearanceSettings appearanceSettings) {
         return new AppearanceSettingsResponseDTO(
-                appearanceSettings.getAccentColor()
+                appearanceSettings.getAccentColor(),
+                appearanceSettings.getLogoImageUrl(),
+                appearanceSettings.getLogoSvgCode(),
+                appearanceSettings.isShowHeroLogo()
         );
     }
 }

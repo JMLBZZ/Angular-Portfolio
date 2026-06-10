@@ -7,8 +7,28 @@
   </div>
 
   <div
-    class="relative max-w-6xl mx-auto px-4 pt-28 pb-16 md:pt-32 md:pb-24"
+    class="relative max-w-6xl mx-auto px-4 pt-16 pb-16 md:pt-20 md:pb-24"
   >
+    <ng-container *ngIf="logoIdentityService.identity$ | async as logoIdentity">
+      <div
+        *ngIf="logoIdentity.showHeroLogo"
+        appRevealOnScroll
+        class="mb-12 flex flex-col items-center justify-center text-center"
+      >
+        <app-logo
+          [logoImageUrl]="logoIdentity.logoImageUrl"
+          [logoSvgCode]="logoIdentity.logoSvgCode"
+          fallbackText="JML"
+          [ariaLabel]="'Logo du portfolio de ' + logoIdentity.displayName"
+          containerClass="h-24 w-24 text-4xl text-primary sm:h-28 sm:w-28 sm:text-5xl"
+        ></app-logo>
+
+        <p class="mt-4 text-lg font-semibold tracking-wide text-foreground sm:text-xl">
+          {{ logoIdentity.displayName }}
+        </p>
+      </div>
+    </ng-container>
+
     <div *ngIf="isLoading" class="grid items-center gap-10 md:gap-12 md:grid-cols-2 animate-pulse">
       <div class="space-y-6">
         <div class="h-8 w-52 rounded-full bg-card/70"></div>

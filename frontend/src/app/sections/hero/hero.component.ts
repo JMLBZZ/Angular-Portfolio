@@ -5,12 +5,14 @@ import { Subscription } from 'rxjs';
 
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { SecondaryButtonComponent } from '../../shared/components/secondary-button/secondary-button.component';
+import { LogoComponent } from '../../shared/components/logo/logo.component';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import { HeroContentApiService } from '../../core/api/hero-content-api.service';
 import { HeroCardContentApiService } from '../../core/api/hero-card-content-api.service';
 import { ResumeContentApiService } from '../../core/api/resume-content-api.service';
 import { resolveMediaUrl } from '../../core/api/media-url.utils';
 import { LanguageService } from '../../core/i18n/language.service';
+import { LogoIdentityService } from '../../core/logo/logo-identity.service';
 import { Hero, HeroTechBadge } from '../../shared/models/hero.model';
 import { HeroCard } from '../../shared/models/hero-card.model';
 
@@ -22,6 +24,7 @@ import { HeroCard } from '../../shared/models/hero-card.model';
     TranslateModule,
     PrimaryButtonComponent,
     SecondaryButtonComponent,
+    LogoComponent,
     RevealOnScrollDirective,
   ],
   templateUrl: './hero.component.html',
@@ -64,7 +67,8 @@ export class HeroComponent implements OnInit, OnDestroy {
     private heroCardContentApi: HeroCardContentApiService,
     private resumeContentApi: ResumeContentApiService,
     private languageService: LanguageService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    public logoIdentityService: LogoIdentityService
   ) {}
 
   ngOnInit(): void {

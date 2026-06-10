@@ -1,4 +1,4 @@
-import { isPlatformBrowser, UpperCasePipe } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,13 +11,20 @@ import {
 
 import { ThemeService } from '../../core/theme/theme.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { LogoIdentityService } from '../../core/logo/logo-identity.service';
+import { LogoComponent } from '../../shared/components/logo/logo.component';
 
 type SectionId = 'home' | 'projects' | 'about' | 'contact';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [TranslateModule, UpperCasePipe, LucideAngularModule],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    LucideAngularModule,
+    LogoComponent,
+  ],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit {
@@ -32,6 +39,7 @@ export class HeaderComponent implements OnInit {
   constructor(
     public theme: ThemeService,
     public lang: LanguageService,
+    public logoIdentityService: LogoIdentityService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}

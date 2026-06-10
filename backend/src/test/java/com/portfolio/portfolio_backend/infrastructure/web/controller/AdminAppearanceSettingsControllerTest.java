@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -41,43 +42,74 @@ class AdminAppearanceSettingsControllerTest {
 
     @Test
     void shouldReturnAdminAppearanceSettings() throws Exception {
-        when(service.getSettings()).thenReturn(new AppearanceSettings("#c5a567"));
+        when(service.getSettings()).thenReturn(new AppearanceSettings(
+                "#c5a567",
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png",
+                "<svg viewBox=\"0 0 100 100\"></svg>",
+                true
+        ));
 
         mockMvc.perform(get("/api/admin/appearance"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accentColor").value("#c5a567"));
+                .andExpect(jsonPath("$.accentColor").value("#c5a567"))
+                .andExpect(jsonPath("$.logoImageUrl").value("https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png"))
+                .andExpect(jsonPath("$.logoSvgCode").value("<svg viewBox=\"0 0 100 100\"></svg>"))
+                .andExpect(jsonPath("$.showHeroLogo").value(true));
 
         verify(service).getSettings();
     }
 
     @Test
     void shouldUpdateAppearanceSettings() throws Exception {
-        when(service.updateSettings("#d4af37"))
-                .thenReturn(new AppearanceSettings("#d4af37"));
+        when(service.updateSettings(
+                "#d4af37",
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png",
+                "<svg viewBox=\"0 0 100 100\"></svg>",
+                true
+        )).thenReturn(new AppearanceSettings(
+                "#d4af37",
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png",
+                "<svg viewBox=\"0 0 100 100\"></svg>",
+                true
+        ));
 
         mockMvc.perform(
                         put("/api/admin/appearance")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                          "accentColor": "#d4af37"
+                                          "accentColor": "#d4af37",
+                                          "logoImageUrl": "https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png",
+                                          "logoSvgCode": "<svg viewBox=\\"0 0 100 100\\"></svg>",
+                                          "showHeroLogo": true
                                         }
                                         """)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accentColor").value("#d4af37"));
+                .andExpect(jsonPath("$.accentColor").value("#d4af37"))
+                .andExpect(jsonPath("$.logoImageUrl").value("https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png"))
+                .andExpect(jsonPath("$.logoSvgCode").value("<svg viewBox=\"0 0 100 100\"></svg>"))
+                .andExpect(jsonPath("$.showHeroLogo").value(true));
 
-        verify(service).updateSettings("#d4af37");
+        verify(service).updateSettings(
+                "#d4af37",
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png",
+                "<svg viewBox=\"0 0 100 100\"></svg>",
+                true
+        );
     }
 
     @Test
     void shouldResetAppearanceSettingsToDefault() throws Exception {
         when(service.resetToDefault())
-                .thenReturn(new AppearanceSettings("#c5a567"));
+                .thenReturn(new AppearanceSettings("#c5a567", "", "", true));
 
         mockMvc.perform(post("/api/admin/appearance/reset"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accentColor").value("#c5a567"));
+                .andExpect(jsonPath("$.accentColor").value("#c5a567"))
+                .andExpect(jsonPath("$.logoImageUrl").value(""))
+                .andExpect(jsonPath("$.logoSvgCode").value(""))
+                .andExpect(jsonPath("$.showHeroLogo").value(true));
 
         verify(service).resetToDefault();
     }
@@ -89,13 +121,19 @@ class AdminAppearanceSettingsControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "accentColor": "gold"
+                                            "accentColor": "gold",
+                                            "showHeroLogo": true
                                         }
                                         """)
                 )
                 .andExpect(status().isBadRequest());
 
-        verify(service, never()).updateSettings(anyString());
+        verify(service, never()).updateSettings(
+                anyString(),
+                anyString(),
+                anyString(),
+                any()
+        );
     }
 
     @Test
@@ -105,11 +143,17 @@ class AdminAppearanceSettingsControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
+                                            "showHeroLogo": true
                                         }
                                         """)
                 )
                 .andExpect(status().isBadRequest());
 
-        verify(service, never()).updateSettings(anyString());
+        verify(service, never()).updateSettings(
+                anyString(),
+                anyString(),
+                anyString(),
+                any()
+        );
     }
 }

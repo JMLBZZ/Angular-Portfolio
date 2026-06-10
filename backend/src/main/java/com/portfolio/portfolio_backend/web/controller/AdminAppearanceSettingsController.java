@@ -31,7 +31,12 @@ public class AdminAppearanceSettingsController {
 
     @PutMapping
     public AppearanceSettingsResponseDTO update(@Valid @RequestBody AppearanceSettingsRequestDTO dto) {
-        AppearanceSettings updatedSettings = appearanceSettingsService.updateSettings(dto.getAccentColor());
+        AppearanceSettings updatedSettings = appearanceSettingsService.updateSettings(
+                dto.getAccentColor(),
+                dto.getLogoImageUrl(),
+                dto.getLogoSvgCode(),
+                dto.getShowHeroLogo()
+        );
 
         return toResponse(updatedSettings);
     }
@@ -45,7 +50,10 @@ public class AdminAppearanceSettingsController {
 
     private AppearanceSettingsResponseDTO toResponse(AppearanceSettings appearanceSettings) {
         return new AppearanceSettingsResponseDTO(
-                appearanceSettings.getAccentColor()
+                appearanceSettings.getAccentColor(),
+                appearanceSettings.getLogoImageUrl(),
+                appearanceSettings.getLogoSvgCode(),
+                appearanceSettings.isShowHeroLogo()
         );
     }
 }

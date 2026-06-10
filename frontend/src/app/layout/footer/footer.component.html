@@ -3,9 +3,23 @@
         <div class="grid gap-10 lg:grid-cols-3 text-center lg:text-left">
             <!-- LEFT -->
             <div class="space-y-3 flex flex-col items-center lg:items-start">
-                <div class="text-2xl font-extrabold tracking-tight">
-                    <span class="text-primary">J</span><span>B</span>
-                </div>
+                <ng-container *ngIf="logoIdentityService.identity$ | async as logoIdentity; else defaultFooterLogo">
+                    <app-logo
+                        [logoImageUrl]="logoIdentity.logoImageUrl"
+                        [logoSvgCode]="logoIdentity.logoSvgCode"
+                        fallbackText="JB"
+                        [ariaLabel]="'Logo du portfolio de ' + logoIdentity.displayName"
+                        containerClass="h-12 w-12 text-2xl text-primary"
+                    ></app-logo>
+                </ng-container>
+
+                <ng-template #defaultFooterLogo>
+                    <app-logo
+                        fallbackText="JB"
+                        ariaLabel="Logo du portfolio"
+                        containerClass="h-12 w-12 text-2xl text-primary"
+                    ></app-logo>
+                </ng-template>
 
                 <p class="text-sm text-foreground/70">
                     Jamel <span class="font-semibold text-foreground/80">BOUAZZA</span> – Développeur Full-Stack

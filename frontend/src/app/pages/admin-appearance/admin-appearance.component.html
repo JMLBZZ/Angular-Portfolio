@@ -13,12 +13,12 @@
         </div>
 
         <h2 class="mt-4 text-2xl font-bold">
-          Couleurs du portfolio
+          Couleurs et logo du portfolio
         </h2>
 
         <p class="mt-2 max-w-3xl text-sm opacity-75">
-          Modifie la couleur principale utilisée par le portfolio. <br>
-          Cette couleur est sauvegardée en base et appliquée côté public.
+          Modifie la couleur principale et le logo utilisés par le portfolio. <br>
+          Ces paramètres sont sauvegardés en base et appliqués côté public.
         </p>
       </div>
 
@@ -73,21 +73,16 @@
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-sm opacity-70">
-            Couleur d’origine
+            Logo
           </p>
 
           <p class="mt-2 text-3xl font-bold">
-            {{ defaultAccentColor }}
+            {{ logoStatusLabel }}
           </p>
         </div>
 
-        <span
-          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70"
-          [style.backgroundColor]="defaultAccentColor"
-        >
-          <span class="sr-only">
-            Aperçu de la couleur d’origine
-          </span>
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
+          <lucide-icon [img]="ImageIcon" class="h-5 w-5"></lucide-icon>
         </span>
       </div>
     </div>
@@ -96,26 +91,16 @@
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-sm opacity-70">
-            État
+            Logo Hero
           </p>
 
           <p class="mt-2 text-3xl font-bold">
-            <span *ngIf="hasUnsavedChanges">
-              Modifié
-            </span>
-
-            <span *ngIf="!hasUnsavedChanges && !isDefaultColorSaved">
-              Sauvegardé
-            </span>
-
-            <span *ngIf="!hasUnsavedChanges && isDefaultColorSaved">
-              Par défaut
-            </span>
+            {{ heroLogoStatusLabel }}
           </p>
         </div>
 
         <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-          <lucide-icon [img]="CheckCircle2Icon" class="h-5 w-5"></lucide-icon>
+          <lucide-icon [img]="EyeIcon" class="h-5 w-5"></lucide-icon>
         </span>
       </div>
     </div>
@@ -136,11 +121,11 @@
           </div>
 
           <h3 class="mt-4 text-xl font-bold">
-            Couleur principale
+            Apparence générale
           </h3>
 
           <p class="mt-1 text-sm opacity-75">
-            Choisis une couleur au format hexadécimal. Elle sera appliquée aux éléments utilisant la couleur principale du design.
+            Choisis une couleur principale et configure le logo affiché sur le portfolio public.
           </p>
         </div>
 
@@ -158,59 +143,298 @@
         </span>
       </div>
 
-      <form class="mt-6 space-y-5" (ngSubmit)="save()">
-        <div class="grid gap-4 md:grid-cols-[auto_1fr] md:items-start">
-          <label
-            for="accentColorPicker"
-            class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-3xl border border-border/70 bg-background/70 p-2"
-            [style.backgroundColor]="colorPickerValue"
-          >
-            <span class="sr-only">
-              Sélecteur de couleur principale
+      <form class="mt-6 space-y-6" (ngSubmit)="save()">
+        <div class="rounded-3xl border border-border/70 bg-background/50 p-5">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+              <lucide-icon [img]="PaletteIcon" class="h-5 w-5"></lucide-icon>
             </span>
 
-            <input
-              id="accentColorPicker"
-              type="color"
-              class="h-full w-full cursor-pointer opacity-0"
-              [ngModel]="colorPickerValue"
-              (ngModelChange)="onAccentColorChange($event)"
-              name="accentColorPicker"
-              [disabled]="isBusy"
-            />
-          </label>
+            <div>
+              <p class="font-semibold">
+                Couleur principale
+              </p>
 
-          <div class="space-y-2">
-            <label for="accentColor" class="text-sm font-semibold">
-              Couleur principale
+              <p class="text-sm opacity-70">
+                Elle sera appliquée aux éléments utilisant la couleur principale du design.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-5 grid gap-4 md:grid-cols-[auto_1fr] md:items-start">
+            <label
+              for="accentColorPicker"
+              class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-3xl border border-border/70 bg-background/70 p-2"
+              [style.backgroundColor]="colorPickerValue"
+            >
+              <span class="sr-only">
+                Sélecteur de couleur principale
+              </span>
+
+              <input
+                id="accentColorPicker"
+                type="color"
+                class="h-full w-full cursor-pointer opacity-0"
+                [ngModel]="colorPickerValue"
+                (ngModelChange)="onAccentColorChange($event)"
+                name="accentColorPicker"
+                [disabled]="isBusy"
+              />
             </label>
 
-            <input
-              id="accentColor"
-              type="text"
-              class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
-              [placeholder]="defaultAccentColor"
-              [ngModel]="accentColor"
-              (ngModelChange)="onAccentColorChange($event)"
-              name="accentColor"
-              autocomplete="off"
-              [disabled]="isBusy"
-              [class.border-red-500]="accentColorError"
-              [attr.aria-invalid]="accentColorError ? 'true' : 'false'"
-              aria-describedby="accentColorHelp accentColorError"
-            />
+            <div class="space-y-2">
+              <label for="accentColor" class="text-sm font-semibold">
+                Couleur principale
+              </label>
 
-            <p id="accentColorHelp" class="text-xs opacity-70">
-              Format attendu : <span class="font-semibold">#RRGGBB</span>. Exemple : {{ defaultAccentColor }}.
-            </p>
+              <input
+                id="accentColor"
+                type="text"
+                class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                [placeholder]="defaultAccentColor"
+                [ngModel]="accentColor"
+                (ngModelChange)="onAccentColorChange($event)"
+                name="accentColor"
+                autocomplete="off"
+                [disabled]="isBusy"
+                [class.border-red-500]="accentColorError"
+                [attr.aria-invalid]="accentColorError ? 'true' : 'false'"
+                aria-describedby="accentColorHelp accentColorError"
+              />
 
-            <p
-              *ngIf="accentColorError"
-              id="accentColorError"
-              class="text-xs font-semibold text-red-600 dark:text-red-400"
+              <p id="accentColorHelp" class="text-xs opacity-70">
+                Format attendu : <span class="font-semibold">#RRGGBB</span>. Exemple : {{ defaultAccentColor }}.
+              </p>
+
+              <p
+                *ngIf="accentColorError"
+                id="accentColorError"
+                class="text-xs font-semibold text-red-600 dark:text-red-400"
+              >
+                {{ accentColorError }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-border/70 bg-background/50 p-5">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="flex items-start gap-3">
+              <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+                <lucide-icon [img]="ImageIcon" class="h-5 w-5"></lucide-icon>
+              </span>
+
+              <div>
+                <p class="font-semibold">
+                  Logo du portfolio
+                </p>
+
+                <p class="mt-1 text-sm opacity-70">
+                  Le logo sera utilisé dans la navbar, le footer, le favicon et, si activé, au-dessus de la section Hero.
+                </p>
+
+                <p class="mt-2 text-xs opacity-60">
+                  Priorité d’affichage : image Cloudinary, puis SVG de secours, puis texte par défaut.
+                </p>
+              </div>
+            </div>
+
+            <span
+              class="w-fit rounded-full border px-3 py-1 text-xs font-semibold"
+              [class.border-primary]="hasLogoConfigured"
+              [class.bg-primary]="hasLogoConfigured"
+              [class.text-primary-foreground]="hasLogoConfigured"
+              [class.border-border]="!hasLogoConfigured"
+              [class.opacity-70]="!hasLogoConfigured"
             >
-              {{ accentColorError }}
-            </p>
+              {{ logoStatusLabel }}
+            </span>
+          </div>
+
+          <div class="mt-5 rounded-3xl border border-border/70 bg-card/60 p-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="font-semibold">
+                  Afficher le logo au-dessus de la Hero section
+                </p>
+
+                <p class="mt-1 text-sm opacity-70">
+                  Quand cette option est activée, le logo et le nom affiché depuis About apparaîtront entre la navbar et la section Hero.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                class="relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-border/70 bg-border/60 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+                [class.bg-primary]="showHeroLogo"
+                [attr.aria-checked]="showHeroLogo"
+                [attr.aria-label]="showHeroLogo ? 'Masquer le logo au-dessus de la Hero section' : 'Afficher le logo au-dessus de la Hero section'"
+                [disabled]="isBusy"
+                (click)="toggleHeroLogo()"
+              >
+                <span
+                  class="inline-block h-6 w-6 rounded-full bg-background shadow transition-transform"
+                  [class.translate-x-6]="showHeroLogo"
+                  [class.translate-x-1]="!showHeroLogo"
+                ></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 grid gap-5 lg:grid-cols-[220px_1fr] lg:items-start">
+            <div class="rounded-3xl border border-border/70 bg-card/70 p-4">
+              <div class="flex h-48 items-center justify-center rounded-2xl border border-border/70 bg-background/70 p-5">
+                <img
+                  *ngIf="shouldShowLogoImagePreview"
+                  [src]="resolvedLogoImageUrl"
+                  alt="Aperçu du logo"
+                  class="max-h-full max-w-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  (error)="onLogoImagePreviewError()"
+                />
+
+                <div
+                  *ngIf="shouldShowLogoSvgPreview"
+                  class="flex max-h-full max-w-full items-center justify-center [&_svg]:max-h-32 [&_svg]:max-w-32"
+                  [innerHTML]="normalizedLogoSvgCode"
+                  aria-label="Aperçu du logo SVG"
+                ></div>
+
+                <div
+                  *ngIf="shouldShowLogoTextFallback"
+                  class="flex h-20 w-20 items-center justify-center rounded-3xl border border-primary/20 bg-primary/10 text-xl font-black text-primary"
+                >
+                  JML
+                </div>
+              </div>
+
+              <p class="mt-3 text-center text-xs opacity-70">
+                Aperçu du logo
+              </p>
+            </div>
+
+            <div class="space-y-5">
+              <div class="space-y-3">
+                <div class="flex flex-wrap gap-3">
+                  <label
+                    class="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-95 focus-within:ring-2 focus-within:ring-primary/40"
+                    [class.pointer-events-none]="isBusy"
+                    [class.opacity-60]="isBusy"
+                  >
+                    <lucide-icon [img]="UploadCloudIcon" class="h-4 w-4"></lucide-icon>
+
+                    <span *ngIf="!isUploadingLogo">
+                      Uploader un logo
+                    </span>
+
+                    <span *ngIf="isUploadingLogo">
+                      Upload en cours...
+                    </span>
+
+                    <input
+                      #logoFileInput
+                      type="file"
+                      class="hidden"
+                      [accept]="allowedLogoAccept"
+                      [disabled]="isBusy"
+                      (change)="onLogoFileSelected($event)"
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 bg-background/70 px-4 text-sm font-semibold transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
+                    [disabled]="isBusy || !hasLogoImage"
+                    (click)="clearLogoImage(logoFileInput)"
+                  >
+                    <lucide-icon [img]="RotateCcwIcon" class="h-4 w-4"></lucide-icon>
+                    Retirer l’image
+                  </button>
+
+                  <button
+                    type="button"
+                    class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300"
+                    [disabled]="isBusy || !hasLogoConfigured"
+                    (click)="clearLogo()"
+                  >
+                    <lucide-icon [img]="Trash2Icon" class="h-4 w-4"></lucide-icon>
+                    Supprimer le logo
+                  </button>
+                </div>
+
+                <p class="text-xs opacity-70">
+                  Formats acceptés : SVG, PNG, JPG, JPEG ou GIF. Taille maximale : 5 MB. L’upload est envoyé dans <code class="rounded bg-background/80 px-1 py-0.5">portfolio/Logo</code> sur Cloudinary.
+                </p>
+              </div>
+
+              <div class="space-y-2">
+                <label for="logoImageUrl" class="text-sm font-semibold">
+                  URL Cloudinary du logo
+                </label>
+
+                <input
+                  id="logoImageUrl"
+                  type="text"
+                  class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  placeholder="Aucune URL Cloudinary pour le moment"
+                  [ngModel]="logoImageUrl"
+                  (ngModelChange)="onLogoImageUrlChange($event)"
+                  name="logoImageUrl"
+                  autocomplete="off"
+                  [disabled]="isBusy"
+                />
+
+                <p class="text-xs opacity-70">
+                  Ce champ est rempli automatiquement après upload, mais tu peux le corriger manuellement si nécessaire.
+                </p>
+              </div>
+
+              <div class="space-y-2">
+                <div class="flex items-center justify-between gap-3">
+                  <label for="logoSvgCode" class="inline-flex items-center gap-2 text-sm font-semibold">
+                    <lucide-icon [img]="Code2Icon" class="h-4 w-4 text-primary"></lucide-icon>
+                    SVG de secours
+                  </label>
+
+                  <button
+                    type="button"
+                    class="text-xs font-semibold text-primary underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                    [disabled]="isBusy || !hasLogoSvgCode"
+                    (click)="clearLogoSvgCode()"
+                  >
+                    Vider le SVG
+                  </button>
+                </div>
+
+                <textarea
+                  id="logoSvgCode"
+                  rows="8"
+                  class="w-full resize-y rounded-2xl border border-border/70 bg-background/70 px-4 py-3 font-mono text-xs outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  placeholder="<svg viewBox=&quot;0 0 100 100&quot;>...</svg>"
+                  [ngModel]="logoSvgCode"
+                  (ngModelChange)="onLogoSvgCodeChange($event)"
+                  name="logoSvgCode"
+                  [disabled]="isBusy"
+                  [class.border-red-500]="logoSvgCodeError"
+                  [attr.aria-invalid]="logoSvgCodeError ? 'true' : 'false'"
+                  aria-describedby="logoSvgCodeHelp logoSvgCodeError"
+                ></textarea>
+
+                <p id="logoSvgCodeHelp" class="text-xs opacity-70">
+                  Ce SVG sera utilisé si l’image Cloudinary n’est pas disponible. Il sera nettoyé côté backend avant sauvegarde.
+                </p>
+
+                <p
+                  *ngIf="logoSvgCodeError"
+                  id="logoSvgCodeError"
+                  class="text-xs font-semibold text-red-600 dark:text-red-400"
+                >
+                  {{ logoSvgCodeError }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -260,11 +484,11 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div class="text-sm opacity-75">
             <span *ngIf="hasUnsavedChanges">
-              Tu prévisualises une couleur non sauvegardée.
+              Tu prévisualises des paramètres non sauvegardés.
             </span>
 
             <span *ngIf="!hasUnsavedChanges">
-              La couleur affichée correspond à la couleur enregistrée.
+              Les paramètres affichés correspondent aux paramètres enregistrés.
             </span>
           </div>
 
@@ -272,7 +496,7 @@
             <button
               type="button"
               class="rounded-2xl border border-border/70 bg-background/70 px-4 py-2 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-              (click)="restoreSavedColor()"
+              (click)="restoreSavedAppearance()"
               [disabled]="isBusy || !hasUnsavedChanges"
             >
               Annuler l’aperçu
@@ -296,7 +520,7 @@
             <button
               type="submit"
               class="rounded-2xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              [disabled]="isBusy || !isAccentColorValid || !hasUnsavedChanges"
+              [disabled]="isBusy || !isAccentColorValid || !isLogoSvgCodeValid || !hasUnsavedChanges"
             >
               <span *ngIf="!isSaving">
                 Sauvegarder
@@ -328,7 +552,7 @@
         </h3>
 
         <p class="mt-2 text-sm opacity-75">
-          Le bouton “Réinitialiser” remet la couleur dorée actuelle du portfolio :
+          Le bouton “Réinitialiser” remet la couleur dorée actuelle du portfolio, supprime le logo configuré et réactive l’affichage du logo au-dessus de la Hero section :
         </p>
 
         <div class="mt-5 rounded-3xl border border-border/70 bg-background/60 p-5">
@@ -373,7 +597,7 @@
             </p>
 
             <p class="mt-1 text-sm opacity-75">
-              La couleur est visible immédiatement pour prévisualiser le résultat.
+              La couleur, le logo et l’affichage au-dessus de la Hero sont visibles immédiatement pour prévisualiser le résultat.
             </p>
           </div>
 
@@ -383,7 +607,17 @@
             </p>
 
             <p class="mt-1 text-sm opacity-75">
-              Après sauvegarde, le portfolio public récupère cette couleur via l’API publique.
+              Après sauvegarde, le portfolio public récupère ces paramètres via l’API publique.
+            </p>
+          </div>
+
+          <div class="rounded-2xl border border-border/70 bg-background/60 p-4">
+            <p class="font-semibold">
+              Fallback logo
+            </p>
+
+            <p class="mt-1 text-sm opacity-75">
+              Si l’image Cloudinary n’est pas disponible, le SVG de secours sera utilisé.
             </p>
           </div>
 
@@ -394,24 +628,6 @@
 
             <p class="mt-1 text-sm opacity-75">
               Le système actuel light / dark / auto reste indépendant.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="rounded-3xl border border-border/70 bg-primary/10 p-6 text-primary">
-        <div class="flex items-start gap-3">
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-            <lucide-icon [img]="WandSparklesIcon" class="h-5 w-5"></lucide-icon>
-          </span>
-
-          <div>
-            <p class="font-semibold">
-              Évolution future
-            </p>
-
-            <p class="mt-1 text-sm opacity-80">
-              Le logo pourra être ajouté plus tard sans modifier la logique actuelle des couleurs.
             </p>
           </div>
         </div>

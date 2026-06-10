@@ -36,11 +36,17 @@ class PublicAppearanceSettingsControllerTest {
 
     @Test
     void shouldReturnPublicAppearanceSettings() throws Exception {
-        when(service.getSettings()).thenReturn(new AppearanceSettings("#c5a567"));
+        when(service.getSettings()).thenReturn(new AppearanceSettings(
+                "#c5a567",
+                "https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png",
+                "<svg viewBox=\"0 0 100 100\"></svg>"
+        ));
 
         mockMvc.perform(get("/api/public/appearance"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accentColor").value("#c5a567"));
+                .andExpect(jsonPath("$.accentColor").value("#c5a567"))
+                .andExpect(jsonPath("$.logoImageUrl").value("https://res.cloudinary.com/demo/image/upload/portfolio/Logo/logo.png"))
+                .andExpect(jsonPath("$.logoSvgCode").value("<svg viewBox=\"0 0 100 100\"></svg>"));
 
         verify(service).getSettings();
     }

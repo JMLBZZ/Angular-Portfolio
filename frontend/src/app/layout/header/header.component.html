@@ -3,9 +3,30 @@
 >
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo -->
-    <div class="font-bold tracking-tight" aria-label="JMLBZZ portfolio">
-      <span class="text-lg">JML</span>
-    </div>
+    <button
+      type="button"
+      class="inline-flex items-center rounded-2xl transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      aria-label="Retour à l’accueil du portfolio"
+      (click)="scrollTo('home')"
+    >
+      <ng-container *ngIf="logoIdentityService.identity$ | async as logoIdentity; else defaultHeaderLogo">
+        <app-logo
+          [logoImageUrl]="logoIdentity.logoImageUrl"
+          [logoSvgCode]="logoIdentity.logoSvgCode"
+          fallbackText="JML"
+          [ariaLabel]="'Logo du portfolio de ' + logoIdentity.displayName"
+          containerClass="h-10 w-10 text-lg text-primary"
+        ></app-logo>
+      </ng-container>
+
+      <ng-template #defaultHeaderLogo>
+        <app-logo
+          fallbackText="JML"
+          ariaLabel="Logo du portfolio"
+          containerClass="h-10 w-10 text-lg text-primary"
+        ></app-logo>
+      </ng-template>
+    </button>
 
     <!-- Navbar buttons -->
     <nav class="hidden md:flex items-center gap-6 text-sm" aria-label="Navigation principale">

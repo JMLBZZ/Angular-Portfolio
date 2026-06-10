@@ -41,7 +41,21 @@ public class CloudinaryService {
                 "resource_type", "image",
                 "public_id", "profile",
                 "overwrite", true,
-                "unique_filename", false
+                "unique_filename", false,
+                "invalidate", true
+        ));
+
+        return uploadResult.get("secure_url").toString();
+    }
+
+    public String uploadLogo(byte[] fileBytes) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap(
+                "folder", "portfolio/Logo",
+                "resource_type", "image",
+                "public_id", "logo",
+                "overwrite", true,
+                "unique_filename", false,
+                "invalidate", true
         ));
 
         return uploadResult.get("secure_url").toString();

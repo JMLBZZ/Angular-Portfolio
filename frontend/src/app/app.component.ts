@@ -3,7 +3,7 @@ import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { catchError, EMPTY, take } from 'rxjs';
 
-import { AppearanceApiService } from './core/api/appearance-api.service';
+import { LogoIdentityService } from './core/logo/logo-identity.service';
 import { ThemeService } from './core/theme/theme.service';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 
@@ -20,7 +20,7 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
 export class AppComponent implements OnInit {
   constructor(
     public theme: ThemeService,
-    private appearanceApi: AppearanceApiService,
+    private logoIdentityService: LogoIdentityService,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
@@ -34,14 +34,13 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.appearanceApi
-      .get()
+    this.logoIdentityService.appearance$
       .pipe(
         take(1),
         catchError(() => EMPTY)
       )
-      .subscribe((settings) => {
-        this.theme.applyAccentColor(settings.accentColor);
+      .subscribe((appearance) => {
+        this.theme.applyAccentColor(appearance.accentColor);
       });
   }
 }

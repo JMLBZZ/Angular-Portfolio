@@ -4,16 +4,22 @@ import { FormsModule } from '@angular/forms';
 import {
   BrushIcon,
   CheckCircle2Icon,
+  Code2Icon,
   EyeIcon,
+  ImageIcon,
   PaletteIcon,
+  RotateCcwIcon,
   Settings2Icon,
   SparklesIcon,
+  Trash2Icon,
+  UploadCloudIcon,
   WandSparklesIcon,
   LucideAngularModule,
 } from 'lucide-angular';
-import { finalize, take } from 'rxjs';
+import { catchError, EMPTY, finalize, take } from 'rxjs';
 
 import { AdminAppearanceApiService } from '../../core/api/admin-appearance-api.service';
+import { resolveMediaUrl } from '../../core/api/media-url.utils';
 import { ThemeService } from '../../core/theme/theme.service';
 import { DEFAULT_ACCENT_COLOR } from '../../shared/models/appearance.model';
 import { ToastService } from '../../shared/services/toast.service';
@@ -37,15 +43,35 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
   readonly Settings2Icon = Settings2Icon;
   readonly WandSparklesIcon = WandSparklesIcon;
   readonly BrushIcon = BrushIcon;
+  readonly ImageIcon = ImageIcon;
+  readonly UploadCloudIcon = UploadCloudIcon;
+  readonly RotateCcwIcon = RotateCcwIcon;
+  readonly Trash2Icon = Trash2Icon;
+  readonly Code2Icon = Code2Icon;
 
   readonly defaultAccentColor = DEFAULT_ACCENT_COLOR;
+  readonly maxLogoFileSize = 5 * 1024 * 1024; // 5 MB
+  readonly maxLogoSvgCodeLength = 20000;
+  readonly allowedLogoAccept = '.svg,.png,.jpg,.jpeg,.gif,image/svg+xml,image/png,image/jpeg,image/gif';
 
   accentColor = DEFAULT_ACCENT_COLOR;
   savedAccentColor = DEFAULT_ACCENT_COLOR;
 
+  logoImageUrl = '';
+  savedLogoImageUrl = '';
+
+  logoSvgCode = '';
+  savedLogoSvgCode = '';
+
+  showHeroLogo = true;
+  savedShowHeroLogo = true;
+
+  logoImagePreviewFailed = false;
+
   isLoading = false;
   isSaving = false;
   isResetting = false;
+  isUploadingLogo = false;
 
   constructor(
     private adminAppearanceApi: AdminAppearanceApiService,
@@ -77,8 +103,27 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     return this.normalizeAccentColor(this.accentColor);
   }
 
+  get normalizedLogoImageUrl(): string {
+    return this.logoImageUrl.trim();
+  }
+
+  get normalizedLogoSvgCode(): string {
+    return this.logoSvgCode.trim();
+  }
+
   get isAccentColorValid(): boolean {
     return this.isValidHexColor(this.accentColor);
+  }
+
+  get isLogoSvgCodeValid(): boolean {
+    if (!this.normalizedLogoSvgCode) {
+      return true;
+    }
+
+    return (
+      this.normalizedLogoSvgCode.length <= this.maxLogoSvgCodeLength &&
+      this.normalizedLogoSvgCode.toLowerCase().includes('<svg')
+    );
   }
 
   get accentColorError(): string | null {
@@ -87,18 +132,85 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     }
 
     if (!this.isAccentColorValid) {
-      return 'Utilise le format hexadécimal #RRGGBB, par exemple$ {this.defaultAccentColor}.';
+      return `Utilise le format hexadécimal #RRGGBB, par exemple ${this.defaultAccentColor}.`;
     }
 
     return null;
   }
 
+  get logoSvgCodeError(): string | null {
+    if (!this.normalizedLogoSvgCode) {
+      return null;
+    }
+
+    if (this.normalizedLogoSvgCode.length > this.maxLogoSvgCodeLength) {
+      return `Le code SVG ne doit pas dépasser ${this.maxLogoSvgCodeLength} caractères.`;
+    }
+
+    if (!this.normalizedLogoSvgCode.toLowerCase().includes('<svg')) {
+      return 'Le code doit contenir une balise <svg>.';
+    }
+
+    return null;
+  }
+
+  get resolvedLogoImageUrl(): string | null {
+    return resolveMediaUrl(this.normalizedLogoImageUrl) ?? null;
+  }
+
+  get hasLogoImage(): boolean {
+    return !!this.resolvedLogoImageUrl;
+  }
+
+  get hasLogoSvgCode(): boolean {
+    return !!this.normalizedLogoSvgCode;
+  }
+
+  get hasLogoConfigured(): boolean {
+    return this.hasLogoImage || this.hasLogoSvgCode;
+  }
+
+  get shouldShowLogoImagePreview(): boolean {
+    return this.hasLogoImage && !this.logoImagePreviewFailed;
+  }
+
+  get shouldShowLogoSvgPreview(): boolean {
+    return (!this.hasLogoImage || this.logoImagePreviewFailed) && this.hasLogoSvgCode;
+  }
+
+  get shouldShowLogoTextFallback(): boolean {
+    return !this.shouldShowLogoImagePreview && !this.shouldShowLogoSvgPreview;
+  }
+
+  get logoStatusLabel(): string {
+    if (this.shouldShowLogoImagePreview) {
+      return 'Image Cloudinary active';
+    }
+
+    if (this.shouldShowLogoSvgPreview) {
+      return this.logoImagePreviewFailed
+        ? 'SVG de secours actif'
+        : 'SVG personnalisé actif';
+    }
+
+    return 'Logo texte par défaut';
+  }
+
+  get heroLogoStatusLabel(): string {
+    return this.showHeroLogo ? 'Logo Hero visible' : 'Logo Hero masqué';
+  }
+
   get hasUnsavedChanges(): boolean {
-    return this.normalizedAccentColor !== this.savedAccentColor;
+    return (
+      this.normalizedAccentColor !== this.savedAccentColor ||
+      this.normalizedLogoImageUrl !== this.savedLogoImageUrl ||
+      this.normalizedLogoSvgCode !== this.savedLogoSvgCode ||
+      this.showHeroLogo !== this.savedShowHeroLogo
+    );
   }
 
   get isBusy(): boolean {
-    return this.isLoading || this.isSaving || this.isResetting;
+    return this.isLoading || this.isSaving || this.isResetting || this.isUploadingLogo;
   }
 
   get colorPickerValue(): string {
@@ -111,32 +223,58 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
 
   loadSettings(): void {
     this.isLoading = true;
+    this.logoImagePreviewFailed = false;
 
     this.adminAppearanceApi
       .get()
       .pipe(
         take(1),
-        finalize(() => {
-          this.isLoading = false;
-        })
-      )
-      .subscribe({
-        next: (settings) => {
-          const color = this.normalizeOrDefault(settings.accentColor);
-
-          this.accentColor = color;
-          this.savedAccentColor = color;
-          this.themeService.applyAccentColor(color);
-        },
-        error: () => {
+        catchError(() => {
           this.accentColor = DEFAULT_ACCENT_COLOR;
           this.savedAccentColor = DEFAULT_ACCENT_COLOR;
+
+          this.logoImageUrl = '';
+          this.savedLogoImageUrl = '';
+
+          this.logoSvgCode = '';
+          this.savedLogoSvgCode = '';
+
+          this.showHeroLogo = true;
+          this.savedShowHeroLogo = true;
+
+          this.logoImagePreviewFailed = false;
           this.themeService.resetAccentColor();
 
           this.toastService.error(
             'Impossible de charger les paramètres d’apparence. La couleur par défaut est utilisée.'
           );
-        },
+
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe((settings) => {
+        const color = this.normalizeOrDefault(settings.accentColor);
+        const logoImageUrl = this.normalizePlainText(settings.logoImageUrl ?? '');
+        const logoSvgCode = this.normalizeSvgCode(settings.logoSvgCode ?? '');
+        const showHeroLogo = settings.showHeroLogo ?? true;
+
+        this.accentColor = color;
+        this.savedAccentColor = color;
+
+        this.logoImageUrl = logoImageUrl;
+        this.savedLogoImageUrl = logoImageUrl;
+
+        this.logoSvgCode = logoSvgCode;
+        this.savedLogoSvgCode = logoSvgCode;
+
+        this.showHeroLogo = showHeroLogo;
+        this.savedShowHeroLogo = showHeroLogo;
+
+        this.logoImagePreviewFailed = false;
+        this.themeService.applyAccentColor(color);
       });
   }
 
@@ -148,9 +286,114 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     }
   }
 
+  onLogoImageUrlChange(value: string): void {
+    this.logoImageUrl = value;
+    this.logoImagePreviewFailed = false;
+  }
+
+  onLogoSvgCodeChange(value: string): void {
+    this.logoSvgCode = value;
+  }
+
+  onShowHeroLogoChange(value: boolean): void {
+    this.showHeroLogo = value;
+  }
+
+  toggleHeroLogo(): void {
+    if (this.isBusy) {
+      return;
+    }
+
+    this.showHeroLogo = !this.showHeroLogo;
+  }
+
+  onLogoImagePreviewError(): void {
+    this.logoImagePreviewFailed = true;
+  }
+
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isAllowedLogoFile(file)) {
+      this.toastService.error('Formats autorisés : SVG, PNG, JPG, JPEG ou GIF.');
+      input.value = '';
+      return;
+    }
+
+    if (file.size > this.maxLogoFileSize) {
+      this.toastService.error('Le fichier dépasse la taille maximale autorisée de 5 MB.');
+      input.value = '';
+      return;
+    }
+
+    this.isUploadingLogo = true;
+
+    this.adminAppearanceApi
+      .uploadLogo(file)
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.isUploadingLogo = false;
+        })
+      )
+      .subscribe({
+        next: (url) => {
+          this.logoImageUrl = url;
+          this.logoImagePreviewFailed = false;
+
+          this.toastService.success(
+            'Logo uploadé. Pense à enregistrer la page Apparence.'
+          );
+
+          input.value = '';
+        },
+        error: () => {
+          this.toastService.error(
+            'Impossible d’uploader le logo. Vérifie le format du fichier.'
+          );
+
+          input.value = '';
+        },
+      });
+  }
+
+  clearLogoImage(fileInput?: HTMLInputElement): void {
+    this.logoImageUrl = '';
+    this.logoImagePreviewFailed = false;
+
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  clearLogoSvgCode(): void {
+    this.logoSvgCode = '';
+  }
+
+  clearLogo(): void {
+    this.logoImageUrl = '';
+    this.logoSvgCode = '';
+    this.logoImagePreviewFailed = false;
+  }
+
   save(): void {
+    if (this.isUploadingLogo) {
+      this.toastService.warning('Attends la fin de l’upload du logo avant de sauvegarder.');
+      return;
+    }
+
     if (!this.isAccentColorValid) {
       this.toastService.warning('Corrige la couleur avant de sauvegarder.');
+      return;
+    }
+
+    if (!this.isLogoSvgCodeValid) {
+      this.toastService.warning('Corrige le code SVG du logo avant de sauvegarder.');
       return;
     }
 
@@ -159,6 +402,9 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     this.adminAppearanceApi
       .update({
         accentColor: this.normalizedAccentColor,
+        logoImageUrl: this.normalizedLogoImageUrl,
+        logoSvgCode: this.normalizedLogoSvgCode,
+        showHeroLogo: this.showHeroLogo,
       })
       .pipe(
         take(1),
@@ -169,18 +415,32 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
       .subscribe({
         next: (settings) => {
           const color = this.normalizeOrDefault(settings.accentColor);
+          const logoImageUrl = this.normalizePlainText(settings.logoImageUrl ?? '');
+          const logoSvgCode = this.normalizeSvgCode(settings.logoSvgCode ?? '');
+          const showHeroLogo = settings.showHeroLogo ?? true;
 
           this.accentColor = color;
           this.savedAccentColor = color;
+
+          this.logoImageUrl = logoImageUrl;
+          this.savedLogoImageUrl = logoImageUrl;
+
+          this.logoSvgCode = logoSvgCode;
+          this.savedLogoSvgCode = logoSvgCode;
+
+          this.showHeroLogo = showHeroLogo;
+          this.savedShowHeroLogo = showHeroLogo;
+
+          this.logoImagePreviewFailed = false;
           this.themeService.applyAccentColor(color);
 
-          this.toastService.success('Couleur principale sauvegardée.');
+          this.toastService.success('Paramètres d’apparence sauvegardés.');
         },
         error: () => {
           this.themeService.applyAccentColor(this.savedAccentColor);
 
           this.toastService.error(
-            'La sauvegarde a échoué. La dernière couleur enregistrée a été restaurée.'
+            'La sauvegarde a échoué. Les derniers paramètres enregistrés ont été conservés.'
           );
         },
       });
@@ -200,25 +460,48 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
       .subscribe({
         next: (settings) => {
           const color = this.normalizeOrDefault(settings.accentColor);
+          const logoImageUrl = this.normalizePlainText(settings.logoImageUrl ?? '');
+          const logoSvgCode = this.normalizeSvgCode(settings.logoSvgCode ?? '');
+          const showHeroLogo = settings.showHeroLogo ?? true;
 
           this.accentColor = color;
           this.savedAccentColor = color;
+
+          this.logoImageUrl = logoImageUrl;
+          this.savedLogoImageUrl = logoImageUrl;
+
+          this.logoSvgCode = logoSvgCode;
+          this.savedLogoSvgCode = logoSvgCode;
+
+          this.showHeroLogo = showHeroLogo;
+          this.savedShowHeroLogo = showHeroLogo;
+
+          this.logoImagePreviewFailed = false;
           this.themeService.applyAccentColor(color);
 
-          this.toastService.success('Couleur d’origine restaurée.');
+          this.toastService.success('Paramètres d’apparence réinitialisés.');
         },
         error: () => {
           this.themeService.applyAccentColor(this.savedAccentColor);
 
           this.toastService.error(
-            'La réinitialisation a échoué. La dernière couleur enregistrée a été restaurée.'
+            'La réinitialisation a échoué. Les derniers paramètres enregistrés ont été conservés.'
           );
         },
       });
   }
 
   restoreSavedColor(): void {
+    this.restoreSavedAppearance();
+  }
+
+  restoreSavedAppearance(): void {
     this.accentColor = this.savedAccentColor;
+    this.logoImageUrl = this.savedLogoImageUrl;
+    this.logoSvgCode = this.savedLogoSvgCode;
+    this.showHeroLogo = this.savedShowHeroLogo;
+    this.logoImagePreviewFailed = false;
+
     this.themeService.applyAccentColor(this.savedAccentColor);
   }
 
@@ -232,7 +515,40 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     return this.isValidHexColor(normalizedColor) ? normalizedColor : DEFAULT_ACCENT_COLOR;
   }
 
+  private normalizePlainText(value: string): string {
+    return String(value ?? '').trim();
+  }
+
+  private normalizeSvgCode(value: string): string {
+    return String(value ?? '').trim();
+  }
+
   private isValidHexColor(color: string): boolean {
     return /^#[0-9a-f]{6}$/.test(this.normalizeAccentColor(color));
+  }
+
+  private isAllowedLogoFile(file: File): boolean {
+    const allowedTypes = [
+      'image/svg+xml',
+      'image/png',
+      'image/jpeg',
+      'image/gif',
+    ];
+
+    const allowedExtensions = [
+      '.svg',
+      '.png',
+      '.jpg',
+      '.jpeg',
+      '.gif',
+    ];
+
+    const fileType = file.type.toLowerCase();
+    const fileName = file.name.toLowerCase();
+
+    return (
+      allowedTypes.includes(fileType) ||
+      allowedExtensions.some((extension) => fileName.endsWith(extension))
+    );
   }
 }
