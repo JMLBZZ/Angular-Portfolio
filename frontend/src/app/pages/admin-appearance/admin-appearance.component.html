@@ -384,10 +384,28 @@
                   name="logoImageUrl"
                   autocomplete="off"
                   [disabled]="isBusy"
+                  [class.border-red-500]="logoImageUrlError"
+                  [attr.aria-invalid]="logoImageUrlError ? 'true' : 'false'"
+                  aria-describedby="logoImageUrlHelp logoImageUrlCounter logoImageUrlError"
                 />
 
-                <p class="text-xs opacity-70">
+                <app-character-counter
+                  id="logoImageUrlCounter"
+                  [value]="logoImageUrl"
+                  [maxLength]="maxLogoImageUrlLength"
+                  [warningThreshold]="logoImageUrlWarningThreshold"
+                ></app-character-counter>
+
+                <p id="logoImageUrlHelp" class="text-xs opacity-70">
                   Ce champ est rempli automatiquement après upload, mais tu peux le corriger manuellement si nécessaire.
+                </p>
+
+                <p
+                  *ngIf="logoImageUrlError"
+                  id="logoImageUrlError"
+                  class="text-xs font-semibold text-red-600 dark:text-red-400"
+                >
+                  {{ logoImageUrlError }}
                 </p>
               </div>
 
@@ -419,8 +437,15 @@
                   [disabled]="isBusy"
                   [class.border-red-500]="logoSvgCodeError"
                   [attr.aria-invalid]="logoSvgCodeError ? 'true' : 'false'"
-                  aria-describedby="logoSvgCodeHelp logoSvgCodeError"
+                  aria-describedby="logoSvgCodeHelp logoSvgCodeCounter logoSvgCodeError"
                 ></textarea>
+
+                <app-character-counter
+                  id="logoSvgCodeCounter"
+                  [value]="logoSvgCode"
+                  [maxLength]="maxLogoSvgCodeLength"
+                  [warningThreshold]="logoSvgCodeWarningThreshold"
+                ></app-character-counter>
 
                 <p id="logoSvgCodeHelp" class="text-xs opacity-70">
                   Ce SVG sera utilisé si l’image Cloudinary n’est pas disponible. Il sera nettoyé côté backend avant sauvegarde.
@@ -484,7 +509,7 @@
         <app-admin-floating-actions
           [cancelDisabled]="isBusy || !hasUnsavedChanges"
           [saveLoading]="isSaving"
-          [saveDisabled]="isBusy || !isAccentColorValid || !isLogoSvgCodeValid || !hasUnsavedChanges"
+          [saveDisabled]="isBusy || !isAccentColorValid || !isLogoImageUrlValid || !isLogoSvgCodeValid || !hasUnsavedChanges"
           saveType="submit"
           (cancelClicked)="cancelChanges()"
         >

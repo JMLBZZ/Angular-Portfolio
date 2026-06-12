@@ -11,7 +11,9 @@ import com.portfolio.portfolio_backend.web.dto.AboutContentResponseDTO;
 import com.portfolio.portfolio_backend.web.dto.AboutSkillGroupDTO;
 import com.portfolio.portfolio_backend.web.dto.AboutSkillItemDTO;
 import com.portfolio.portfolio_backend.web.dto.AboutTimelineItemDTO;
+import com.portfolio.portfolio_backend.web.dto.AboutTimelineItemRequestDTO;
 import com.portfolio.portfolio_backend.web.dto.LocalizedTextDTO;
+import com.portfolio.portfolio_backend.web.dto.LongLocalizedTextDTO;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,7 +83,7 @@ public class AdminAboutController {
         );
     }
 
-    private List<AboutTimelineItem> toTimelineDomainList(List<AboutTimelineItemDTO> items) {
+    private List<AboutTimelineItem> toTimelineDomainList(List<AboutTimelineItemRequestDTO> items) {
         if (items == null) {
             return Collections.emptyList();
         }
@@ -180,6 +182,10 @@ public class AdminAboutController {
     }
 
     private LocalizedText toLocalizedText(LocalizedTextDTO dto) {
+        return new LocalizedText(dto.getFr(), dto.getEn());
+    }
+
+    private LocalizedText toLocalizedText(LongLocalizedTextDTO dto) {
         return new LocalizedText(dto.getFr(), dto.getEn());
     }
 

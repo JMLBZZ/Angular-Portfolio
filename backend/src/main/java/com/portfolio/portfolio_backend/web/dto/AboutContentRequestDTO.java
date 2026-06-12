@@ -30,7 +30,7 @@ public class AboutContentRequestDTO {
 
     @Valid
     @NotNull(message = "La biographie est obligatoire")
-    private LocalizedTextDTO bio;
+    private LongLocalizedTextDTO bio;
 
     @Valid
     @NotNull(message = "La localisation est obligatoire")
@@ -49,7 +49,7 @@ public class AboutContentRequestDTO {
     private LocalizedTextDTO softSkillsTitle;
 
     @Valid
-    private List<AboutTimelineItemDTO> timelineItems;
+    private List<AboutTimelineItemRequestDTO> timelineItems;
 
     @Valid
     private List<AboutSkillGroupDTO> skillGroups;
@@ -80,7 +80,7 @@ public class AboutContentRequestDTO {
         return profileRole;
     }
 
-    public LocalizedTextDTO getBio() {
+    public LongLocalizedTextDTO getBio() {
         return bio;
     }
 
@@ -100,7 +100,7 @@ public class AboutContentRequestDTO {
         return softSkillsTitle;
     }
 
-    public List<AboutTimelineItemDTO> getTimelineItems() {
+    public List<AboutTimelineItemRequestDTO> getTimelineItems() {
         return timelineItems;
     }
 

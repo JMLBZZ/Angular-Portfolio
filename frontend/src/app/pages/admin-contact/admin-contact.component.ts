@@ -18,6 +18,7 @@ import {
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { AdminContactApiService } from '../../core/api/admin-contact-api.service';
 import { Contact } from '../../shared/models/contact.model';
@@ -42,6 +43,7 @@ import { AdminFloatingActionsComponent } from '../../shared/components/admin-flo
     RouterLink,
     TextFieldComponent,
     PrimaryButtonComponent,
+    CharacterCounterComponent,
     LucideAngularModule,
     AdminFloatingActionsComponent,
   ],
@@ -58,6 +60,18 @@ export class AdminContactComponent implements OnInit, OnDestroy, PendingChangesC
   readonly PhoneIcon = PhoneIcon;
   readonly SaveIcon = SaveIcon;
 
+  readonly shortTextMaxLength = 255;
+  readonly emailMaxLength = 160;
+  readonly phoneMaxLength = 80;
+  readonly locationMaxLength = 160;
+  readonly urlMaxLength = 255;
+
+  readonly shortTextWarningThreshold = 25;
+  readonly emailWarningThreshold = 20;
+  readonly phoneWarningThreshold = 10;
+  readonly locationWarningThreshold = 20;
+  readonly urlWarningThreshold = 25;
+
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;
@@ -68,39 +82,39 @@ export class AdminContactComponent implements OnInit, OnDestroy, PendingChangesC
   readonly form = new FormGroup({
     titleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     titleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     subtitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     subtitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.email, Validators.maxLength(160)],
+      validators: [Validators.required, Validators.email, Validators.maxLength(this.emailMaxLength)],
     }),
     phone: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(80)],
+      validators: [Validators.maxLength(this.phoneMaxLength)],
     }),
     location: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(160)],
+      validators: [Validators.maxLength(this.locationMaxLength)],
     }),
     linkedinUrl: new FormControl('', {
       nonNullable: true,
-      validators: [optionalUrlValidator(), Validators.maxLength(255)],
+      validators: [optionalUrlValidator(), Validators.maxLength(this.urlMaxLength)],
     }),
     githubUrl: new FormControl('', {
       nonNullable: true,
-      validators: [optionalUrlValidator(), Validators.maxLength(255)],
+      validators: [optionalUrlValidator(), Validators.maxLength(this.urlMaxLength)],
     }),
   });
 
@@ -126,6 +140,7 @@ export class AdminContactComponent implements OnInit, OnDestroy, PendingChangesC
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
+
   canDeactivate(): boolean {
     if (!this.form.dirty || this.isSubmitting) {
       return true;

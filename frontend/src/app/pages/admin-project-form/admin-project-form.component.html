@@ -106,9 +106,11 @@
             ">
           </app-text-field>
 
-          <p class="text-xs opacity-70 text-right">
-            {{ titleLength }}/120
-          </p>
+          <app-character-counter
+            [control]="titleControl"
+            [maxLength]="projectTitleMaxLength"
+            [warningThreshold]="projectTitleWarningThreshold"
+          ></app-character-counter>
         </div>
 
         <app-text-field
@@ -526,9 +528,11 @@
             [rows]="5">
           </app-text-area>
 
-          <p class="text-xs opacity-70 text-right">
-            {{ descriptionFrLength }}/300
-          </p>
+          <app-character-counter
+            [control]="descriptionFrControl"
+            [maxLength]="projectShortDescriptionMaxLength"
+            [warningThreshold]="projectShortDescriptionWarningThreshold"
+          ></app-character-counter>
         </div>
 
         <div class="space-y-1">
@@ -546,98 +550,164 @@
             [rows]="5">
           </app-text-area>
 
-          <p class="text-xs opacity-70 text-right">
-            {{ descriptionEnLength }}/300
-          </p>
+          <app-character-counter
+            [control]="descriptionEnControl"
+            [maxLength]="projectShortDescriptionMaxLength"
+            [warningThreshold]="projectShortDescriptionWarningThreshold"
+          ></app-character-counter>
         </div>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
-        <app-text-area
-          id="long-description-fr"
-          label="Description longue FR"
-          placeholder="Description longue en français"
-          [control]="longDescriptionFrControl"
-          [showError]="longDescriptionFrControl.invalid && longDescriptionFrControl.touched"
-          [errorText]="getMaxLengthErrorMessage(longDescriptionFrControl, 'La description longue FR')"
-          [rows]="6">
-        </app-text-area>
+        <div class="space-y-1">
+          <app-text-area
+            id="long-description-fr"
+            label="Description longue FR"
+            placeholder="Description longue en français"
+            [control]="longDescriptionFrControl"
+            [showError]="longDescriptionFrControl.invalid && longDescriptionFrControl.touched"
+            [errorText]="getMaxLengthErrorMessage(longDescriptionFrControl, 'La description longue FR')"
+            [rows]="6">
+          </app-text-area>
 
-        <app-text-area
-          id="long-description-en"
-          label="Description longue EN"
-          placeholder="Long description in English"
-          [control]="longDescriptionEnControl"
-          [showError]="longDescriptionEnControl.invalid && longDescriptionEnControl.touched"
-          [errorText]="getMaxLengthErrorMessage(longDescriptionEnControl, 'La description longue EN')"
-          [rows]="6">
-        </app-text-area>
+          <app-character-counter
+            [control]="longDescriptionFrControl"
+            [maxLength]="projectLongDescriptionMaxLength"
+            [warningThreshold]="projectLongDescriptionWarningThreshold"
+          ></app-character-counter>
+        </div>
+
+        <div class="space-y-1">
+          <app-text-area
+            id="long-description-en"
+            label="Description longue EN"
+            placeholder="Long description in English"
+            [control]="longDescriptionEnControl"
+            [showError]="longDescriptionEnControl.invalid && longDescriptionEnControl.touched"
+            [errorText]="getMaxLengthErrorMessage(longDescriptionEnControl, 'La description longue EN')"
+            [rows]="6">
+          </app-text-area>
+
+          <app-character-counter
+            [control]="longDescriptionEnControl"
+            [maxLength]="projectLongDescriptionMaxLength"
+            [warningThreshold]="projectLongDescriptionWarningThreshold"
+          ></app-character-counter>
+        </div>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
-        <app-text-area
-          id="role-fr"
-          label="Rôle FR"
-          placeholder="Mon rôle sur ce projet"
-          [control]="roleFrControl"
-          [showError]="roleFrControl.invalid && roleFrControl.touched"
-          [errorText]="getMaxLengthErrorMessage(roleFrControl, 'Le rôle FR')"
-          [rows]="4">
-        </app-text-area>
+        <div class="space-y-1">
+          <app-text-area
+            id="role-fr"
+            label="Rôle FR"
+            placeholder="Mon rôle sur ce projet"
+            [control]="roleFrControl"
+            [showError]="roleFrControl.invalid && roleFrControl.touched"
+            [errorText]="getMaxLengthErrorMessage(roleFrControl, 'Le rôle FR')"
+            [rows]="4">
+          </app-text-area>
 
-        <app-text-area
-          id="role-en"
-          label="Rôle EN"
-          placeholder="My role on this project"
-          [control]="roleEnControl"
-          [showError]="roleEnControl.invalid && roleEnControl.touched"
-          [errorText]="getMaxLengthErrorMessage(roleEnControl, 'Le rôle EN')"
-          [rows]="4">
-        </app-text-area>
+          <app-character-counter
+            [control]="roleFrControl"
+            [maxLength]="projectDetailTextMaxLength"
+            [warningThreshold]="projectDetailTextWarningThreshold"
+          ></app-character-counter>
+        </div>
+
+        <div class="space-y-1">
+          <app-text-area
+            id="role-en"
+            label="Rôle EN"
+            placeholder="My role on this project"
+            [control]="roleEnControl"
+            [showError]="roleEnControl.invalid && roleEnControl.touched"
+            [errorText]="getMaxLengthErrorMessage(roleEnControl, 'Le rôle EN')"
+            [rows]="4">
+          </app-text-area>
+
+          <app-character-counter
+            [control]="roleEnControl"
+            [maxLength]="projectDetailTextMaxLength"
+            [warningThreshold]="projectDetailTextWarningThreshold"
+          ></app-character-counter>
+        </div>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
-        <app-text-area
-          id="problem-fr"
-          label="Problème FR"
-          placeholder="Quel problème devait être résolu ?"
-          [control]="problemFrControl"
-          [showError]="problemFrControl.invalid && problemFrControl.touched"
-          [errorText]="getMaxLengthErrorMessage(problemFrControl, 'Le problème FR')"
-          [rows]="4">
-        </app-text-area>
+        <div class="space-y-1">
+          <app-text-area
+            id="problem-fr"
+            label="Problème FR"
+            placeholder="Quel problème devait être résolu ?"
+            [control]="problemFrControl"
+            [showError]="problemFrControl.invalid && problemFrControl.touched"
+            [errorText]="getMaxLengthErrorMessage(problemFrControl, 'Le problème FR')"
+            [rows]="4">
+          </app-text-area>
 
-        <app-text-area
-          id="problem-en"
-          label="Problème EN"
-          placeholder="What problem had to be solved?"
-          [control]="problemEnControl"
-          [showError]="problemEnControl.invalid && problemEnControl.touched"
-          [errorText]="getMaxLengthErrorMessage(problemEnControl, 'Le problème EN')"
-          [rows]="4">
-        </app-text-area>
+          <app-character-counter
+            [control]="problemFrControl"
+            [maxLength]="projectDetailTextMaxLength"
+            [warningThreshold]="projectDetailTextWarningThreshold"
+          ></app-character-counter>
+        </div>
+
+        <div class="space-y-1">
+          <app-text-area
+            id="problem-en"
+            label="Problème EN"
+            placeholder="What problem had to be solved?"
+            [control]="problemEnControl"
+            [showError]="problemEnControl.invalid && problemEnControl.touched"
+            [errorText]="getMaxLengthErrorMessage(problemEnControl, 'Le problème EN')"
+            [rows]="4">
+          </app-text-area>
+
+          <app-character-counter
+            [control]="problemEnControl"
+            [maxLength]="projectDetailTextMaxLength"
+            [warningThreshold]="projectDetailTextWarningThreshold"
+          ></app-character-counter>
+        </div>
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
-        <app-text-area
-          id="solution-fr"
-          label="Solution FR"
-          placeholder="Quelle solution a été mise en place ?"
-          [control]="solutionFrControl"
-          [showError]="solutionFrControl.invalid && solutionFrControl.touched"
-          [errorText]="getMaxLengthErrorMessage(solutionFrControl, 'La solution FR')"
-          [rows]="4">
-        </app-text-area>
+        <div class="space-y-1">
+          <app-text-area
+            id="solution-fr"
+            label="Solution FR"
+            placeholder="Quelle solution a été mise en place ?"
+            [control]="solutionFrControl"
+            [showError]="solutionFrControl.invalid && solutionFrControl.touched"
+            [errorText]="getMaxLengthErrorMessage(solutionFrControl, 'La solution FR')"
+            [rows]="4">
+          </app-text-area>
 
-        <app-text-area
-          id="solution-en"
-          label="Solution EN"
-          placeholder="What solution was implemented?"
-          [control]="solutionEnControl"
-          [showError]="solutionEnControl.invalid && solutionEnControl.touched"
-          [errorText]="getMaxLengthErrorMessage(solutionEnControl, 'La solution EN')"
-          [rows]="4">
-        </app-text-area>
+          <app-character-counter
+            [control]="solutionFrControl"
+            [maxLength]="projectDetailTextMaxLength"
+            [warningThreshold]="projectDetailTextWarningThreshold"
+          ></app-character-counter>
+        </div>
+
+        <div class="space-y-1">
+          <app-text-area
+            id="solution-en"
+            label="Solution EN"
+            placeholder="What solution was implemented?"
+            [control]="solutionEnControl"
+            [showError]="solutionEnControl.invalid && solutionEnControl.touched"
+            [errorText]="getMaxLengthErrorMessage(solutionEnControl, 'La solution EN')"
+            [rows]="4">
+          </app-text-area>
+
+          <app-character-counter
+            [control]="solutionEnControl"
+            [maxLength]="projectDetailTextMaxLength"
+            [warningThreshold]="projectDetailTextWarningThreshold"
+          ></app-character-counter>
+        </div>
       </div>
     </div>
 

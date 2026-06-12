@@ -23,6 +23,8 @@ import {
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { AdminHeroApiService } from '../../core/api/admin-hero-api.service';
 import { AdminHeroCardApiService } from '../../core/api/admin-hero-card-api.service';
@@ -38,7 +40,6 @@ import {
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
-import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 
 type HeroTechBadgeFormGroup = FormGroup<{
   id: FormControl<number | null>;
@@ -56,6 +57,7 @@ type HeroTechBadgeFormGroup = FormGroup<{
     DragDropModule,
     TextFieldComponent,
     PrimaryButtonComponent,
+    CharacterCounterComponent,
     LucideAngularModule,
     AdminFloatingActionsComponent,
   ],
@@ -70,6 +72,24 @@ export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComp
   readonly SparklesIcon = SparklesIcon;
   readonly StarIcon = StarIcon;
   readonly Trash2Icon = Trash2Icon;
+
+  readonly heroTextMaxLength = 255;
+  readonly heroTextWarningThreshold = 25;
+
+  readonly techBadgeMaxLength = 40;
+  readonly techBadgeWarningThreshold = 8;
+
+  readonly heroCardTitleMaxLength = 120;
+  readonly heroCardSubtitleMaxLength = 180;
+  readonly heroCardBadgeMaxLength = 80;
+  readonly heroCardHighlightMaxLength = 120;
+  readonly heroCardStatMaxLength = 80;
+
+  readonly heroCardTitleWarningThreshold = 15;
+  readonly heroCardSubtitleWarningThreshold = 20;
+  readonly heroCardBadgeWarningThreshold = 10;
+  readonly heroCardHighlightWarningThreshold = 15;
+  readonly heroCardStatWarningThreshold = 10;
 
   isLoadingHero = false;
   isSubmittingHero = false;
@@ -86,19 +106,19 @@ export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComp
   readonly heroForm = new FormGroup({
     titleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.heroTextMaxLength)],
     }),
     titleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.heroTextMaxLength)],
     }),
     subtitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.heroTextMaxLength)],
     }),
     subtitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.heroTextMaxLength)],
     }),
     available: new FormControl(true, {
       nonNullable: true,
@@ -109,87 +129,87 @@ export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComp
   readonly heroCardForm = new FormGroup({
     titleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardTitleMaxLength)],
     }),
     titleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardTitleMaxLength)],
     }),
     subtitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(180)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardSubtitleMaxLength)],
     }),
     subtitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(180)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardSubtitleMaxLength)],
     }),
     badgeFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardBadgeMaxLength)],
     }),
     badgeEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardBadgeMaxLength)],
     }),
     highlight1Fr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardHighlightMaxLength)],
     }),
     highlight1En: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardHighlightMaxLength)],
     }),
     highlight2Fr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardHighlightMaxLength)],
     }),
     highlight2En: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardHighlightMaxLength)],
     }),
     highlight3Fr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardHighlightMaxLength)],
     }),
     highlight3En: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardHighlightMaxLength)],
     }),
     stat1LabelFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat1LabelEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat1Value: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat2LabelFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat2LabelEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat2Value: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat3LabelFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat3LabelEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
     stat3Value: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, Validators.maxLength(this.heroCardStatMaxLength)],
     }),
   });
 
@@ -227,7 +247,7 @@ export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComp
   }
 
   canDeactivate(): boolean {
-  if (!this.hasUnsavedChanges || this.isSubmittingHero || this.isSubmittingHeroCard) {
+    if (!this.hasUnsavedChanges || this.isSubmittingHero || this.isSubmittingHeroCard) {
       return true;
     }
 
@@ -479,7 +499,7 @@ export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComp
       id: new FormControl<number | null>(badge.id),
       label: new FormControl(badge.label, {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(40)],
+        validators: [Validators.required, Validators.maxLength(this.techBadgeMaxLength)],
       }),
       displayOrder: new FormControl(badge.displayOrder, {
         nonNullable: true,

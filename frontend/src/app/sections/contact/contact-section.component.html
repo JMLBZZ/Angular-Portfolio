@@ -207,19 +207,11 @@
                   [errorText]="(errorKey('message') | translate)"
                 ></app-text-area>
 
-                <div
-                  class="flex items-center justify-between gap-3 text-xs"
-                  [ngClass]="{
-                    'text-red-500': messageCtrl.hasError('maxlength'),
-                    'text-amber-600 dark:text-amber-400': !messageCtrl.hasError('maxlength') && isMessageCounterWarning,
-                    'text-foreground/60': !messageCtrl.hasError('maxlength') && !isMessageCounterWarning
-                  }"
-                  aria-live="polite"
-                >
-                  <span class="font-medium tabular-nums">
-                    {{ 'contact.form.counter.count' | translate:{ current: messageLength, max: messageMaxLength } }}
-                  </span>
-                </div>
+                <app-character-counter
+                  [control]="messageCtrl"
+                  [maxLength]="messageMaxLength"
+                  [warningThreshold]="messageCounterWarningThreshold"
+                ></app-character-counter>
               </div>
 
               <!-- Honeypot anti-spam (champ caché) -->

@@ -15,6 +15,14 @@ import java.util.List;
 @Service
 public class AboutContentService {
 
+    private static final int SHORT_TEXT_MAX_LENGTH = 255;
+    private static final int PROFILE_NAME_MAX_LENGTH = 120;
+    private static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1000;
+    private static final int LONG_TEXT_MAX_LENGTH = 3000;
+    private static final int TIMELINE_ICON_MAX_LENGTH = 20;
+    private static final int SKILL_NAME_MAX_LENGTH = 80;
+    private static final int SOFT_SKILL_MAX_LENGTH = 120;
+
     private final AboutContentRepositoryPort aboutContentRepositoryPort;
 
     public AboutContentService(AboutContentRepositoryPort aboutContentRepositoryPort) {
@@ -31,11 +39,11 @@ public class AboutContentService {
         AboutContent sanitized = new AboutContent(
                 sanitizeLocalizedText(aboutContent.getTitle()),
                 sanitizeLocalizedText(aboutContent.getSubtitle()),
-                sanitize(aboutContent.getProfileName(), 120),
-                sanitize(aboutContent.getProfileImageUrl(), 1000),
+                sanitize(aboutContent.getProfileName(), PROFILE_NAME_MAX_LENGTH),
+                sanitize(aboutContent.getProfileImageUrl(), PROFILE_IMAGE_URL_MAX_LENGTH),
                 sanitizeLocalizedText(aboutContent.getProfileRole()),
-                sanitizeLocalizedText(aboutContent.getBio(), 3000),
-                sanitizeLocalizedText(aboutContent.getLocation(), 255),
+                sanitizeLocalizedText(aboutContent.getBio(), LONG_TEXT_MAX_LENGTH),
+                sanitizeLocalizedText(aboutContent.getLocation(), SHORT_TEXT_MAX_LENGTH),
                 sanitizeLocalizedText(aboutContent.getTimelineTitle()),
                 sanitizeLocalizedText(aboutContent.getSkillsTitle()),
                 sanitizeLocalizedText(aboutContent.getSoftSkillsTitle()),
@@ -165,7 +173,7 @@ public class AboutContentService {
                 continue;
             }
 
-            String icon = sanitize(item.getIcon(), 20);
+            String icon = sanitize(item.getIcon(), TIMELINE_ICON_MAX_LENGTH);
             if (!icon.equals("work") && !icon.equals("education")) {
                 icon = "work";
             }
@@ -174,7 +182,7 @@ public class AboutContentService {
                     sanitizeLocalizedText(item.getDate()),
                     sanitizeLocalizedText(item.getCompany()),
                     sanitizeLocalizedText(item.getTitle()),
-                    sanitizeLocalizedText(item.getDescription(), 2000),
+                    sanitizeLocalizedText(item.getDescription(), LONG_TEXT_MAX_LENGTH),
                     icon
             ));
         }
@@ -202,7 +210,7 @@ public class AboutContentService {
                         continue;
                     }
 
-                    String name = sanitize(item.getName(), 80);
+                    String name = sanitize(item.getName(), SKILL_NAME_MAX_LENGTH);
                     if (name.isBlank()) {
                         continue;
                     }
@@ -234,7 +242,7 @@ public class AboutContentService {
                 continue;
             }
 
-            LocalizedText localizedText = sanitizeLocalizedText(skill, 120);
+            LocalizedText localizedText = sanitizeLocalizedText(skill, SOFT_SKILL_MAX_LENGTH);
 
             if (!localizedText.getFr().isBlank() || !localizedText.getEn().isBlank()) {
                 sanitized.add(localizedText);
@@ -245,7 +253,7 @@ public class AboutContentService {
     }
 
     private LocalizedText sanitizeLocalizedText(LocalizedText text) {
-        return sanitizeLocalizedText(text, 255);
+        return sanitizeLocalizedText(text, SHORT_TEXT_MAX_LENGTH);
     }
 
     private LocalizedText sanitizeLocalizedText(LocalizedText text, int maxLength) {

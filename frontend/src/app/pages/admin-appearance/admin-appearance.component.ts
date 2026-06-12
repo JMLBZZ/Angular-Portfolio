@@ -25,6 +25,7 @@ import { DEFAULT_ACCENT_COLOR } from '../../shared/models/appearance.model';
 import { ToastService } from '../../shared/services/toast.service';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
 
 @Component({
   selector: 'app-admin-appearance',
@@ -34,6 +35,7 @@ import { AdminFloatingActionsComponent } from '../../shared/components/admin-flo
     FormsModule,
     LucideAngularModule,
     AdminFloatingActionsComponent,
+    CharacterCounterComponent,
   ],
   templateUrl: './admin-appearance.component.html',
 })
@@ -53,7 +55,10 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
 
   readonly defaultAccentColor = DEFAULT_ACCENT_COLOR;
   readonly maxLogoFileSize = 5 * 1024 * 1024; // 5 MB
+  readonly maxLogoImageUrlLength = 1000;
   readonly maxLogoSvgCodeLength = 20000;
+  readonly logoImageUrlWarningThreshold = 100;
+  readonly logoSvgCodeWarningThreshold = 1000;
   readonly allowedLogoAccept = '.svg,.png,.jpg,.jpeg,.gif,image/svg+xml,image/png,image/jpeg,image/gif';
 
   accentColor = DEFAULT_ACCENT_COLOR;
@@ -134,6 +139,10 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     return this.isValidHexColor(this.accentColor);
   }
 
+  get isLogoImageUrlValid(): boolean {
+    return this.normalizedLogoImageUrl.length <= this.maxLogoImageUrlLength;
+  }
+
   get isLogoSvgCodeValid(): boolean {
     if (!this.normalizedLogoSvgCode) {
       return true;
@@ -152,6 +161,18 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
 
     if (!this.isAccentColorValid) {
       return `Utilise le format hexadécimal #RRGGBB, par exemple ${this.defaultAccentColor}.`;
+    }
+
+    return null;
+  }
+
+  get logoImageUrlError(): string | null {
+    if (!this.normalizedLogoImageUrl) {
+      return null;
+    }
+
+    if (this.normalizedLogoImageUrl.length > this.maxLogoImageUrlLength) {
+      return `L’URL du logo ne doit pas dépasser ${this.maxLogoImageUrlLength} caractères.`;
     }
 
     return null;
@@ -408,6 +429,11 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
 
     if (!this.isAccentColorValid) {
       this.toastService.warning('Corrige la couleur avant de sauvegarder.');
+      return;
+    }
+
+    if (!this.isLogoImageUrlValid) {
+      this.toastService.warning('Corrige l’URL du logo avant de sauvegarder.');
       return;
     }
 

@@ -115,33 +115,65 @@
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="hero-title-fr"
-            label="Titre principal (FR)"
-            placeholder="Développeur<br><span class='text-primary'>Full-Stack</span>"
-            [control]="heroForm.controls.titleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-title-fr"
+              label="Titre principal (FR)"
+              placeholder="Développeur<br><span class='text-primary'>Full-Stack</span>"
+              [control]="heroForm.controls.titleFr"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-title-en"
-            label="Titre principal (EN)"
-            placeholder="Full-Stack<br><span class='text-primary'>Developer</span>"
-            [control]="heroForm.controls.titleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroForm.controls.titleFr"
+              [maxLength]="heroTextMaxLength"
+              [warningThreshold]="heroTextWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-          <app-text-field
-            id="hero-subtitle-fr"
-            label="Sous-titre (FR)"
-            placeholder="Je construis des applications web modernes et performantes."
-            [control]="heroForm.controls.subtitleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-title-en"
+              label="Titre principal (EN)"
+              placeholder="Full-Stack<br><span class='text-primary'>Developer</span>"
+              [control]="heroForm.controls.titleEn"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-subtitle-en"
-            label="Sous-titre (EN)"
-            placeholder="I build modern and high-performance web applications."
-            [control]="heroForm.controls.subtitleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroForm.controls.titleEn"
+              [maxLength]="heroTextMaxLength"
+              [warningThreshold]="heroTextWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-subtitle-fr"
+              label="Sous-titre (FR)"
+              placeholder="Je construis des applications web modernes et performantes."
+              [control]="heroForm.controls.subtitleFr"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroForm.controls.subtitleFr"
+              [maxLength]="heroTextMaxLength"
+              [warningThreshold]="heroTextWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-subtitle-en"
+              label="Sous-titre (EN)"
+              placeholder="I build modern and high-performance web applications."
+              [control]="heroForm.controls.subtitleEn"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroForm.controls.subtitleEn"
+              [maxLength]="heroTextMaxLength"
+              [warningThreshold]="heroTextWarningThreshold"
+            ></app-character-counter>
+          </div>
         </div>
       </div>
 
@@ -156,7 +188,7 @@
           </h4>
         </div>
 
-        <label class="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm cursor-pointer">
+        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/70 bg-card/50 p-4 text-sm">
           <input
             type="checkbox"
             formControlName="available"
@@ -231,12 +263,20 @@
             class="rounded-2xl border border-border/60 bg-card/40 p-4"
           >
             <div class="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
-              <app-text-field
-                [id]="'hero-tech-badge-' + i"
-                label="Libellé"
-                placeholder="Angular"
-                [control]="badge.controls.label"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  [id]="'hero-tech-badge-' + i"
+                  label="Libellé"
+                  placeholder="Angular"
+                  [control]="badge.controls.label"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="badge.controls.label"
+                  [maxLength]="techBadgeMaxLength"
+                  [warningThreshold]="techBadgeWarningThreshold"
+                ></app-character-counter>
+              </div>
 
               <div class="flex flex-wrap items-center gap-2">
                 <button
@@ -358,47 +398,95 @@
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="hero-card-title-fr"
-            label="Titre (FR)"
-            placeholder="Développeur Full-Stack"
-            [control]="heroCardForm.controls.titleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-title-fr"
+              label="Titre (FR)"
+              placeholder="Développeur Full-Stack"
+              [control]="heroCardForm.controls.titleFr"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-card-title-en"
-            label="Titre (EN)"
-            placeholder="Full-Stack Developer"
-            [control]="heroCardForm.controls.titleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroCardForm.controls.titleFr"
+              [maxLength]="heroCardTitleMaxLength"
+              [warningThreshold]="heroCardTitleWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-          <app-text-field
-            id="hero-card-subtitle-fr"
-            label="Sous-titre (FR)"
-            placeholder="Disponible pour vos projets web"
-            [control]="heroCardForm.controls.subtitleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-title-en"
+              label="Titre (EN)"
+              placeholder="Full-Stack Developer"
+              [control]="heroCardForm.controls.titleEn"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-card-subtitle-en"
-            label="Sous-titre (EN)"
-            placeholder="Available for your web projects"
-            [control]="heroCardForm.controls.subtitleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroCardForm.controls.titleEn"
+              [maxLength]="heroCardTitleMaxLength"
+              [warningThreshold]="heroCardTitleWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-          <app-text-field
-            id="hero-card-badge-fr"
-            label="Badge (FR)"
-            placeholder="Disponible"
-            [control]="heroCardForm.controls.badgeFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-subtitle-fr"
+              label="Sous-titre (FR)"
+              placeholder="Disponible pour vos projets web"
+              [control]="heroCardForm.controls.subtitleFr"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-card-badge-en"
-            label="Badge (EN)"
-            placeholder="Available"
-            [control]="heroCardForm.controls.badgeEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroCardForm.controls.subtitleFr"
+              [maxLength]="heroCardSubtitleMaxLength"
+              [warningThreshold]="heroCardSubtitleWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-subtitle-en"
+              label="Sous-titre (EN)"
+              placeholder="Available for your web projects"
+              [control]="heroCardForm.controls.subtitleEn"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroCardForm.controls.subtitleEn"
+              [maxLength]="heroCardSubtitleMaxLength"
+              [warningThreshold]="heroCardSubtitleWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-badge-fr"
+              label="Badge (FR)"
+              placeholder="Disponible"
+              [control]="heroCardForm.controls.badgeFr"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroCardForm.controls.badgeFr"
+              [maxLength]="heroCardBadgeMaxLength"
+              [warningThreshold]="heroCardBadgeWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-badge-en"
+              label="Badge (EN)"
+              placeholder="Available"
+              [control]="heroCardForm.controls.badgeEn"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroCardForm.controls.badgeEn"
+              [maxLength]="heroCardBadgeMaxLength"
+              [warningThreshold]="heroCardBadgeWarningThreshold"
+            ></app-character-counter>
+          </div>
         </div>
       </div>
 
@@ -414,47 +502,95 @@
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="hero-card-highlight1-fr"
-            label="Point fort 1 (FR)"
-            placeholder="Applications modernes"
-            [control]="heroCardForm.controls.highlight1Fr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-highlight1-fr"
+              label="Point fort 1 (FR)"
+              placeholder="Applications modernes"
+              [control]="heroCardForm.controls.highlight1Fr"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-card-highlight1-en"
-            label="Point fort 1 (EN)"
-            placeholder="Modern applications"
-            [control]="heroCardForm.controls.highlight1En"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroCardForm.controls.highlight1Fr"
+              [maxLength]="heroCardHighlightMaxLength"
+              [warningThreshold]="heroCardHighlightWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-          <app-text-field
-            id="hero-card-highlight2-fr"
-            label="Point fort 2 (FR)"
-            placeholder="Architecture robuste"
-            [control]="heroCardForm.controls.highlight2Fr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-highlight1-en"
+              label="Point fort 1 (EN)"
+              placeholder="Modern applications"
+              [control]="heroCardForm.controls.highlight1En"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-card-highlight2-en"
-            label="Point fort 2 (EN)"
-            placeholder="Robust architecture"
-            [control]="heroCardForm.controls.highlight2En"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroCardForm.controls.highlight1En"
+              [maxLength]="heroCardHighlightMaxLength"
+              [warningThreshold]="heroCardHighlightWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-          <app-text-field
-            id="hero-card-highlight3-fr"
-            label="Point fort 3 (FR)"
-            placeholder="Expérience utilisateur soignée"
-            [control]="heroCardForm.controls.highlight3Fr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-highlight2-fr"
+              label="Point fort 2 (FR)"
+              placeholder="Architecture robuste"
+              [control]="heroCardForm.controls.highlight2Fr"
+            ></app-text-field>
 
-          <app-text-field
-            id="hero-card-highlight3-en"
-            label="Point fort 3 (EN)"
-            placeholder="Polished user experience"
-            [control]="heroCardForm.controls.highlight3En"
-          ></app-text-field>
+            <app-character-counter
+              [control]="heroCardForm.controls.highlight2Fr"
+              [maxLength]="heroCardHighlightMaxLength"
+              [warningThreshold]="heroCardHighlightWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-highlight2-en"
+              label="Point fort 2 (EN)"
+              placeholder="Robust architecture"
+              [control]="heroCardForm.controls.highlight2En"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroCardForm.controls.highlight2En"
+              [maxLength]="heroCardHighlightMaxLength"
+              [warningThreshold]="heroCardHighlightWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-highlight3-fr"
+              label="Point fort 3 (FR)"
+              placeholder="Expérience utilisateur soignée"
+              [control]="heroCardForm.controls.highlight3Fr"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroCardForm.controls.highlight3Fr"
+              [maxLength]="heroCardHighlightMaxLength"
+              [warningThreshold]="heroCardHighlightWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="hero-card-highlight3-en"
+              label="Point fort 3 (EN)"
+              placeholder="Polished user experience"
+              [control]="heroCardForm.controls.highlight3En"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="heroCardForm.controls.highlight3En"
+              [maxLength]="heroCardHighlightMaxLength"
+              [warningThreshold]="heroCardHighlightWarningThreshold"
+            ></app-character-counter>
+          </div>
         </div>
       </div>
 
@@ -476,26 +612,50 @@
             </h5>
 
             <div class="grid gap-5 md:grid-cols-3">
-              <app-text-field
-                id="hero-card-stat1-label-fr"
-                label="Label 1 (FR)"
-                placeholder="Expérience"
-                [control]="heroCardForm.controls.stat1LabelFr"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat1-label-fr"
+                  label="Label 1 (FR)"
+                  placeholder="Expérience"
+                  [control]="heroCardForm.controls.stat1LabelFr"
+                ></app-text-field>
 
-              <app-text-field
-                id="hero-card-stat1-label-en"
-                label="Label 1 (EN)"
-                placeholder="Experience"
-                [control]="heroCardForm.controls.stat1LabelEn"
-              ></app-text-field>
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat1LabelFr"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
 
-              <app-text-field
-                id="hero-card-stat1-value"
-                label="Valeur 1"
-                placeholder="3+ ans"
-                [control]="heroCardForm.controls.stat1Value"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat1-label-en"
+                  label="Label 1 (EN)"
+                  placeholder="Experience"
+                  [control]="heroCardForm.controls.stat1LabelEn"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat1LabelEn"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
+
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat1-value"
+                  label="Valeur 1"
+                  placeholder="3+ ans"
+                  [control]="heroCardForm.controls.stat1Value"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat1Value"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
             </div>
           </div>
 
@@ -505,26 +665,50 @@
             </h5>
 
             <div class="grid gap-5 md:grid-cols-3">
-              <app-text-field
-                id="hero-card-stat2-label-fr"
-                label="Label 2 (FR)"
-                placeholder="Projets"
-                [control]="heroCardForm.controls.stat2LabelFr"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat2-label-fr"
+                  label="Label 2 (FR)"
+                  placeholder="Projets"
+                  [control]="heroCardForm.controls.stat2LabelFr"
+                ></app-text-field>
 
-              <app-text-field
-                id="hero-card-stat2-label-en"
-                label="Label 2 (EN)"
-                placeholder="Projects"
-                [control]="heroCardForm.controls.stat2LabelEn"
-              ></app-text-field>
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat2LabelFr"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
 
-              <app-text-field
-                id="hero-card-stat2-value"
-                label="Valeur 2"
-                placeholder="10+"
-                [control]="heroCardForm.controls.stat2Value"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat2-label-en"
+                  label="Label 2 (EN)"
+                  placeholder="Projects"
+                  [control]="heroCardForm.controls.stat2LabelEn"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat2LabelEn"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
+
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat2-value"
+                  label="Valeur 2"
+                  placeholder="10+"
+                  [control]="heroCardForm.controls.stat2Value"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat2Value"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
             </div>
           </div>
 
@@ -534,26 +718,50 @@
             </h5>
 
             <div class="grid gap-5 md:grid-cols-3">
-              <app-text-field
-                id="hero-card-stat3-label-fr"
-                label="Label 3 (FR)"
-                placeholder="Stack"
-                [control]="heroCardForm.controls.stat3LabelFr"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat3-label-fr"
+                  label="Label 3 (FR)"
+                  placeholder="Stack"
+                  [control]="heroCardForm.controls.stat3LabelFr"
+                ></app-text-field>
 
-              <app-text-field
-                id="hero-card-stat3-label-en"
-                label="Label 3 (EN)"
-                placeholder="Stack"
-                [control]="heroCardForm.controls.stat3LabelEn"
-              ></app-text-field>
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat3LabelFr"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
 
-              <app-text-field
-                id="hero-card-stat3-value"
-                label="Valeur 3"
-                placeholder="Angular / Spring"
-                [control]="heroCardForm.controls.stat3Value"
-              ></app-text-field>
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat3-label-en"
+                  label="Label 3 (EN)"
+                  placeholder="Stack"
+                  [control]="heroCardForm.controls.stat3LabelEn"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat3LabelEn"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
+
+              <div class="space-y-1">
+                <app-text-field
+                  id="hero-card-stat3-value"
+                  label="Valeur 3"
+                  placeholder="Angular / Spring"
+                  [control]="heroCardForm.controls.stat3Value"
+                ></app-text-field>
+
+                <app-character-counter
+                  [control]="heroCardForm.controls.stat3Value"
+                  [maxLength]="heroCardStatMaxLength"
+                  [warningThreshold]="heroCardStatWarningThreshold"
+                ></app-character-counter>
+              </div>
             </div>
           </div>
         </div>

@@ -28,6 +28,7 @@ import {
 } from '../../core/forms/apply-api-errors.util';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
 import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
 import {
   handleInvalidAdminForm,
   scrollToSelector,
@@ -49,6 +50,7 @@ import { LegalContent } from '../../shared/models/legal.model';
     TextFieldComponent,
     PrimaryButtonComponent,
     RichTextEditorComponent,
+    CharacterCounterComponent,
     LucideAngularModule,
     AdminFloatingActionsComponent,
   ],
@@ -63,6 +65,12 @@ export class AdminLegalComponent implements OnInit, OnDestroy, PendingChangesCom
   readonly ScaleIcon = ScaleIcon;
   readonly ShieldCheckIcon = ShieldCheckIcon;
 
+  readonly titleMaxLength = 255;
+  readonly legalContentMaxLength = 20000;
+
+  readonly titleWarningThreshold = 25;
+  readonly legalContentWarningThreshold = 1000;
+
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;
@@ -73,19 +81,19 @@ export class AdminLegalComponent implements OnInit, OnDestroy, PendingChangesCom
   readonly form = new FormGroup({
     titleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.titleMaxLength)],
     }),
     titleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.titleMaxLength)],
     }),
     contentFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(20000)],
+      validators: [Validators.required, Validators.maxLength(this.legalContentMaxLength)],
     }),
     contentEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(20000)],
+      validators: [Validators.required, Validators.maxLength(this.legalContentMaxLength)],
     }),
   });
 

@@ -16,6 +16,7 @@ import { TextFieldComponent } from '../../shared/components/text-field/text-fiel
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { SecondaryButtonComponent } from '../../shared/components/secondary-button/secondary-button.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
 
 import { ToastService } from '../../shared/services/toast.service';
 import { ContactApiService } from '../../core/api/contact-api.service';
@@ -36,6 +37,7 @@ import { LanguageService } from '../../core/i18n/language.service';
     TextAreaComponent,
     PrimaryButtonComponent,
     SecondaryButtonComponent,
+    CharacterCounterComponent,
   ],
   templateUrl: './contact-section.component.html',
 })
@@ -59,8 +61,7 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
 
   readonly messageMinLength = 10;
   readonly messageMaxLength = 4000;
-
-  private readonly messageCounterWarningThreshold = 250;
+  readonly messageCounterWarningThreshold = 250;
 
   private contactContent: Contact | null = null;
   private subscriptions = new Subscription();
@@ -115,18 +116,6 @@ export class ContactSectionComponent implements OnInit, OnDestroy {
 
   get messageCtrl(): FormControl<string> {
     return this.form.get('message') as FormControl<string>;
-  }
-
-  get messageLength(): number {
-    return (this.messageCtrl.value ?? '').length;
-  }
-
-  get messageRemaining(): number {
-    return Math.max(this.messageMaxLength - this.messageLength, 0);
-  }
-
-  get isMessageCounterWarning(): boolean {
-    return this.messageRemaining <= this.messageCounterWarningThreshold;
   }
 
   control(name: 'name' | 'email' | 'subject' | 'message'): AbstractControl {

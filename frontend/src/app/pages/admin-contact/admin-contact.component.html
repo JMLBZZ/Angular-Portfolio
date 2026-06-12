@@ -103,33 +103,65 @@
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
         <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="contact-title-fr"
-            label="Titre (FR)"
-            placeholder="Contact"
-            [control]="form.controls.titleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="contact-title-fr"
+              label="Titre (FR)"
+              placeholder="Contact"
+              [control]="form.controls.titleFr"
+            ></app-text-field>
 
-          <app-text-field
-            id="contact-title-en"
-            label="Titre (EN)"
-            placeholder="Contact"
-            [control]="form.controls.titleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="form.controls.titleFr"
+              [maxLength]="shortTextMaxLength"
+              [warningThreshold]="shortTextWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-          <app-text-field
-            id="contact-subtitle-fr"
-            label="Sous-titre (FR)"
-            placeholder="Discutons de votre prochain projet"
-            [control]="form.controls.subtitleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="contact-title-en"
+              label="Titre (EN)"
+              placeholder="Contact"
+              [control]="form.controls.titleEn"
+            ></app-text-field>
 
-          <app-text-field
-            id="contact-subtitle-en"
-            label="Sous-titre (EN)"
-            placeholder="Let’s talk about your next project"
-            [control]="form.controls.subtitleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="form.controls.titleEn"
+              [maxLength]="shortTextMaxLength"
+              [warningThreshold]="shortTextWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="contact-subtitle-fr"
+              label="Sous-titre (FR)"
+              placeholder="Discutons de votre prochain projet"
+              [control]="form.controls.subtitleFr"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="form.controls.subtitleFr"
+              [maxLength]="shortTextMaxLength"
+              [warningThreshold]="shortTextWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="contact-subtitle-en"
+              label="Sous-titre (EN)"
+              placeholder="Let’s talk about your next project"
+              [control]="form.controls.subtitleEn"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="form.controls.subtitleEn"
+              [maxLength]="shortTextMaxLength"
+              [warningThreshold]="shortTextWarningThreshold"
+            ></app-character-counter>
+          </div>
         </div>
       </div>
     </div>
@@ -168,14 +200,22 @@
               </p>
             </div>
 
-            <app-text-field
-              id="contact-email"
-              type="email"
-              label="Email"
-              placeholder="contact@monsite.dev"
-              [control]="form.controls.email"
-              [hideLabelVisually]="true"
-            ></app-text-field>
+            <div class="space-y-1">
+              <app-text-field
+                id="contact-email"
+                type="email"
+                label="Email"
+                placeholder="contact@monsite.dev"
+                [control]="form.controls.email"
+                [hideLabelVisually]="true"
+              ></app-text-field>
+
+              <app-character-counter
+                [control]="form.controls.email"
+                [maxLength]="emailMaxLength"
+                [warningThreshold]="emailWarningThreshold"
+              ></app-character-counter>
+            </div>
           </div>
 
           <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
@@ -189,13 +229,21 @@
               </p>
             </div>
 
-            <app-text-field
-              id="contact-phone"
-              label="Téléphone"
-              placeholder="+33 6 00 00 00 00"
-              [control]="form.controls.phone"
-              [hideLabelVisually]="true"
-            ></app-text-field>
+            <div class="space-y-1">
+              <app-text-field
+                id="contact-phone"
+                label="Téléphone"
+                placeholder="+33 6 00 00 00 00"
+                [control]="form.controls.phone"
+                [hideLabelVisually]="true"
+              ></app-text-field>
+
+              <app-character-counter
+                [control]="form.controls.phone"
+                [maxLength]="phoneMaxLength"
+                [warningThreshold]="phoneWarningThreshold"
+              ></app-character-counter>
+            </div>
           </div>
 
           <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
@@ -209,13 +257,21 @@
               </p>
             </div>
 
-            <app-text-field
-              id="contact-location"
-              label="Localisation"
-              placeholder="Paris, France"
-              [control]="form.controls.location"
-              [hideLabelVisually]="true"
-            ></app-text-field>
+            <div class="space-y-1">
+              <app-text-field
+                id="contact-location"
+                label="Localisation"
+                placeholder="Paris, France"
+                [control]="form.controls.location"
+                [hideLabelVisually]="true"
+              ></app-text-field>
+
+              <app-character-counter
+                [control]="form.controls.location"
+                [maxLength]="locationMaxLength"
+                [warningThreshold]="locationWarningThreshold"
+              ></app-character-counter>
+            </div>
           </div>
 
           <div class="rounded-3xl border border-border/70 bg-card/40 p-4">
@@ -229,13 +285,21 @@
               </p>
             </div>
 
-            <app-text-field
-              id="contact-linkedin"
-              label="Lien LinkedIn"
-              placeholder="https://www.linkedin.com/in/..."
-              [control]="form.controls.linkedinUrl"
-              [hideLabelVisually]="true"
-            ></app-text-field>
+            <div class="space-y-1">
+              <app-text-field
+                id="contact-linkedin"
+                label="Lien LinkedIn"
+                placeholder="https://www.linkedin.com/in/..."
+                [control]="form.controls.linkedinUrl"
+                [hideLabelVisually]="true"
+              ></app-text-field>
+
+              <app-character-counter
+                [control]="form.controls.linkedinUrl"
+                [maxLength]="urlMaxLength"
+                [warningThreshold]="urlWarningThreshold"
+              ></app-character-counter>
+            </div>
           </div>
 
           <div class="rounded-3xl border border-border/70 bg-card/40 p-4 md:col-span-2">
@@ -249,13 +313,15 @@
               </p>
             </div>
 
-            <app-text-field
-              id="contact-github"
-              label="Lien GitHub"
-              placeholder="https://github.com/..."
-              [control]="form.controls.githubUrl"
-              [hideLabelVisually]="true"
-            ></app-text-field>
+            <div class="space-y-1">
+              <app-text-field
+                id="contact-github"
+                label="Lien GitHub"
+                placeholder="https://github.com/..."
+                [control]="form.controls.githubUrl"
+                [hideLabelVisually]="true"
+              ></app-text-field>
+            </div>
           </div>
         </div>
       </div>

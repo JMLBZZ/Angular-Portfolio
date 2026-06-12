@@ -104,19 +104,35 @@
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5">
         <div class="grid gap-5 md:grid-cols-2">
-          <app-text-field
-            id="legal-title-fr"
-            label="Titre de page (FR)"
-            placeholder="Mentions légales & Politique de confidentialité"
-            [control]="form.controls.titleFr"
-          ></app-text-field>
+          <div class="space-y-1">
+            <app-text-field
+              id="legal-title-fr"
+              label="Titre de page (FR)"
+              placeholder="Mentions légales & Politique de confidentialité"
+              [control]="form.controls.titleFr"
+            ></app-text-field>
 
-          <app-text-field
-            id="legal-title-en"
-            label="Titre de page (EN)"
-            placeholder="Legal notice & Privacy policy"
-            [control]="form.controls.titleEn"
-          ></app-text-field>
+            <app-character-counter
+              [control]="form.controls.titleFr"
+              [maxLength]="titleMaxLength"
+              [warningThreshold]="titleWarningThreshold"
+            ></app-character-counter>
+          </div>
+
+          <div class="space-y-1">
+            <app-text-field
+              id="legal-title-en"
+              label="Titre de page (EN)"
+              placeholder="Legal notice & Privacy policy"
+              [control]="form.controls.titleEn"
+            ></app-text-field>
+
+            <app-character-counter
+              [control]="form.controls.titleEn"
+              [maxLength]="titleMaxLength"
+              [warningThreshold]="titleWarningThreshold"
+            ></app-character-counter>
+          </div>
         </div>
       </div>
     </div>
@@ -143,13 +159,19 @@
           </p>
         </div>
 
-        <div class="rounded-3xl border border-border/70 bg-background/60 p-4">
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-4 space-y-1">
           <app-rich-text-editor
             id="legal-content-fr"
             label="Contenu riche (FR)"
             placeholder="Rédige ici les mentions légales et la politique de confidentialité en français..."
             formControlName="contentFr"
           ></app-rich-text-editor>
+
+          <app-character-counter
+            [control]="form.controls.contentFr"
+            [maxLength]="legalContentMaxLength"
+            [warningThreshold]="legalContentWarningThreshold"
+          ></app-character-counter>
         </div>
 
         <p
@@ -181,13 +203,19 @@
           </p>
         </div>
 
-        <div class="rounded-3xl border border-border/70 bg-background/60 p-4">
+        <div class="rounded-3xl border border-border/70 bg-background/60 p-4 space-y-1">
           <app-rich-text-editor
             id="legal-content-en"
             label="Contenu riche (EN)"
             placeholder="Write the legal notice and privacy policy in English..."
             formControlName="contentEn"
           ></app-rich-text-editor>
+
+          <app-character-counter
+            [control]="form.controls.contentEn"
+            [maxLength]="legalContentMaxLength"
+            [warningThreshold]="legalContentWarningThreshold"
+          ></app-character-counter>
         </div>
 
         <p

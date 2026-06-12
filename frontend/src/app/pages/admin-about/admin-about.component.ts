@@ -43,6 +43,7 @@ import {
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
 import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
 
 @Component({
   selector: 'app-admin-about',
@@ -56,6 +57,7 @@ import { AdminFloatingActionsComponent } from '../../shared/components/admin-flo
     PrimaryButtonComponent,
     LucideAngularModule,
     AdminFloatingActionsComponent,
+    CharacterCounterComponent,
   ],
   templateUrl: './admin-about.component.html',
 })
@@ -76,6 +78,30 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
   readonly fallbackAvatarUrl = '/assets/about/avatar.png';
   readonly maxProfileImageSize = 5 * 1024 * 1024;
 
+  readonly shortTextMaxLength = 255;
+  readonly profileNameMaxLength = 120;
+  readonly profileImageUrlMaxLength = 1000;
+  readonly profileInfoMaxLength = 120;
+  readonly bioMaxLength = 3000;
+  readonly timelineDateMaxLength = 80;
+  readonly timelineTextMaxLength = 120;
+  readonly timelineDescriptionMaxLength = 3000;
+  readonly skillGroupTitleMaxLength = 120;
+  readonly skillItemNameMaxLength = 80;
+  readonly softSkillMaxLength = 120;
+
+  readonly shortTextWarningThreshold = 25;
+  readonly profileNameWarningThreshold = 15;
+  readonly profileImageUrlWarningThreshold = 100;
+  readonly profileInfoWarningThreshold = 15;
+  readonly bioWarningThreshold = 250;
+  readonly timelineDateWarningThreshold = 10;
+  readonly timelineTextWarningThreshold = 15;
+  readonly timelineDescriptionWarningThreshold = 250;
+  readonly skillGroupTitleWarningThreshold = 15;
+  readonly skillItemNameWarningThreshold = 10;
+  readonly softSkillWarningThreshold = 15;
+
   isLoading = false;
   isSubmitting = false;
   isTranslating = false;
@@ -87,75 +113,75 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
   readonly form = new FormGroup({
     titleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     titleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     subtitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     subtitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     profileName: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.profileNameMaxLength)],
     }),
     profileImageUrl: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1000)],
+      validators: [Validators.maxLength(this.profileImageUrlMaxLength)],
     }),
     profileRoleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.profileInfoMaxLength)],
     }),
     profileRoleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.profileInfoMaxLength)],
     }),
     bioFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(2000)],
+      validators: [Validators.required, Validators.maxLength(this.bioMaxLength)],
     }),
     bioEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(2000)],
+      validators: [Validators.required, Validators.maxLength(this.bioMaxLength)],
     }),
     locationFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.profileInfoMaxLength)],
     }),
     locationEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.profileInfoMaxLength)],
     }),
     timelineTitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     timelineTitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     skillsTitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     skillsTitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     softSkillsTitleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     softSkillsTitleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(255)],
+      validators: [Validators.required, Validators.maxLength(this.shortTextMaxLength)],
     }),
     timelineItems: new FormArray<FormGroup>([]),
     skillGroups: new FormArray<FormGroup>([]),
@@ -866,35 +892,35 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return new FormGroup({
       dateFr: new FormControl(value?.dateFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(80)],
+        validators: [Validators.required, Validators.maxLength(this.timelineDateMaxLength)],
       }),
       dateEn: new FormControl(value?.dateEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(80)],
+        validators: [Validators.required, Validators.maxLength(this.timelineDateMaxLength)],
       }),
       companyFr: new FormControl(value?.companyFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.timelineTextMaxLength)],
       }),
       companyEn: new FormControl(value?.companyEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.timelineTextMaxLength)],
       }),
       titleFr: new FormControl(value?.titleFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.timelineTextMaxLength)],
       }),
       titleEn: new FormControl(value?.titleEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.timelineTextMaxLength)],
       }),
       descriptionFr: new FormControl(value?.descriptionFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(1000)],
+        validators: [Validators.required, Validators.maxLength(this.timelineDescriptionMaxLength)],
       }),
       descriptionEn: new FormControl(value?.descriptionEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(1000)],
+        validators: [Validators.required, Validators.maxLength(this.timelineDescriptionMaxLength)],
       }),
       icon: new FormControl(value?.icon ?? 'work', {
         nonNullable: true,
@@ -911,11 +937,11 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return new FormGroup({
       titleFr: new FormControl(value?.titleFr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.skillGroupTitleMaxLength)],
       }),
       titleEn: new FormControl(value?.titleEn ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.skillGroupTitleMaxLength)],
       }),
       items: new FormArray<FormGroup>(
         (value?.items ?? []).map((item) => this.createSkillItemGroup(item))
@@ -930,7 +956,7 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return new FormGroup({
       name: new FormControl(value?.name ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(80)],
+        validators: [Validators.required, Validators.maxLength(this.skillItemNameMaxLength)],
       }),
       value: new FormControl(value?.value ?? 0, {
         nonNullable: true,
@@ -946,11 +972,11 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return new FormGroup({
       fr: new FormControl(value?.fr ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.softSkillMaxLength)],
       }),
       en: new FormControl(value?.en ?? '', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(120)],
+        validators: [Validators.required, Validators.maxLength(this.softSkillMaxLength)],
       }),
     });
   }

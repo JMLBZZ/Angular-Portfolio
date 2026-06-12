@@ -27,6 +27,7 @@ import {
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
+import { CharacterCounterComponent } from '../../shared/components/character-counter/character-counter.component';
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminProject, AdminProjectPayload } from '../../core/auth/auth.models';
 import {
@@ -61,6 +62,7 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
     TextFieldComponent,
     TextAreaComponent,
     PrimaryButtonComponent,
+    CharacterCounterComponent,
     FallbackImageDirective,
     DragDropModule,
     LucideAngularModule,
@@ -101,6 +103,16 @@ export class AdminProjectFormComponent
 
   readonly acceptedImageTypes = 'image/png,image/jpeg,image/jpg,image/webp';
 
+  readonly projectTitleMaxLength = 120;
+  readonly projectShortDescriptionMaxLength = 300;
+  readonly projectLongDescriptionMaxLength = 3000;
+  readonly projectDetailTextMaxLength = 1200;
+
+  readonly projectTitleWarningThreshold = 15;
+  readonly projectShortDescriptionWarningThreshold = 30;
+  readonly projectLongDescriptionWarningThreshold = 250;
+  readonly projectDetailTextWarningThreshold = 120;
+
   private slugManuallyEdited = false;
   private subscriptions = new Subscription();
 
@@ -126,7 +138,7 @@ export class AdminProjectFormComponent
     }),
     title: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(120)],
+      validators: [Validators.required, Validators.maxLength(this.projectTitleMaxLength)],
     }),
     category: new FormControl('fullstack', {
       nonNullable: true,
@@ -152,20 +164,20 @@ export class AdminProjectFormComponent
 
     descriptionFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(300)],
+      validators: [Validators.required, Validators.maxLength(this.projectShortDescriptionMaxLength)],
     }),
     descriptionEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(300)],
+      validators: [Validators.required, Validators.maxLength(this.projectShortDescriptionMaxLength)],
     }),
 
     longDescriptionFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(3000)],
+      validators: [Validators.maxLength(this.projectLongDescriptionMaxLength)],
     }),
     longDescriptionEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(3000)],
+      validators: [Validators.maxLength(this.projectLongDescriptionMaxLength)],
     }),
 
     stackInput: new FormControl('', {
@@ -179,27 +191,27 @@ export class AdminProjectFormComponent
 
     roleFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1200)],
+      validators: [Validators.maxLength(this.projectDetailTextMaxLength)],
     }),
     roleEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1200)],
+      validators: [Validators.maxLength(this.projectDetailTextMaxLength)],
     }),
     problemFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1200)],
+      validators: [Validators.maxLength(this.projectDetailTextMaxLength)],
     }),
     problemEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1200)],
+      validators: [Validators.maxLength(this.projectDetailTextMaxLength)],
     }),
     solutionFr: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1200)],
+      validators: [Validators.maxLength(this.projectDetailTextMaxLength)],
     }),
     solutionEn: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.maxLength(1200)],
+      validators: [Validators.maxLength(this.projectDetailTextMaxLength)],
     }),
 
     demoUrl: new FormControl('', {
