@@ -19,6 +19,7 @@ import {
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
 
+import { AdminAnalyticsApiService, SiteVisitStats } from '../../core/api/admin-analytics-api.service';
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminMessagesApiService } from '../../core/api/admin-messages-api.service';
 import { AdminProject } from '../../core/auth/auth.models';
@@ -66,6 +67,10 @@ export class AdminDashboardComponent implements OnInit {
     unread: 0,
     read: 0,
     archived: 0,
+  };
+
+  visitStats: SiteVisitStats = {
+    totalVisits: 0,
   };
 
   isLoading = true;
@@ -131,6 +136,7 @@ export class AdminDashboardComponent implements OnInit {
   ];
 
   constructor(
+    private adminAnalyticsApi: AdminAnalyticsApiService,
     private adminProjectsApi: AdminProjectsApiService,
     private adminMessagesApi: AdminMessagesApiService,
     private toastService: ToastService
@@ -148,11 +154,13 @@ export class AdminDashboardComponent implements OnInit {
       projects: this.adminProjectsApi.getAll(),
       messageStats: this.adminMessagesApi.getStats(),
       unreadMessages: this.adminMessagesApi.getAll('unread', 0, 4),
+      visitStats: this.adminAnalyticsApi.getVisitStats(),
     }).subscribe({
-      next: ({ projects, messageStats, unreadMessages }) => {
+      next: ({ projects, messageStats, unreadMessages, visitStats }) => {
         this.projects = projects.data;
         this.messageStats = messageStats;
         this.recentUnreadMessages = unreadMessages.data ?? [];
+        this.visitStats = visitStats;
         this.isLoading = false;
       },
       error: (error) => {
@@ -163,6 +171,9 @@ export class AdminDashboardComponent implements OnInit {
           unread: 0,
           read: 0,
           archived: 0,
+        };
+        this.visitStats = {
+          totalVisits: 0,
         };
         this.errorMessage = extractApiErrorMessage(
           error,
@@ -182,8 +193,8 @@ export class AdminDashboardComponent implements OnInit {
     return this.projects.filter((project) => project.published).length;
   }
 
-  get draftCount(): number {
-    return this.projects.filter((project) => !project.published).length;
+  get totalVisitsCount(): number {
+    return this.visitStats.totalVisits;
   }
 
   get unreadMessagesCount(): number {

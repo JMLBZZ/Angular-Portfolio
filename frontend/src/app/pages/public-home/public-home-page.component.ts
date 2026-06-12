@@ -1,10 +1,10 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser, UpperCasePipe } from '@angular/common';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { UpperCasePipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { catchError, EMPTY, Subscription, take } from 'rxjs';
 
 import { LanguageService } from '../../core/i18n/language.service';
+import { PublicAnalyticsApiService } from '../../core/api/public-analytics-api.service';
 import { SeoService } from '../../core/seo/seo.service';
 
 import { HeaderComponent } from '../../layout/header/header.component';
@@ -44,12 +44,15 @@ export class PublicHomePageComponent implements OnInit, OnDestroy {
 
   constructor(
     public lang: LanguageService,
+    private publicAnalyticsApi: PublicAnalyticsApiService,
     private seoService: SeoService,
     private translate: TranslateService,
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   ngOnInit(): void {
+    this.registerVisit();
     this.updateSeo();
 
     this.subscription.add(
@@ -71,6 +74,20 @@ export class PublicHomePageComponent implements OnInit, OnDestroy {
   closeProjectModal(): void {
     this.isProjectModalOpen = false;
     setTimeout(() => (this.selectedProject = null), 200);
+  }
+
+  private registerVisit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.publicAnalyticsApi
+      .registerVisit()
+      .pipe(
+        take(1),
+        catchError(() => EMPTY)
+      )
+      .subscribe();
   }
 
   private updateSeo(): void {
