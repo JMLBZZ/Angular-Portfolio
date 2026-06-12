@@ -262,25 +262,13 @@
         </div>
       </div>
 
-      <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p class="text-sm opacity-70">
-            Enregistre cette partie avant de quitter la page.
-          </p>
-
-          <app-primary-button
-            type="submit"
-            [loading]="isSubmittingHero"
-            [disabled]="isSubmittingHero || isTranslatingHero"
-          >
-            <span *ngIf="!isSubmittingHero" class="inline-flex items-center gap-2">
-              <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
-              Enregistrer le hero
-            </span>
-            <span *ngIf="isSubmittingHero">Enregistrement...</span>
-          </app-primary-button>
-        </div>
-      </div>
+      <app-admin-floating-actions
+        [cancelDisabled]="!heroForm.dirty || isSubmittingHero || isTranslatingHero"
+        [saveLoading]="isSubmittingHero"
+        [saveDisabled]="!heroForm.dirty || isSubmittingHero || isTranslatingHero"
+        saveType="submit"
+        (cancelClicked)="cancelHeroChanges()"
+      ></app-admin-floating-actions>
     </form>
   </div>
 
@@ -571,25 +559,13 @@
         </div>
       </div>
 
-      <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p class="text-sm opacity-70">
-            Enregistrez cette partie avant de quitter la page.
-          </p>
-
-          <app-primary-button
-            type="submit"
-            [loading]="isSubmittingHeroCard"
-            [disabled]="isSubmittingHeroCard || isTranslatingHeroCard"
-          >
-            <span *ngIf="!isSubmittingHeroCard" class="inline-flex items-center gap-2">
-              <lucide-icon [img]="SaveIcon" class="h-4 w-4"></lucide-icon>
-              Enregistrer la carte
-            </span>
-            <span *ngIf="isSubmittingHeroCard">Enregistrement...</span>
-          </app-primary-button>
-        </div>
-      </div>
+      <app-admin-floating-actions
+        [cancelDisabled]="!heroCardForm.dirty || isSubmittingHeroCard || isTranslatingHeroCard"
+        [saveLoading]="isSubmittingHeroCard"
+        [saveDisabled]="!heroCardForm.dirty || isSubmittingHeroCard || isTranslatingHeroCard"
+        saveType="submit"
+        (cancelClicked)="cancelHeroCardChanges()"
+      ></app-admin-floating-actions>
     </form>
   </div>
 </section>

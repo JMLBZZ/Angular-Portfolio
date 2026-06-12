@@ -22,6 +22,7 @@ import { ToastService } from '../../shared/services/toast.service';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { scrollToSelector } from '../../shared/utils/admin-form.utils';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 
 GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
@@ -36,6 +37,7 @@ GlobalWorkerOptions.workerSrc = new URL(
     RouterLink,
     PrimaryButtonComponent,
     LucideAngularModule,
+    AdminFloatingActionsComponent,
   ],
   templateUrl: './admin-resume.component.html',
 })
@@ -89,6 +91,23 @@ export class AdminResumeComponent implements OnInit, OnDestroy, PendingChangesCo
     return window.confirm(
       'Vous avez sélectionné un fichier non envoyé. Voulez-vous vraiment quitter cette page ?'
     );
+  }
+
+  cancelChanges(fileInput?: HTMLInputElement): void {
+    if (!this.selectedFile || this.isSubmitting) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez un fichier non enregistré. Voulez-vous vraiment annuler cette sélection ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.clearSelection(fileInput);
+    this.toastService.info('Modifications annulées.');
   }
 
   get hasResume(): boolean {

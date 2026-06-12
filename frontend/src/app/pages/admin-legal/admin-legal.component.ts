@@ -27,6 +27,7 @@ import {
   clearApiErrorsFromForm,
 } from '../../core/forms/apply-api-errors.util';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 import {
   handleInvalidAdminForm,
   scrollToSelector,
@@ -49,6 +50,7 @@ import { LegalContent } from '../../shared/models/legal.model';
     PrimaryButtonComponent,
     RichTextEditorComponent,
     LucideAngularModule,
+    AdminFloatingActionsComponent,
   ],
   templateUrl: './admin-legal.component.html',
 })
@@ -118,6 +120,23 @@ export class AdminLegalComponent implements OnInit, OnDestroy, PendingChangesCom
     return window.confirm(
       'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
     );
+  }
+
+  cancelChanges(): void {
+    if (!this.form.dirty || this.isSubmitting || this.isTranslating) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment les annuler ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loadLegalContent();
+    this.toastService.info('Modifications annulées.');
   }
 
   loadLegalContent(): void {

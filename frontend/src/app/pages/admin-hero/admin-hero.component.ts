@@ -38,6 +38,7 @@ import {
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 
 type HeroTechBadgeFormGroup = FormGroup<{
   id: FormControl<number | null>;
@@ -56,6 +57,7 @@ type HeroTechBadgeFormGroup = FormGroup<{
     TextFieldComponent,
     PrimaryButtonComponent,
     LucideAngularModule,
+    AdminFloatingActionsComponent,
   ],
   templateUrl: './admin-hero.component.html',
 })
@@ -232,6 +234,40 @@ export class AdminHeroComponent implements OnInit, OnDestroy, PendingChangesComp
     return window.confirm(
       'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
     );
+  }
+
+  cancelHeroChanges(): void {
+    if (!this.heroForm.dirty || this.isSubmittingHero || this.isTranslatingHero) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment les annuler ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loadHero();
+    this.toastService.info('Modifications annulées.');
+  }
+
+  cancelHeroCardChanges(): void {
+    if (!this.heroCardForm.dirty || this.isSubmittingHeroCard || this.isTranslatingHeroCard) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment les annuler ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loadHeroCard();
+    this.toastService.info('Modifications annulées.');
   }
 
   get hasUnsavedChanges(): boolean {

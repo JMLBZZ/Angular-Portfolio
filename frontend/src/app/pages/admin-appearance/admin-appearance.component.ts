@@ -24,6 +24,7 @@ import { ThemeService } from '../../core/theme/theme.service';
 import { DEFAULT_ACCENT_COLOR } from '../../shared/models/appearance.model';
 import { ToastService } from '../../shared/services/toast.service';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 
 @Component({
   selector: 'app-admin-appearance',
@@ -32,6 +33,7 @@ import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
     CommonModule,
     FormsModule,
     LucideAngularModule,
+    AdminFloatingActionsComponent,
   ],
   templateUrl: './admin-appearance.component.html',
 })
@@ -97,6 +99,23 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     return window.confirm(
       'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
     );
+  }
+
+  cancelChanges(): void {
+    if (!this.hasUnsavedChanges || this.isBusy) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment les annuler ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.restoreSavedAppearance();
+    this.toastService.info('Modifications annulées.');
   }
 
   get normalizedAccentColor(): string {

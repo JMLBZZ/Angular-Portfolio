@@ -25,7 +25,6 @@ import {
   LucideAngularModule,
 } from 'lucide-angular';
 
-
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
@@ -43,6 +42,7 @@ import {
   setupAdminFormErrorCleanup,
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 
 @Component({
   selector: 'app-admin-about',
@@ -55,6 +55,7 @@ import { TranslationApiService } from '../../core/api/translation-api.service';
     TextAreaComponent,
     PrimaryButtonComponent,
     LucideAngularModule,
+    AdminFloatingActionsComponent,
   ],
   templateUrl: './admin-about.component.html',
 })
@@ -192,6 +193,23 @@ export class AdminAboutComponent implements OnInit, OnDestroy, PendingChangesCom
     return window.confirm(
       'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
     );
+  }
+
+  cancelChanges(): void {
+    if (!this.form.dirty || this.isSubmitting || this.isTranslating) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment les annuler ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loadAbout();
+    this.toastService.info('Modifications annulées.');
   }
 
   get timelineItems(): FormArray<FormGroup> {

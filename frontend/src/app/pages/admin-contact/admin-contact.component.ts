@@ -31,6 +31,7 @@ import {
 } from '../../shared/utils/admin-form.utils';
 import { TranslationApiService } from '../../core/api/translation-api.service';
 import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
+import { AdminFloatingActionsComponent } from '../../shared/components/admin-floating-actions/admin-floating-actions.component';
 
 @Component({
   selector: 'app-admin-contact',
@@ -42,6 +43,7 @@ import { PendingChangesComponent } from '../../core/auth/pending-changes.guard';
     TextFieldComponent,
     PrimaryButtonComponent,
     LucideAngularModule,
+    AdminFloatingActionsComponent,
   ],
   templateUrl: './admin-contact.component.html',
 })
@@ -132,6 +134,23 @@ export class AdminContactComponent implements OnInit, OnDestroy, PendingChangesC
     return window.confirm(
       'Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ?'
     );
+  }
+
+  cancelChanges(): void {
+    if (!this.form.dirty || this.isSubmitting || this.isTranslating) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Vous avez des modifications non enregistrées. Voulez-vous vraiment les annuler ?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loadContact();
+    this.toastService.info('Modifications annulées.');
   }
 
   loadContact(): void {
