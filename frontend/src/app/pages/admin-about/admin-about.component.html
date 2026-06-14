@@ -414,15 +414,6 @@
             Ajoute les expériences, formations ou grandes étapes de ton parcours.
           </p>
         </div>
-
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          (click)="addTimelineItem()"
-        >
-          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
-          Ajouter une étape
-        </button>
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
@@ -665,6 +656,20 @@
             </div>
           </div>
         </div>
+
+        <div
+          *ngIf="hasTimelineItems"
+          class="flex justify-end pt-2"
+        >
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            (click)="addTimelineItem()"
+          >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+            Ajouter une étape
+          </button>
+        </div>
       </div>
     </div>
 
@@ -689,15 +694,6 @@
             Organise tes compétences par groupes. Exemple : Front-End, Back-End, Outils.
           </p>
         </div>
-
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          (click)="addSkillGroup()"
-        >
-          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
-          Ajouter un groupe
-        </button>
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
@@ -932,6 +928,20 @@
             </div>
           </div>
         </div>
+
+        <div
+          *ngIf="hasSkillGroups"
+          class="flex justify-end pt-2"
+        >
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            (click)="addSkillGroup()"
+          >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+            Ajouter un groupe
+          </button>
+        </div>
       </div>
     </div>
 
@@ -956,15 +966,6 @@
             Ajoute les compétences comportementales visibles sous forme de badges.
           </p>
         </div>
-
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          (click)="addSoftSkill()"
-        >
-          <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
-          Ajouter une soft skill
-        </button>
       </div>
 
       <div class="rounded-3xl border border-border/70 bg-background/60 p-5 space-y-5">
@@ -1092,6 +1093,20 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div
+          *ngIf="hasSoftSkills"
+          class="flex justify-start pt-2"
+        >
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 px-4 text-sm font-semibold transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            (click)="addSoftSkill()"
+          >
+            <lucide-icon [img]="PlusIcon" class="h-4 w-4"></lucide-icon>
+            Ajouter une soft skill
+          </button>
         </div>
       </div>
     </div>
