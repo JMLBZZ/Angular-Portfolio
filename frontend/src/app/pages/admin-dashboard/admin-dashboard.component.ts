@@ -12,6 +12,7 @@ import {
   MessageSquareTextIcon,
   PaletteIcon,
   PlusIcon,
+  RefreshCcwDotIcon,
   ScaleIcon,
   SparklesIcon,
   UserRoundIcon,
@@ -19,9 +20,12 @@ import {
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
 
-import { AdminAnalyticsApiService, SiteVisitStats } from '../../core/api/admin-analytics-api.service';
 import { AdminProjectsApiService } from '../../core/api/admin-projects-api.service';
 import { AdminMessagesApiService } from '../../core/api/admin-messages-api.service';
+import {
+  AdminAnalyticsApiService,
+  SiteVisitStatsResponse,
+} from '../../core/api/admin-analytics-api.service';
 import { AdminProject } from '../../core/auth/auth.models';
 import { extractApiErrorMessage } from '../../core/api/api-error.utils';
 import { ToastService } from '../../shared/services/toast.service';
@@ -58,9 +62,11 @@ export class AdminDashboardComponent implements OnInit {
   readonly GlobeIcon = GlobeIcon;
   readonly MailIcon = MailIcon;
   readonly MessageSquareTextIcon = MessageSquareTextIcon;
+  readonly RefreshCcwDotIcon = RefreshCcwDotIcon;
 
   projects: AdminProject[] = [];
   recentUnreadMessages: ContactMessage[] = [];
+  visitStats: SiteVisitStatsResponse | null = null;
 
   messageStats: ContactMessageStats = {
     total: 0,
@@ -69,11 +75,8 @@ export class AdminDashboardComponent implements OnInit {
     archived: 0,
   };
 
-  visitStats: SiteVisitStats = {
-    totalVisits: 0,
-  };
-
   isLoading = true;
+  isResettingVisitStats = false;
   errorMessage = '';
 
   readonly shortcuts: DashboardShortcut[] = [
@@ -136,9 +139,9 @@ export class AdminDashboardComponent implements OnInit {
   ];
 
   constructor(
-    private adminAnalyticsApi: AdminAnalyticsApiService,
     private adminProjectsApi: AdminProjectsApiService,
     private adminMessagesApi: AdminMessagesApiService,
+    private adminAnalyticsApi: AdminAnalyticsApiService,
     private toastService: ToastService
   ) {}
 
@@ -166,14 +169,12 @@ export class AdminDashboardComponent implements OnInit {
       error: (error) => {
         this.projects = [];
         this.recentUnreadMessages = [];
+        this.visitStats = null;
         this.messageStats = {
           total: 0,
           unread: 0,
           read: 0,
           archived: 0,
-        };
-        this.visitStats = {
-          totalVisits: 0,
         };
         this.errorMessage = extractApiErrorMessage(
           error,
@@ -181,6 +182,40 @@ export class AdminDashboardComponent implements OnInit {
         );
         this.toastService.error(this.errorMessage);
         this.isLoading = false;
+      },
+    });
+  }
+
+  resetVisitStats(): void {
+    if (this.isResettingVisitStats) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Voulez-vous vraiment remettre le compteur de visites à zéro ? Cette action est irréversible.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.isResettingVisitStats = true;
+
+    this.adminAnalyticsApi.resetVisitStats().subscribe({
+      next: (stats) => {
+        this.visitStats = stats;
+        this.isResettingVisitStats = false;
+        this.toastService.success('Compteur de visites remis à zéro.');
+      },
+      error: (error) => {
+        this.isResettingVisitStats = false;
+
+        const message = extractApiErrorMessage(
+          error,
+          'Impossible de remettre le compteur de visites à zéro.'
+        );
+
+        this.toastService.error(message);
       },
     });
   }
@@ -193,8 +228,8 @@ export class AdminDashboardComponent implements OnInit {
     return this.projects.filter((project) => project.published).length;
   }
 
-  get totalVisitsCount(): number {
-    return this.visitStats.totalVisits;
+  get draftCount(): number {
+    return this.projects.filter((project) => !project.published).length;
   }
 
   get unreadMessagesCount(): number {
@@ -203,6 +238,10 @@ export class AdminDashboardComponent implements OnInit {
 
   get totalMessagesCount(): number {
     return this.messageStats.total;
+  }
+
+  get totalVisitsCount(): number {
+    return this.visitStats?.totalVisits ?? 0;
   }
 
   get recentProjects(): AdminProject[] {

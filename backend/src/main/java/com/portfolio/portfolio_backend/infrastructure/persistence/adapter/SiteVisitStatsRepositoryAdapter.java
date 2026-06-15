@@ -43,4 +43,17 @@ public class SiteVisitStatsRepositoryAdapter implements SiteVisitStatsRepository
 
         return siteVisitStatsMapper.toDomain(savedEntity);
     }
+
+    @Override
+    public SiteVisitStats resetVisits() {
+        SiteVisitStatsEntity entity = jpaSiteVisitStatsRepository
+                .findByIdForUpdate(SITE_VISIT_STATS_ID)
+                .orElseGet(() -> new SiteVisitStatsEntity(SITE_VISIT_STATS_ID, 0));
+
+        entity.resetTotalVisits();
+
+        SiteVisitStatsEntity savedEntity = jpaSiteVisitStatsRepository.save(entity);
+
+        return siteVisitStatsMapper.toDomain(savedEntity);
+    }
 }

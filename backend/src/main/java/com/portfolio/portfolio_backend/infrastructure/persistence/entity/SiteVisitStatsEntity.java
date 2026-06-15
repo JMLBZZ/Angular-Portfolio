@@ -34,4 +34,8 @@ public class SiteVisitStatsEntity {
     public void incrementTotalVisits() {
         this.totalVisits++;
     }
+
+    public void resetTotalVisits() {
+        this.totalVisits = 0;
+    }
 }

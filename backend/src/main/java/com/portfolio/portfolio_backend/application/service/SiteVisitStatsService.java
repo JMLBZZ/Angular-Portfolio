@@ -14,13 +14,18 @@ public class SiteVisitStatsService {
         this.siteVisitStatsRepositoryPort = siteVisitStatsRepositoryPort;
     }
 
+    @Transactional
+    public SiteVisitStats registerVisit() {
+        return siteVisitStatsRepositoryPort.incrementTotalVisits();
+    }
+
     @Transactional(readOnly = true)
     public SiteVisitStats getStats() {
         return siteVisitStatsRepositoryPort.getStats();
     }
 
     @Transactional
-    public SiteVisitStats registerVisit() {
-        return siteVisitStatsRepositoryPort.incrementTotalVisits();
+    public SiteVisitStats resetVisits() {
+        return siteVisitStatsRepositoryPort.resetVisits();
     }
 }

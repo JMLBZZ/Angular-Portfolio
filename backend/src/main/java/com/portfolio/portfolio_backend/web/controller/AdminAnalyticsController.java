@@ -5,6 +5,7 @@ import com.portfolio.portfolio_backend.domain.model.SiteVisitStats;
 import com.portfolio.portfolio_backend.web.dto.SiteVisitStatsResponseDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,11 @@ public class AdminAnalyticsController {
     @GetMapping("/visits")
     public SiteVisitStatsResponseDTO getVisitStats() {
         return toResponse(siteVisitStatsService.getStats());
+    }
+
+    @PostMapping("/visits/reset")
+    public SiteVisitStatsResponseDTO resetVisitStats() {
+        return toResponse(siteVisitStatsService.resetVisits());
     }
 
     private SiteVisitStatsResponseDTO toResponse(SiteVisitStats stats) {

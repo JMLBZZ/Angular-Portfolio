@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from './api.config';
 
-export interface SiteVisitStats {
+export type SiteVisitStatsResponse = {
   totalVisits: number;
-}
+};
 
 @Injectable({ providedIn: 'root' })
 export class AdminAnalyticsApiService {
@@ -14,9 +14,16 @@ export class AdminAnalyticsApiService {
 
   constructor(private http: HttpClient) {}
 
-  getVisitStats(): Observable<SiteVisitStats> {
-    return this.http.get<SiteVisitStats>(
+  getVisitStats(): Observable<SiteVisitStatsResponse> {
+    return this.http.get<SiteVisitStatsResponse>(
       `${this.baseUrl}/api/admin/analytics/visits`
+    );
+  }
+
+  resetVisitStats(): Observable<SiteVisitStatsResponse> {
+    return this.http.post<SiteVisitStatsResponse>(
+      `${this.baseUrl}/api/admin/analytics/visits/reset`,
+      {}
     );
   }
 }

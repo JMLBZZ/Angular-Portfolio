@@ -121,13 +121,24 @@
             </p>
           </div>
 
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary">
-            <lucide-icon [img]="ActivityIcon" class="h-5 w-5"></lucide-icon>
-          </span>
+          <button
+            type="button"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary transition hover:border-primary/40 hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            [disabled]="isResettingVisitStats"
+            aria-label="Remettre le compteur de visites à zéro"
+            title="Remettre le compteur de visites à zéro"
+            (click)="resetVisitStats()"
+          >
+            <lucide-icon
+              [img]="RefreshCcwDotIcon"
+              class="h-5 w-5"
+              [class.animate-spin]="isResettingVisitStats"
+            ></lucide-icon>
+          </button>
         </div>
 
         <p class="mt-2 text-xs opacity-60">
-          Nombre total de chargements du portfolio.
+          Cumul depuis la dernière remise à zéro.
         </p>
       </div>
 
