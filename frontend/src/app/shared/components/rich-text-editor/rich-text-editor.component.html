@@ -152,6 +152,10 @@
           [&_p]:leading-relaxed
           [&_p]:text-foreground/70
 
+          [&_div]:mb-3
+          [&_div]:leading-relaxed
+          [&_div]:text-foreground/70
+
           [&_ul]:mb-3
           [&_ul]:pl-5
           [&_ul]:list-disc
@@ -169,7 +173,10 @@
           [&_a]:underline-offset-4
         "
         contenteditable="true"
+        role="textbox"
+        aria-multiline="true"
         [attr.contenteditable]="disabled ? 'false' : 'true'"
+        (focus)="prepareVisualEditor()"
         (input)="handleInput()"
         (blur)="handleBlur()"
         (paste)="handlePaste($event)"

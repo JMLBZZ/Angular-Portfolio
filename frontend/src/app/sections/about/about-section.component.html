@@ -128,9 +128,10 @@
                 <span>{{ profileLocation }}</span>
               </div>
 
-              <p class="mt-4 text-sm leading-relaxed text-foreground/70 whitespace-pre-line">
-                {{ profileBio }}
-              </p>
+              <div
+                class="mt-4 text-sm leading-relaxed text-foreground/70 [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-bold [&_h3]:mb-2 [&_h3]:mt-3 [&_h3]:font-semibold [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5"
+                [innerHTML]="profileBio"
+              ></div>
 
               <app-primary-button
                 *ngIf="cvUrl"

@@ -182,11 +182,11 @@ export class AdminProjectFormComponent
 
     stackInput: new FormControl('', {
       nonNullable: true,
-      validators: [commaSeparatedListValidator({ minItems: 1, unique: true })],
+      validators: [Validators.required, commaSeparatedListValidator({ minItems: 1, unique: true })],
     }),
     tagsInput: new FormControl('', {
       nonNullable: true,
-      validators: [commaSeparatedListValidator({ minItems: 1, unique: true })],
+      validators: [Validators.required, commaSeparatedListValidator({ minItems: 1, unique: true })],
     }),
 
     roleFr: new FormControl('', {
@@ -373,7 +373,7 @@ export class AdminProjectFormComponent
             : 'Projet créé avec succès.'
         );
 
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate(['/admin/projects']);
       },
       error: (error) => {
         this.isSubmitting = false;

@@ -6,6 +6,8 @@ import com.portfolio.portfolio_backend.domain.model.AboutSkillItem;
 import com.portfolio.portfolio_backend.domain.model.AboutTimelineItem;
 import com.portfolio.portfolio_backend.domain.model.LocalizedText;
 import com.portfolio.portfolio_backend.domain.port.out.AboutContentRepositoryPort;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +44,7 @@ public class AboutContentService {
                 sanitize(aboutContent.getProfileName(), PROFILE_NAME_MAX_LENGTH),
                 sanitize(aboutContent.getProfileImageUrl(), PROFILE_IMAGE_URL_MAX_LENGTH),
                 sanitizeLocalizedText(aboutContent.getProfileRole()),
-                sanitizeLocalizedText(aboutContent.getBio(), LONG_TEXT_MAX_LENGTH),
+                sanitizeLocalizedHtml(aboutContent.getBio(), LONG_TEXT_MAX_LENGTH),
                 sanitizeLocalizedText(aboutContent.getLocation(), SHORT_TEXT_MAX_LENGTH),
                 sanitizeLocalizedText(aboutContent.getTimelineTitle()),
                 sanitizeLocalizedText(aboutContent.getSkillsTitle()),
@@ -265,6 +267,36 @@ public class AboutContentService {
                 sanitize(text.getFr(), maxLength),
                 sanitize(text.getEn(), maxLength)
         );
+    }
+
+    private LocalizedText sanitizeLocalizedHtml(LocalizedText text, int maxLength) {
+        if (text == null) {
+            return new LocalizedText("", "");
+        }
+
+        return new LocalizedText(
+                sanitizeHtml(text.getFr(), maxLength),
+                sanitizeHtml(text.getEn(), maxLength)
+        );
+    }
+
+    private String sanitizeHtml(String input, int maxLength) {
+        if (input == null) {
+            return "";
+        }
+
+        Safelist safelist = Safelist.basic()
+                .addTags("h1", "h2", "h3", "h4", "u")
+                .addAttributes("a", "href", "title", "target", "rel")
+                .addProtocols("a", "href", "http", "https", "mailto");
+
+        String cleaned = Jsoup.clean(input, safelist).trim();
+
+        if (cleaned.length() > maxLength) {
+            cleaned = cleaned.substring(0, maxLength);
+        }
+
+        return cleaned;
     }
 
     private String sanitize(String input, int maxLength) {

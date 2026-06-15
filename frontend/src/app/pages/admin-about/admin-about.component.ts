@@ -27,6 +27,7 @@ import {
 
 import { TextFieldComponent } from '../../shared/components/text-field/text-field.component';
 import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
+import { RichTextEditorComponent } from '../../shared/components/rich-text-editor/rich-text-editor.component';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { AdminAboutApiService } from '../../core/api/admin-about-api.service';
@@ -54,6 +55,7 @@ import { CharacterCounterComponent } from '../../shared/components/character-cou
     RouterLink,
     TextFieldComponent,
     TextAreaComponent,
+    RichTextEditorComponent,
     PrimaryButtonComponent,
     LucideAngularModule,
     AdminFloatingActionsComponent,

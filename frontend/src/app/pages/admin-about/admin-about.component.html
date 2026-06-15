@@ -170,7 +170,7 @@
   ></app-character-counter>
 </div>
 
-          <div class="space-y-1">
+          <div class="space-y-1 md:col-span-2">
   <app-text-field
               id="about-profile-name"
               label="Nom affiché"
@@ -360,35 +360,35 @@
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
-          <div class="space-y-1">
-  <app-text-area
+          <div class="space-y-2">
+            <app-rich-text-editor
               id="about-bio-fr"
               label="Bio (FR)"
+              placeholder="Rédige ici ta biographie en français..."
+              formControlName="bioFr"
+            ></app-rich-text-editor>
+
+            <app-character-counter
               [control]="form.controls.bioFr"
-              [rows]="6"
-            ></app-text-area>
+              [maxLength]="bioMaxLength"
+              [warningThreshold]="bioWarningThreshold"
+            ></app-character-counter>
+          </div>
 
-  <app-character-counter
-    [control]="form.controls.bioFr"
-    [maxLength]="bioMaxLength"
-    [warningThreshold]="bioWarningThreshold"
-  ></app-character-counter>
-</div>
-
-          <div class="space-y-1">
-  <app-text-area
+          <div class="space-y-2">
+            <app-rich-text-editor
               id="about-bio-en"
               label="Bio (EN)"
-              [control]="form.controls.bioEn"
-              [rows]="6"
-            ></app-text-area>
+              placeholder="Write your biography in English..."
+              formControlName="bioEn"
+            ></app-rich-text-editor>
 
-  <app-character-counter
-    [control]="form.controls.bioEn"
-    [maxLength]="bioMaxLength"
-    [warningThreshold]="bioWarningThreshold"
-  ></app-character-counter>
-</div>
+            <app-character-counter
+              [control]="form.controls.bioEn"
+              [maxLength]="bioMaxLength"
+              [warningThreshold]="bioWarningThreshold"
+            ></app-character-counter>
+          </div>
         </div>
       </div>
     </div>
@@ -659,7 +659,7 @@
 
         <div
           *ngIf="hasTimelineItems"
-          class="flex justify-end pt-2"
+          class="flex justify-start pt-2"
         >
           <button
             type="button"
@@ -931,7 +931,7 @@
 
         <div
           *ngIf="hasSkillGroups"
-          class="flex justify-end pt-2"
+          class="flex justify-start pt-2"
         >
           <button
             type="button"
