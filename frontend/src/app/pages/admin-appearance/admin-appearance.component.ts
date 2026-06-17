@@ -8,6 +8,7 @@ import {
   EyeIcon,
   ImageIcon,
   PaletteIcon,
+  RefreshCcwDotIcon,
   RotateCcwIcon,
   Settings2Icon,
   SparklesIcon,
@@ -41,6 +42,7 @@ import { CharacterCounterComponent } from '../../shared/components/character-cou
 })
 export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChangesComponent {
   readonly PaletteIcon = PaletteIcon;
+  readonly RefreshCcwDotIcon = RefreshCcwDotIcon;
   readonly CheckCircle2Icon = CheckCircle2Icon;
   readonly EyeIcon = EyeIcon;
   readonly SparklesIcon = SparklesIcon;
@@ -324,6 +326,14 @@ export class AdminAppearanceComponent implements OnInit, OnDestroy, PendingChang
     if (this.isAccentColorValid) {
       this.themeService.applyAccentColor(this.normalizedAccentColor);
     }
+  }
+
+  resetAccentColorToDefault(): void {
+    if (this.isBusy) {
+      return;
+    }
+
+    this.onAccentColorChange(this.defaultAccentColor);
   }
 
   onLogoImageUrlChange(value: string): void {

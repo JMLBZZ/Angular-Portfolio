@@ -187,20 +187,33 @@
                 Couleur principale
               </label>
 
-              <input
-                id="accentColor"
-                type="text"
-                class="w-full rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
-                [placeholder]="defaultAccentColor"
-                [ngModel]="accentColor"
-                (ngModelChange)="onAccentColorChange($event)"
-                name="accentColor"
-                autocomplete="off"
-                [disabled]="isBusy"
-                [class.border-red-500]="accentColorError"
-                [attr.aria-invalid]="accentColorError ? 'true' : 'false'"
-                aria-describedby="accentColorHelp accentColorError"
-              />
+              <div class="flex items-start gap-3">
+                <input
+                  id="accentColor"
+                  type="text"
+                  class="min-w-0 flex-1 rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  [placeholder]="defaultAccentColor"
+                  [ngModel]="accentColor"
+                  (ngModelChange)="onAccentColorChange($event)"
+                  name="accentColor"
+                  autocomplete="off"
+                  [disabled]="isBusy"
+                  [class.border-red-500]="accentColorError"
+                  [attr.aria-invalid]="accentColorError ? 'true' : 'false'"
+                  aria-describedby="accentColorHelp accentColorError"
+                />
+
+                <button
+                  type="button"
+                  class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/70 text-primary transition hover:border-primary/40 hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  [disabled]="isBusy || normalizedAccentColor === defaultAccentColor"
+                  aria-label="Réinitialiser la couleur principale"
+                  title="Réinitialiser la couleur principale"
+                  (click)="resetAccentColorToDefault()"
+                >
+                  <lucide-icon [img]="RefreshCcwDotIcon" class="h-5 w-5"></lucide-icon>
+                </button>
+              </div>
 
               <p id="accentColorHelp" class="text-xs opacity-70">
                 Format attendu : <span class="font-semibold">#RRGGBB</span>. Exemple : {{ defaultAccentColor }}.
@@ -545,11 +558,11 @@
         </div>
 
         <h3 class="mt-4 text-xl font-bold">
-          Réinitialisation
+          Couleur par défaut
         </h3>
 
         <p class="mt-2 text-sm opacity-75">
-          Le bouton “Réinitialiser” remet la couleur dorée actuelle du portfolio, supprime le logo configuré et réactive l’affichage du logo au-dessus de la Hero section :
+          Le picto de reset placé à droite du champ couleur remet uniquement la couleur principale à cette valeur. Le logo et l’affichage Hero ne sont pas modifiés.
         </p>
 
         <div class="mt-5 rounded-3xl border border-border/70 bg-background/60 p-5">
