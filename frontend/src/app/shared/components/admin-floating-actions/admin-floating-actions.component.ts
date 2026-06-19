@@ -10,13 +10,30 @@ import { LucideAngularModule, SaveIcon } from 'lucide-angular';
     LucideAngularModule,
   ],
   template: `
-    <div class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+    <div 
+      class="sticky bottom-4 z-20 rounded-3xl p-4 shadow-soft backdrop-blur-xl transition-colors" 
+      [ngClass]="!highlight ? 'border-border/70' : ''"
+      [ngClass]="!highlight ? 'bg-background/90' : ''"
+      [class.border]="true"
+      [ngClass]="highlight ? 'border-amber-500/90' : ''"
+      [ngClass]="highlight ? 'bg-amber-500/10' : ''"
+    >
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm opacity-70">
-          {{ message }}
+
+        <p
+          class="text-sm transition-colors"
+          [class.opacity-70]="!highlight"
+          [class.font-semibold]="highlight"
+          [class.text-amber-600]="highlight"
+        >
+          {{ highlight
+            ? 'Pensez à enregistrer avant de quitter la page.'
+            : 'Aucune modification en attente.'
+          }}
         </p>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+
           <button
             type="button"
             class="inline-flex h-11 items-center justify-center rounded-full border border-border/70 px-6 text-sm font-semibold transition hover:bg-card disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
@@ -34,7 +51,7 @@ import { LucideAngularModule, SaveIcon } from 'lucide-angular';
             [disabled]="saveDisabled"
             (click)="saveClicked.emit()"
           >
-            <span *ngIf="!saveLoading" class="inline-flex items-center gap-2">
+            <span *ngIf="!saveLoading">
               {{ saveLabel }}
             </span>
 
@@ -42,6 +59,7 @@ import { LucideAngularModule, SaveIcon } from 'lucide-angular';
               {{ savingLabel }}
             </span>
           </button>
+
         </div>
       </div>
     </div>
@@ -50,7 +68,7 @@ import { LucideAngularModule, SaveIcon } from 'lucide-angular';
 export class AdminFloatingActionsComponent {
   readonly SaveIcon = SaveIcon;
 
-  @Input() message = 'Pensez à enregistrer avant de quitter la page.';
+  @Input() highlight = false;
 
   @Input() cancelLabel = 'Annuler';
   @Input() cancelDisabled = false;
@@ -60,7 +78,6 @@ export class AdminFloatingActionsComponent {
   @Input() saveLoading = false;
   @Input() saveDisabled = false;
   @Input() saveType: 'button' | 'submit' = 'submit';
-  @Input() showSaveIcon = true;
 
   @Output() cancelClicked = new EventEmitter<void>();
   @Output() saveClicked = new EventEmitter<void>();

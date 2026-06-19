@@ -83,14 +83,6 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-          <span
-            *ngIf="form.dirty && !isSubmitting"
-            class="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
-            aria-live="polite"
-          >
-            Modifications non enregistrées
-          </span>
-
           <app-primary-button
             type="button"
             [loading]="isTranslating"
@@ -285,6 +277,7 @@
     </div>
 
     <app-admin-floating-actions
+      [highlight]="form.dirty"
       [cancelDisabled]="!form.dirty || isSubmitting || isTranslating"
       [saveLoading]="isSubmitting"
       [saveDisabled]="!form.dirty || isSubmitting || isTranslating"

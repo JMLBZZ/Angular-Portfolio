@@ -45,13 +45,6 @@
         </p>
       </div>
 
-      <div
-        *ngIf="heroForm.dirty && !isSubmittingHero"
-        class="w-fit rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
-        aria-live="polite"
-      >
-        Modifications non enregistrées
-      </div>
     </div>
 
     <div
@@ -306,6 +299,7 @@
       </div>
 
       <app-admin-floating-actions
+      [highlight]="heroForm.dirty"
         [cancelDisabled]="!heroForm.dirty || isSubmittingHero || isTranslatingHero"
         [saveLoading]="isSubmittingHero"
         [saveDisabled]="!heroForm.dirty || isSubmittingHero || isTranslatingHero"
@@ -337,13 +331,6 @@
         </p>
       </div>
 
-      <div
-        *ngIf="heroCardForm.dirty && !isSubmittingHeroCard"
-        class="w-fit rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
-        aria-live="polite"
-      >
-        Modifications non enregistrées
-      </div>
     </div>
 
     <div
@@ -771,6 +758,7 @@
       </div>
 
       <app-admin-floating-actions
+      [highlight]="heroCardForm.dirty"
         [cancelDisabled]="!heroCardForm.dirty || isSubmittingHeroCard || isTranslatingHeroCard"
         [saveLoading]="isSubmittingHeroCard"
         [saveDisabled]="!heroCardForm.dirty || isSubmittingHeroCard || isTranslatingHeroCard"

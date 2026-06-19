@@ -1120,4 +1120,6 @@ export class AdminProjectFormComponent
 
     return `${label} dépasse la longueur maximale autorisée (${error.requiredLength} caractères).`;
   }
+
+  
 }

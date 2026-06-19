@@ -520,6 +520,7 @@
         </div>
 
         <app-admin-floating-actions
+          [highlight]="hasUnsavedChanges"
           [cancelDisabled]="isBusy || !hasUnsavedChanges"
           [saveLoading]="isSaving"
           [saveDisabled]="isBusy || !isAccentColorValid || !isLogoImageUrlValid || !isLogoSvgCodeValid || !hasUnsavedChanges"
