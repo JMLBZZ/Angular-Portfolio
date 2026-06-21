@@ -28,14 +28,6 @@
           Tu peux créer ou modifier un projet, gérer ses images, ses textes FR/EN, ses liens et son état de publication.
         </p>
       </div>
-
-      <div
-        *ngIf="form.dirty && !isSubmitting"
-        class="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-600"
-        aria-live="polite"
-      >
-        Modifications non enregistrées
-      </div>
     </div>
   </div>
 
@@ -712,10 +704,32 @@
     </div>
 
     <div 
-    class="sticky bottom-4 z-20 rounded-3xl border border-border/70 bg-background/90 p-4 shadow-soft backdrop-blur">
+  class="sticky bottom-4 z-20 rounded-3xl p-4 shadow-soft backdrop-blur transition-all duration-300"
+    [ngClass]="
+      form.dirty
+        ? 'border border-amber-500/40 bg-amber-500/10'
+        : 'border border-border/70 bg-background/90'
+    "
+    >
+
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p class="inline-flex items-center gap-2 text-sm opacity-70">
-          <lucide-icon [img]="SaveIcon" class="h-4 w-4 text-primary"></lucide-icon>
+        <p 
+        class="inline-flex items-center gap-2 text-sm transition-colors opacity-70"
+        [ngClass]="
+          form.dirty
+            ? 'text-amber-600'
+            : 'opacity-70'
+        "
+        >
+          <lucide-icon
+            [img]="SaveIcon"
+            class="h-4 w-4 transition-colors duration-300"
+            [ngClass]="
+              form.dirty
+                ? 'text-amber-600'
+                : 'text-primary'
+            ">
+          </lucide-icon>
           Pensez à enregistrer avant de quitter la page.
         </p>
 
